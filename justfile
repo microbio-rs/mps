@@ -19,7 +19,7 @@ ready:
 # use .ignore file getting the ignore list
 # Run `cargo watch`
 watch command:
-  cargo watch --no-vcs-ignores -i '*snap*' -x '{{command}}'
+  cargo watch --no-vcs-ignores -x '{{command}}'
 
 # Format all files
 fmt:
