@@ -8,6 +8,13 @@ use tracing::{error, info, instrument};
 
 const GITHUB_API_URL: &str = "https://api.github.com";
 
+// Enum para representar o tipo de entidade (usuário ou organização) no GitHub
+#[derive(Debug, Clone, Copy)]
+pub enum EntityType {
+    User,
+    Organization,
+}
+
 // Estrutura que representa o erro retornado pela API REST do GitHub
 #[derive(Debug, Deserialize, Error, Serialize)]
 pub struct GitHubAPIError {
@@ -39,10 +46,11 @@ pub struct GithubProvider {
     client: reqwest::Client,
     token: String,
     base_url: String,
+    entity_type: EntityType,
 }
 
 impl GithubProvider {
-    pub fn new(token: &str, base_url: &str) -> Self {
+    pub fn new(token: &str, base_url: &str, entity_type: EntityType) -> Self {
         // Configurar o tempo limite para a conexão e para a leitura da resposta
         let timeout = Duration::from_secs(10); // 10 segundos
         let mut headers = HeaderMap::new();
@@ -69,6 +77,7 @@ impl GithubProvider {
 
         GithubProvider {
             client,
+            entity_type,
             base_url: base_url.to_string(),
             token: token.to_string(),
         }
@@ -122,7 +131,10 @@ impl GithubProvider {
         &self,
         new_repo: NewRepository,
     ) -> Result<RepositoryResponse, GitHubError> {
-        let path = "/user/repos";
+         let path = match self.entity_type {
+            EntityType::User => "/user/repos",
+            EntityType::Organization => "/orgs/{org}/repos", // TOOD: fix this
+        };
         self.make_request(reqwest::Method::POST, path, Some(new_repo)).await
     }
 }
@@ -170,7 +182,7 @@ mod tests {
             .create();
 
         // Configura o GithubProvider com a URL do servidor mockito
-        let provider = GithubProvider::new("token", url.as_str());
+        let provider = GithubProvider::new("token", url.as_str(), EntityType::User);
 
         // Cria um novo repositório
         let new_repo = NewRepository { name: "test-repo".to_string() };
