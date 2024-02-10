@@ -158,15 +158,14 @@ pub struct RepositoryResponse {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::time::sleep;
 
     #[tokio::test]
     async fn test_create_github_repository_success() {
         let mut server = mockito::Server::new();
 
         // Use one of these addresses to configure your client
-        let host = server.host_with_port();
         let url = server.url();
+
         // Inicializa o servidor mockito
         let _m = server.mock("POST", "/user/repos")
             .with_status(201)
@@ -189,44 +188,54 @@ mod tests {
         assert_eq!(repository.html_url, "https://github.com/test/test-repo");
     }
 
-    // #[tokio::test]
-    // async fn test_create_github_repository_rate_limit_exceeded() {
-    //     // Inicializa o servidor mockito
-    //     let _m = mock("POST", "/user/repos")
-    //         .with_status(403)
-    //         .create();
+    #[tokio::test]
+    async fn test_create_github_repository_rate_limit_exceeded() {
+        let mut server = mockito::Server::new();
 
-    //     // Configura o GithubProvider com a URL do servidor mockito
-    //     let provider = GithubProvider::new("token", server_address().to_string().as_str());
+        // Use one of these addresses to configure your client
+        let url = server.url();
 
-    //     // Cria um novo repositório
-    //     let new_repo = NewRepository { name: "test-repo".to_string() };
-    //     let result = provider.create_github_repository(&new_repo).await;
+        // Inicializa o servidor mockito
+        let _m = server.mock("POST", "/user/repos")
+            .with_status(403)
+            .create();
 
-    //     // Verifica se o rate limit é detectado corretamente
-    //     assert!(result.is_err());
-    //     match result.unwrap_err() {
-    //         GitHubError::RateLimitExceeded => assert!(true),
-    //         _ => assert!(false, "Expected RateLimitExceeded error"),
-    //     }
-    // }
+        // Configura o GithubProvider com a URL do servidor mockito
+        let provider = GithubProvider::new("token", url.as_str(), EntityType::User);
 
-    // #[tokio::test]
-    // async fn test_create_github_repository_retry() {
-    //     // Inicializa o servidor mockito
-    //     let _m = mock("POST", "/user/repos")
-    //         .with_status(500)
-    //         .expect(2)
-    //         .create();
+        // Cria um novo repositório
+        let new_repo = NewRepository { name: "test-repo".to_string() };
+        let result = provider.create_github_repository(new_repo).await;
 
-    //     // Configura o GithubProvider com a URL do servidor mockito
-    //     let provider = GithubProvider::new("token", server_address().to_string().as_str());
+        // Verifica se o rate limit é detectado corretamente
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            GitHubError::RateLimitExceeded => assert!(true),
+            _ => assert!(false, "Expected RateLimitExceeded error"),
+        }
+    }
 
-    //     // Cria um novo repositório
-    //     let new_repo = NewRepository { name: "test-repo".to_string() };
-    //     let result = provider.create_github_repository(&new_repo).await;
+    #[tokio::test]
+    async fn test_create_github_repository_retry() {
+        let mut server = mockito::Server::new();
 
-    //     // Verifica se houve uma retentativa após um erro
-    //     assert!(result.is_err());
-    // }
+        // Use one of these addresses to configure your client
+        let url = server.url();
+
+        // Inicializa o servidor mockito
+        let _m = server.mock("POST", "/user/repos")
+            .with_status(500)
+            .expect(2)
+            .create();
+
+        // Configura o GithubProvider com a URL do servidor mockito
+        let provider = GithubProvider::new("token", url.as_str(), EntityType::User);
+
+        // Cria um novo repositório
+        let new_repo = NewRepository { name: "test-repo".to_string() };
+        let result = provider.create_github_repository(new_repo).await;
+
+        // Verifica se houve uma retentativa após um erro
+        assert!(result.is_err());
+    }
 }
