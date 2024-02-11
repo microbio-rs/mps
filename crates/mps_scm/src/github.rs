@@ -196,12 +196,11 @@ mod tests {
         let url = server.url();
 
         // Inicializa o servidor mockito
-        let _m = server.mock("POST", "/user/repos")
-            .with_status(403)
-            .create();
+        let _m = server.mock("POST", "/user/repos").with_status(403).create();
 
         // Configura o GithubProvider com a URL do servidor mockito
-        let provider = GithubProvider::new("token", url.as_str(), EntityType::User);
+        let provider =
+            GithubProvider::new("token", url.as_str(), EntityType::User);
 
         // Cria um novo repositório
         let new_repo = NewRepository { name: "test-repo".to_string() };
@@ -223,13 +222,15 @@ mod tests {
         let url = server.url();
 
         // Inicializa o servidor mockito
-        let _m = server.mock("POST", "/user/repos")
+        let _m = server
+            .mock("POST", "/user/repos")
             .with_status(500)
             .expect(2)
             .create();
 
         // Configura o GithubProvider com a URL do servidor mockito
-        let provider = GithubProvider::new("token", url.as_str(), EntityType::User);
+        let provider =
+            GithubProvider::new("token", url.as_str(), EntityType::User);
 
         // Cria um novo repositório
         let new_repo = NewRepository { name: "test-repo".to_string() };
