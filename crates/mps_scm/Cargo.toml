@@ -30,7 +30,7 @@ doctest = false
 default = []
 
 [dev-dependencies]
-mockall.workspace = true
-mockito.workspace = true
+mockall.workspace  = true
+mockito.workspace  = true
 tempfile.workspace = true
-tokio             = { workspace = true, features = ["time", "macros"] }
+tokio              = { workspace = true, features = ["time", "macros"] }

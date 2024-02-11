@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use git2::{Repository, Signature, Error};
 use color_eyre::eyre::Result;
+use git2::{Error, Repository, Signature};
 
 struct LocalProvider;
 
@@ -39,7 +39,11 @@ impl LocalProvider {
         Ok(())
     }
 
-    fn clone_repository_with_ssh(url: &str, username: &str, ssh_key_path: &str) -> Result<Repository> {
+    fn clone_repository_with_ssh(
+        url: &str,
+        username: &str,
+        ssh_key_path: &str,
+    ) -> Result<Repository> {
         let mut callbacks = git2::RemoteCallbacks::new();
         callbacks.credentials(move |url, username, _| {
             let username = username.unwrap_or("git");
@@ -122,4 +126,3 @@ mod tests {
     //     fs::remove_dir_all("cloned_repo").unwrap(); // Clean up
     // }
 }
-
