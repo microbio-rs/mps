@@ -34,6 +34,8 @@ thiserror          = "1.0.56"
 tokio              = "1.36.0"
 tracing            = "0.1.40"
 tracing-subscriber = "0.3.18"
+git2               = "0.18.2"
+tempfile = "3.10.0"
 
 [profile.release]
 # Configurations explicitly listed here for clarity.
