@@ -25,7 +25,7 @@ serde_json.workspace = true
 thiserror.workspace  = true
 tonic.workspace      = true
 tracing.workspace    = true
-tokio              = { workspace = true, features = ["rt-multi-thread", "macros"] }
+tokio                = { workspace = true, features = ["rt-multi-thread", "macros"] }
 
 [lints]
 workspace = true
@@ -34,8 +34,9 @@ workspace = true
 doctest = false
 
 [features]
-default = ["grpc_server"]
-grpc_server  = []
+default     = ["grpc_server"]
+grpc_server = []
+grpc_client = []
 
 [dev-dependencies]
 mockall.workspace  = true
