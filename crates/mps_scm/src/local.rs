@@ -19,23 +19,28 @@ use git2::{Error, Repository, Signature};
 struct LocalProvider;
 
 impl LocalProvider {
-    fn create_repository(name: &str) -> Result<Repository> {
+    pub fn create_repository(name: &str) -> Result<Repository> {
         let repo = Repository::init(name)?;
         Ok(repo)
     }
 
-    fn setup_main_branch(repo: &Repository) -> Result<()> {
-        let head = repo.head()?;
-        let head_commit = repo.find_commit(head.target().unwrap())?;
+    // pub fn setup_main_branch(repo: &Repository) -> Result<()> {
+    //     let head = repo.head()?;
+    //     let head_commit = head.peel_to_commit()?;
+    //     // let head_commit = repo.find_commit(head.target().unwrap())?;
 
-        // Create main branch
-        repo.branch("main", &head_commit, false)?;
+    //     // Create main branch
+    //     // repo.branch("main", &head_commit, false)?;
+    //     let branch_ref = repo.branch("main", &head_commit, false)?;
 
-        Ok(())
-    }
+    //     // Move a HEAD para a nova branch
+    //     repo.set_head(branch_ref.name().unwrap().unwrap())?;
 
-    fn initial_commit(repo: &Repository) -> Result<()> {
-        let signature = Signature::now("John Doe", "john@example.com")?;
+    //     Ok(())
+    // }
+
+    pub fn initial_commit(repo: &Repository) -> Result<()> {
+        let signature = Signature::now("Mps", "mps@mps.com")?;
         let tree_id = repo.index()?.write_tree()?;
         let tree = repo.find_tree(tree_id)?;
 
@@ -58,7 +63,7 @@ impl LocalProvider {
         ssh_key_path: &str,
     ) -> Result<Repository> {
         let mut callbacks = git2::RemoteCallbacks::new();
-        callbacks.credentials(move |url, username, _| {
+        callbacks.credentials(move |_url, username, _| {
             let username = username.unwrap_or("git");
             git2::Cred::ssh_key(
                 username,
@@ -99,29 +104,34 @@ mod tests {
 
     // #[test]
     // fn test_setup_main_branch() {
-    //     let repo = Repository::init("test_repo").unwrap();
+    //     let temp_dir = tempdir().expect("Failed to create temporary directory");
+    //     let repo_name = temp_dir.path().to_str().unwrap();
+    //     let repo = Repository::init(repo_name).unwrap();
     //     let result = LocalProvider::setup_main_branch(&repo);
-    //     assert!(result.is_ok());
+    //     result.unwrap();
+    //     // assert!(result.is_ok());
 
     //     let head = repo.head().unwrap();
     //     let branch_name = head.shorthand().unwrap();
     //     assert_eq!(branch_name, "main");
 
-    //     fs::remove_dir_all("test_repo").unwrap(); // Clean up
+    //     temp_dir.close().unwrap();
     // }
 
-    // #[test]
-    // fn test_initial_commit() {
-    //     let repo = Repository::init("test_repo").unwrap();
-    //     let result = LocalProvider::initial_commit(&repo);
-    //     assert!(result.is_ok());
+    #[test]
+    fn test_initial_commit() {
+        let temp_dir = tempdir().expect("Failed to create temporary directory");
+        let repo_name = temp_dir.path().to_str().unwrap();
+        let repo = Repository::init(repo_name).unwrap();
+        let result = LocalProvider::initial_commit(&repo);
+        assert!(result.is_ok());
 
-    //     let head = repo.head().unwrap();
-    //     let commit = repo.find_commit(head.target().unwrap()).unwrap();
-    //     assert_eq!(commit.message().unwrap(), "init commit");
+        let head = repo.head().unwrap();
+        let commit = repo.find_commit(head.target().unwrap()).unwrap();
+        assert_eq!(commit.message().unwrap(), "init commit");
 
-    //     fs::remove_dir_all("test_repo").unwrap(); // Clean up
-    // }
+        temp_dir.close().unwrap();
+    }
 
     // #[test]
     // fn test_clone_repository_with_ssh() {
