@@ -14,7 +14,7 @@
 use std::path::Path;
 
 use color_eyre::eyre::Result;
-use git2::{Error, Repository, Signature};
+use git2::{Repository, Signature};
 
 struct LocalProvider;
 
@@ -59,7 +59,7 @@ impl LocalProvider {
 
     fn clone_repository_with_ssh(
         url: &str,
-        username: &str,
+        _username: &str,
         ssh_key_path: &str,
     ) -> Result<Repository> {
         let mut callbacks = git2::RemoteCallbacks::new();
