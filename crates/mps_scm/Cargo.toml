@@ -11,14 +11,21 @@ license.workspace      = true
 repository.workspace   = true
 rust-version.workspace = true
 
+[[bin]]
+name = "grpc_server"
+path = "src/bin/grpc_server.rs"
+
 [dependencies]
 color-eyre.workspace = true
 git2.workspace       = true
+prost                = "0.12.3"
 reqwest              = { version = "0.11.24", features = ["json"] }
 serde                = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
 thiserror.workspace  = true
+tonic.workspace      = true
 tracing.workspace    = true
+tokio              = { workspace = true, features = ["rt-multi-thread", "macros"] }
 
 [lints]
 workspace = true
@@ -27,10 +34,13 @@ workspace = true
 doctest = false
 
 [features]
-default = []
+default = ["grpc_server"]
+grpc_server  = []
 
 [dev-dependencies]
 mockall.workspace  = true
 mockito.workspace  = true
 tempfile.workspace = true
-tokio              = { workspace = true, features = ["macros"] }
+
+[build-dependencies]
+tonic-build = "0.11.0"

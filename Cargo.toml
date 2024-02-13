@@ -36,6 +36,7 @@ tracing            = "0.1.40"
 tracing-subscriber = "0.3.18"
 git2               = "0.18.2"
 tempfile           = "3.10.0"
+tonic              = "0.11.0"
 
 [profile.release]
 # Configurations explicitly listed here for clarity.
