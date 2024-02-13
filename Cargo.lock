@@ -714,6 +714,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mps_im"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "mps_scm"
 version = "0.1.0"
 dependencies = [
