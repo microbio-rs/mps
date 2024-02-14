@@ -1,6 +1,9 @@
 #
 # scm config
 #
+[mps_scm]
+path = "/tmp"
+
 [mps_scm.grpc_server]
 ip = "0.0.0.0"
 port = "50051"
