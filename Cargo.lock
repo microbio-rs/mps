@@ -863,7 +863,10 @@ dependencies = [
 name = "mps_cli"
 version = "0.1.0"
 dependencies = [
+ "color-eyre",
  "jemallocator",
+ "mps_scm",
+ "tokio",
  "tracing-subscriber",
 ]
 

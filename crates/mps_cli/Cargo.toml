@@ -23,7 +23,10 @@ path = "src/main.rs"
 test = false
 
 [dependencies]
-tracing-subscriber = { workspace = true, features = ["env-filter"] }
+mps_scm              = { version = "0.1.0", path = "../mps_scm", features = ["grpc_client"], default-features = false }
+tracing-subscriber   = { workspace = true, features = ["env-filter"] }
+tokio                = { workspace = true, features = ["rt-multi-thread", "macros"] }
+color-eyre.workspace = true
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { workspace = true }
