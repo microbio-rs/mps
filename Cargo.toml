@@ -24,7 +24,6 @@ unimplemented = "warn"
 [workspace.dependencies]
 async-trait        = "0.1.77"
 color-eyre         = "0.6.2"
-config             = "0.14.0"
 git2               = "0.18.2"
 jemallocator       = "0.5.4"
 mockall            = "0.12.1"
