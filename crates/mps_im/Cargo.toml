@@ -27,4 +27,4 @@ doctest = false
 default = []
 
 [dev-dependencies]
-tokio              = { workspace = true, features = ["macros"] }
+tokio = { workspace = true, features = ["macros"] }
