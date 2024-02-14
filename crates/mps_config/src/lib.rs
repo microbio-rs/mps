@@ -17,17 +17,12 @@ use thiserror::Error;
 use tracing::{debug, error, info};
 
 #[derive(Debug, Error)]
-pub enum AppConfigError<E>
-where
-    E: std::fmt::Debug + std::fmt::Display + 'static,
-{
+pub enum AppConfigError {
     #[error("Failed to load configuration: {0}")]
-    Load(#[from] E),
+    Load(#[from] config::ConfigError),
 }
 
-pub fn load<T>(
-    config_path: &str,
-) -> Result<T, AppConfigError<config::ConfigError>>
+pub fn load<T>(config_path: &str) -> Result<T, AppConfigError>
 where
     T: DeserializeOwned + std::fmt::Debug,
 {
