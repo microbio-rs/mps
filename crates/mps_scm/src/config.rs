@@ -1,7 +1,6 @@
 use serde::Deserialize;
 
 use super::github;
-use mps_config::{load, AppConfigError};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct MpsScmConfig {
@@ -9,7 +8,7 @@ pub struct MpsScmConfig {
 }
 
 impl MpsScmConfig {
-    pub fn load(config_path: &str) -> Result<Self, AppConfigError> {
-        Ok(load(config_path)?)
+    pub fn load(config_path: &str) -> Result<Self, mps_config::AppConfigError> {
+        Ok(mps_config::load(config_path)?)
     }
 }

@@ -916,6 +916,7 @@ version = "0.1.0"
 dependencies = [
  "color-eyre",
  "git2",
+ "jemallocator",
  "mockall",
  "mockito",
  "mps_config",
@@ -929,6 +930,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

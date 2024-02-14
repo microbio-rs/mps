@@ -32,8 +32,8 @@ pub struct GithubConfig {
 }
 
 impl GithubConfig {
-    fn timeout(&self) -> std::time::Duration {
-        std::time::Duration::from_secs(self.timeout)
+    fn timeout(&self) -> time::Duration {
+        time::Duration::from_secs(self.timeout)
     }
 }
 

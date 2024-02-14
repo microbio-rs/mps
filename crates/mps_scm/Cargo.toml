@@ -11,22 +11,20 @@ license.workspace      = true
 repository.workspace   = true
 rust-version.workspace = true
 
-[[bin]]
-name = "grpc_server"
-path = "src/bin/grpc_server.rs"
-
 [dependencies]
-color-eyre.workspace = true
-git2.workspace       = true
-prost                = "0.12.3"
-reqwest              = { version = "0.11.24", features = ["json"] }
-serde                = { workspace = true, features = ["derive"] }
-serde_json.workspace = true
-thiserror.workspace  = true
-tonic.workspace      = true
-tracing.workspace    = true
-tokio                = { workspace = true, features = ["rt-multi-thread", "macros"] }
-mps_config           = { version = "0.1.0", path = "../mps_config" }
+color-eyre.workspace   = true
+git2.workspace         = true
+prost                  = "0.12.3"
+reqwest                = { version = "0.11.24", features = ["json"] }
+serde                  = { workspace = true, features = ["derive"] }
+serde_json.workspace   = true
+thiserror.workspace    = true
+tonic.workspace        = true
+tracing.workspace      = true
+tokio                  = { workspace = true, features = ["rt-multi-thread", "macros"] }
+mps_config             = { version = "0.1.0", path = "../mps_config" }
+jemallocator.workspace = true
+tracing-subscriber     = { workspace = true, features = ["env-filter"] }
 
 [lints]
 workspace = true
@@ -34,8 +32,13 @@ workspace = true
 [lib]
 doctest = false
 
+[[bin]]
+name = "mps_scm"
+path = "src/main.rs"
+test = false
+
 [features]
-default     = ["grpc_server"]
+default     = ["grpc_client", "grpc_server"]
 grpc_server = []
 grpc_client = []
 
