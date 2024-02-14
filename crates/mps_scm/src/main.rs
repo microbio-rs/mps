@@ -35,6 +35,13 @@ async fn main() -> Result<()> {
     let result = provider.create_github_repository(new_repo).await;
     println!("{:?}", result);
 
+    // TODO: clone sample repo
+    // TODO: render template files and write it into filesystem
+    // TODO: create ecr repository
+    // TODO: push files to new repo
+    // TODO: update manifest k8s (dev,prod)
+    // TODO: get url load balancer
+
     Ok(())
 }
 
