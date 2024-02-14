@@ -13,8 +13,8 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 use color_eyre::eyre::Result;
 
-use mps_scm::grpc::client::{
-    self,
+use mps_scm::grpc::{
+    client,
     scm::{CreateRepoRequest, Provider},
 };
 

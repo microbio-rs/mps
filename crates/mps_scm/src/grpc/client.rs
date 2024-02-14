@@ -1,9 +1,5 @@
-use scm::scm_client::ScmClient;
-use scm::CreateRepoRequest;
-
-pub mod scm {
-    tonic::include_proto!("scm");
-}
+use super::scm::scm_client::ScmClient;
+use super::scm::CreateRepoRequest;
 
 pub async fn create_repo(
     request: CreateRepoRequest,

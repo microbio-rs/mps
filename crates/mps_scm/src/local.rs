@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 // Copyright (c) 2023 Murilo Ijanc' <mbsd@m0x.ru>
 //
 // Permission to use, copy, modify, and distribute this software for any
