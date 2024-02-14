@@ -12,4 +12,4 @@ microbe platform system
 [0]: ./crates/mps_cli/README.md
 [1]: ./crates/mps_scm/README.md
 [2]: ./crates/mps_im/README.md
-[3] ./crates/mps_config/README.md
+[3]: ./crates/mps_config/README.md
