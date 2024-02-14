@@ -21,8 +21,37 @@ use tracing::{error, info, instrument};
 
 const GITHUB_API_URL: &str = "https://api.github.com";
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct GithubConfig {
+    pub owner: String,
+    pub entity_type: EntityType,
+    pub token: String,
+    pub timeout: u64,
+    pub max_retry: u64,
+    pub base_url: Option<String>,
+}
+
+impl GithubConfig {
+    fn timeout(&self) -> std::time::Duration {
+        std::time::Duration::from_secs(self.timeout)
+    }
+}
+
+impl Default for GithubConfig {
+    fn default() -> Self {
+        Self {
+            owner: "owner".into(),
+            entity_type: EntityType::User,
+            token: "".into(),
+            timeout: 10,
+            max_retry: 3,
+            base_url: None,
+        }
+    }
+}
+
 // Enum para representar o tipo de entidade (usuário ou organização) no GitHub
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
 pub enum EntityType {
     User,
     Organization,
@@ -57,14 +86,12 @@ pub enum GitHubError {
 #[derive(Debug)]
 pub struct GithubProvider {
     client: reqwest::Client,
-    base_url: String,
-    entity_type: EntityType,
+    config: GithubConfig,
 }
 
 impl GithubProvider {
-    pub fn new(token: &str, base_url: &str, entity_type: EntityType) -> Self {
+    pub fn new(config: GithubConfig) -> Self {
         // Configurar o tempo limite para a conexão e para a leitura da resposta
-        let timeout = time::Duration::from_secs(10); // 10 segundos
         let mut headers = HeaderMap::new();
         headers.insert(
             reqwest::header::USER_AGENT,
@@ -77,17 +104,17 @@ impl GithubProvider {
         );
         headers.insert(
             reqwest::header::AUTHORIZATION,
-            HeaderValue::from_str(&format!("token {}", token))
+            HeaderValue::from_str(&format!("token {}", &config.token))
                 .expect("Invalid token"),
         );
 
         let client = reqwest::Client::builder()
-            .timeout(timeout)
+            .timeout(config.timeout())
             .default_headers(headers)
             .build()
             .expect("Failed to create reqwest client");
 
-        GithubProvider { client, entity_type, base_url: base_url.to_string() }
+        GithubProvider { client, config }
     }
 
     #[instrument]
@@ -101,7 +128,15 @@ impl GithubProvider {
         T: Serialize + fmt::Debug,
         R: for<'de> Deserialize<'de> + fmt::Debug,
     {
-        let url = format!("{}{}", self.base_url, path);
+        let url = format!(
+            "{}{}",
+            self.config
+                .base_url
+                .clone()
+                .unwrap_or(GITHUB_API_URL.to_string())
+                .as_str(),
+            path
+        );
         let mut request_builder = self.client.request(method, url);
 
         if let Some(payload) = payload {
@@ -129,7 +164,10 @@ impl GithubProvider {
     }
 
     pub async fn get_rate_limit(&self) -> Result<RateLimit, GitHubError> {
-        let url = format!("{}/rate_limit", GITHUB_API_URL);
+        let url = format!(
+            "{}/rate_limit",
+            self.config.base_url.clone().unwrap_or(GITHUB_API_URL.to_string())
+        );
         self.make_request::<RateLimit, ()>(reqwest::Method::GET, &url, None)
             .await
     }
@@ -138,11 +176,13 @@ impl GithubProvider {
         &self,
         new_repo: NewRepository,
     ) -> Result<RepositoryResponse, GitHubError> {
-        let path = match self.entity_type {
-            EntityType::User => "/user/repos",
-            EntityType::Organization => "/orgs/{org}/repos", // TOOD: fix this
+        let path: String = match self.config.entity_type {
+            EntityType::User => "/user/repos".into(),
+            EntityType::Organization => {
+                format!("/orgs/{org}/repos", org = self.config.owner)
+            }
         };
-        self.make_request(reqwest::Method::POST, path, Some(new_repo)).await
+        self.make_request(reqwest::Method::POST, &path, Some(new_repo)).await
     }
 }
 
@@ -158,7 +198,6 @@ pub struct RateLimit {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NewRepository {
     pub name: String,
-    // Outros campos opcionais podem ser adicionados aqui, como descrição, visibilidade, etc.
 }
 
 // Struct para representar a resposta da API do GitHub ao criar um repositório
@@ -187,8 +226,9 @@ mod tests {
             .create();
 
         // Configura o GithubProvider com a URL do servidor mockito
-        let provider =
-            GithubProvider::new("token", url.as_str(), EntityType::User);
+        let mut config = GithubConfig::default();
+        config.base_url = Some(url.clone());
+        let provider = GithubProvider::new(config);
 
         // Cria um novo repositório
         let new_repo = NewRepository { name: "test-repo".to_string() };
@@ -212,8 +252,9 @@ mod tests {
         let _m = server.mock("POST", "/user/repos").with_status(403).create();
 
         // Configura o GithubProvider com a URL do servidor mockito
-        let provider =
-            GithubProvider::new("token", url.as_str(), EntityType::User);
+        let mut config = GithubConfig::default();
+        config.base_url = Some(url.clone());
+        let provider = GithubProvider::new(config);
 
         // Cria um novo repositório
         let new_repo = NewRepository { name: "test-repo".to_string() };
@@ -242,8 +283,9 @@ mod tests {
             .create();
 
         // Configura o GithubProvider com a URL do servidor mockito
-        let provider =
-            GithubProvider::new("token", url.as_str(), EntityType::User);
+        let mut config = GithubConfig::default();
+        config.base_url = Some(url.clone());
+        let provider = GithubProvider::new(config);
 
         // Cria um novo repositório
         let new_repo = NewRepository { name: "test-repo".to_string() };

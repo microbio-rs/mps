@@ -26,6 +26,7 @@ thiserror.workspace  = true
 tonic.workspace      = true
 tracing.workspace    = true
 tokio                = { workspace = true, features = ["rt-multi-thread", "macros"] }
+mps_config           = { version = "0.1.0", path = "../mps_config" }
 
 [lints]
 workspace = true

@@ -19,9 +19,11 @@ timeout     = 10
 slack_queue = "slack_queue"
 
 [mps_scm.github]
-token     = ""
-timeout   = 10
-max_retry = 3
+owner       = "user"
+entity_type = "user" # "organization"
+token       = ""
+timeout     = 10
+max_retry   = 3
 
 #
 # im config
