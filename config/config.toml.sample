@@ -6,16 +6,21 @@ path = "/tmp"
 
 [mps_scm.grpc_server]
 ip = "0.0.0.0"
-port = "50051"
+port = 50051
 
 [mps_scm.database]
 uri = "postgres://postgres:postgres@0.0.0.0:5432/mps_scm"
+timeout = 10
+max_pool = 10
 
 [mps_scm.amqp]
 uri = "amqp://guest:guest@0.0.0.0:5672"
+timeout = 10
 
 [mps_scm.github]
 token = ""
+timeout = 10
+max_retry = 3
 
 #
 # im config
