@@ -13,7 +13,7 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 use color_eyre::eyre::Result;
 
-use mps_scm::{config::MpsScmConfig, github};
+use mps_scm::{config::MpsScmConfig, github, local};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -28,14 +28,22 @@ async fn main() -> Result<()> {
     let scm_config = MpsScmConfig::load("./crates/mps_scm/config.toml")?;
 
     // init a github provider
-    let provider = github::GithubProvider::new(scm_config.github.clone());
+    let _provider = github::GithubProvider::new(scm_config.github.clone());
 
-    // create repo
+    //TODO: create github repo
     let new_repo = github::NewRepository { name: "test-repo".to_string() };
-    let result = provider.create_github_repository(new_repo).await;
-    println!("{:?}", result);
+    // let result = provider.create_github_repository(new_repo).await;
+    // println!("{:?}", result);
 
     // TODO: clone sample repo
+    let output = format!(
+        "{path}/{owner}/{repo_name}",
+        path = &scm_config.path,
+        owner = &scm_config.github.owner,
+        repo_name = &new_repo.name
+    );
+    let sample_repo =
+        local::LocalProvider::clone(&scm_config.sample_repo, &output);
     // TODO: render template files and write it into filesystem
     // TODO: create ecr repository
     // TODO: push files to new repo

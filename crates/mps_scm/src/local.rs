@@ -12,12 +12,12 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use std::path::Path;
-
 use color_eyre::eyre::Result;
 use git2::{Repository, Signature};
 
-struct LocalProvider;
+use tracing::debug;
+
+pub struct LocalProvider;
 
 impl LocalProvider {
     pub fn create_repository(name: &str) -> Result<Repository> {
@@ -58,28 +58,10 @@ impl LocalProvider {
         Ok(())
     }
 
-    fn clone_repository_with_ssh(
-        url: &str,
-        _username: &str,
-        ssh_key_path: &str,
-    ) -> Result<Repository> {
-        let mut callbacks = git2::RemoteCallbacks::new();
-        callbacks.credentials(move |_url, username, _| {
-            let username = username.unwrap_or("git");
-            git2::Cred::ssh_key(
-                username,
-                None,
-                std::path::Path::new(ssh_key_path),
-                None,
-            )
-        });
-
-        let mut fetch_options = git2::FetchOptions::new();
-        fetch_options.remote_callbacks(callbacks);
-
-        // let repo = Repository::clone(url, Path::new("cloned_repo"), &fetch_options)?;
-        let repo = Repository::clone(url, Path::new("cloned_repo"))?;
-
+    pub fn clone(url: &str, to: &str) -> Result<Repository> {
+        debug!("cloning repo from {} to {}", url, to);
+        let repo = Repository::clone(url, to)?;
+        debug!("repo cloned {} to {}", url, to);
         Ok(repo)
     }
 }

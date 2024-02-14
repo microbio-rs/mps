@@ -4,6 +4,8 @@ use super::github;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct MpsScmConfig {
+    pub path: String,
+    pub sample_repo: String,
     pub github: github::GithubConfig,
 }
 
