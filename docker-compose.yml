@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.8-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"  # Porta para acesso aos clientes
+      - "15672:15672"  # Porta para acesso ao painel de controle
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"  # Usuário padrão do RabbitMQ
+      RABBITMQ_DEFAULT_PASS: "guest"  # Senha padrão do RabbitMQ
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  # Volume para dados persistentes
+
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    ports:
+      - "5432:5432"  # Porta padrão do PostgreSQL
+    environment:
+      POSTGRES_USER: "postgres"  # Usuário padrão do PostgreSQL
+      POSTGRES_PASSWORD: "postgres"  # Senha padrão do PostgreSQL
+      POSTGRES_DB: "mps"  # Nome do banco de dados a ser criado
+    volumes:
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro  # Arquivo SQL de inicialização
+      - postgres_data:/var/lib/postgresql/data  # Volume para dados persistentes do PostgreSQL
+
+volumes:
+  rabbitmq_data:
+  postgres_data:
+
