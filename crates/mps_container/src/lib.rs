@@ -177,6 +177,7 @@ async fn build_image(docker: &Docker, id: &str, dockerfile_content: &str) {
 mod tests {
     use super::*;
 
+    #[ignore]
     #[tokio::test]
     async fn docker_push_image() {
         let client = docker_connect().await;
@@ -184,12 +185,14 @@ mod tests {
         assert!(true);
     }
 
+    #[ignore]
     #[tokio::test]
     async fn aws_ecr_credential() {
         let _credential = get_credential().await;
         assert!(true);
     }
 
+    #[ignore]
     #[tokio::test]
     async fn docker_build_image() {
         let client = docker_connect().await;
