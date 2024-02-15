@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 // Copyright (c) 2023 Murilo Ijanc' <mbsd@m0x.ru>
 //
 // Permission to use, copy, modify, and distribute this software for any
@@ -14,8 +15,8 @@
 use color_eyre::eyre::Result;
 
 use mps_scm::{
-    github,
     config::MpsScmConfig,
+    github,
     grpc::{
         client,
         scm::{CreateRepoRequest, Provider},
@@ -31,8 +32,7 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
     init_tracing();
 
-    let scm_config =
-        MpsScmConfig::load("./crates/mps_scm/config/config.toml")?;
+    let scm_config = MpsScmConfig::load("./crates/mps_scm/config/config.toml")?;
 
     let provider = github::GithubProvider::new(scm_config.github.clone());
     let new_repo = github::NewRepository { name: "test-repo".to_string() };

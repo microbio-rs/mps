@@ -12,13 +12,14 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use color_eyre::eyre::Result;
 use std::path::Path;
 
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_ecr::{Client, Config};
-use mps_scm::{config::MpsScmConfig, ecr, github, local};
+use color_eyre::eyre::Result;
 use tracing::{debug, info, instrument};
+
+use mps_scm::{config::MpsScmConfig, ecr, github, local};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -42,19 +43,19 @@ async fn main() -> Result<()> {
     //
     // create github repo
     //
-    let new_repo = github::NewRepository { name: "test-repo".to_string() };
+    // let new_repo = github::NewRepository { name: "test-repo".to_string() };
     // let result = provider.create_github_repository(new_repo).await;
     // println!("{:?}", result);
 
     //
     // clone sample repo
     //
-    let _output = format!(
-        "{path}/{owner}/{repo_name}",
-        path = &scm_config.path,
-        owner = &scm_config.github.owner,
-        repo_name = &new_repo.name
-    );
+    // let _output = format!(
+    //     "{path}/{owner}/{repo_name}",
+    //     path = &scm_config.path,
+    //     owner = &scm_config.github.owner,
+    //     repo_name = &new_repo.name
+    // );
     // let sample_repo =
     //     local::LocalProvider::clone(&scm_config.sample_repo, &output);
     // let git_dir = format!("{output}/.git", output=&output);
@@ -86,15 +87,18 @@ async fn main() -> Result<()> {
     // mps_container: build dockerfile, push docker image to registry
     //
 
+    //
     // mps_scm: init, commit, push files to git repo
     //
-    local::icp(
-        "/tmp/murilobsd/test-repo",
-        "git@github.com:murilobsd/test-repo.git",
-        "git",
-        Path::new("/home/user/.ssh/mykey"),
-    )?;
-    // mps_orchestration TODO: update manifest k8s (dev,prod)
+    // local::icp(
+    //     "/tmp/murilobsd/test-repo",
+    //     "git@github.com:murilobsd/test-repo.git",
+    //     "git",
+    //     Path::new("/home/user/.ssh/mykey"),
+    // )?;
+
+    //
+    // mps_orchestration: create manifest k8s (dev,prod) (deploy,service,namespace,ingress)
     // mps_orchestration TODO: get url load balancer
 
     Ok(())

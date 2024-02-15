@@ -16,8 +16,7 @@ use std::path::Path;
 
 use color_eyre::eyre::Result;
 use git2::{
-    Error, IndexAddOption, PushOptions, RemoteCallbacks, Repository,
-    Signature,
+    Error, IndexAddOption, PushOptions, RemoteCallbacks, Repository, Signature,
 };
 
 use tracing::{debug, info};
