@@ -12,7 +12,7 @@ repository.workspace   = true
 rust-version.workspace = true
 
 [dependencies]
-mps_config             = { version = "0.1.0", path = "../mps_config" }
+mps_config = { version = "0.1.0", path = "../mps_config" }
 
 aws-config.workspace   = true
 aws-sdk-ecr.workspace  = true

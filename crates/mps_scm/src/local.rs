@@ -12,10 +12,15 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use color_eyre::eyre::Result;
-use git2::{Repository, Signature};
+use std::path::Path;
 
-use tracing::debug;
+use color_eyre::eyre::Result;
+use git2::{
+    Commit, Error, IndexAddOption, PushOptions, RemoteCallbacks, Repository,
+    Signature,
+};
+
+use tracing::{debug, info};
 
 pub struct LocalProvider;
 
@@ -64,6 +69,63 @@ impl LocalProvider {
         debug!("repo cloned {} to {}", url, to);
         Ok(repo)
     }
+}
+
+// init, commit, push
+pub fn icp(
+    repo_path: &str,
+    repo_url: &str,
+    user: &str,
+    ssh_priv_key_path: &Path,
+) -> Result<(), Error> {
+    // Inicializa um novo repositório Git ou abre um existente
+    let repo = Repository::init(repo_path)?;
+    info!("Repositório Git inicializado com sucesso em {}", repo_path);
+
+    // Adiciona todos os arquivos ao staging
+    let mut index = repo.index()?;
+    index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
+    let oid = index.write_tree()?;
+    let tree = repo.find_tree(oid)?;
+
+    // Realiza o commit inicial
+    // let signature = repo.signature()?;
+    // let parent_commit = None as Option<&Commit>;
+    let signature = Signature::now("mps", "mps@mps.com")?;
+    // let parent_commit = None as Option<&Commit>;
+    // let parent_commit = repo.find_reference("")?.peel_to_commit()?;
+    let commit_id = repo.commit(
+        Some("HEAD"), // Atualiza a cabeça (HEAD)
+        &signature,
+        &signature,
+        "Initial commit",
+        &tree,
+        &[],
+    )?;
+
+    info!("Commit inicial realizado com sucesso. ID: {}", commit_id);
+
+    // Configura as credenciais para o envio ao repositório remoto
+    let mut remote_callbacks = RemoteCallbacks::new();
+    remote_callbacks.credentials(|_url, _username, _allowed| {
+        let credentials =
+            git2::Cred::ssh_key(user, None, ssh_priv_key_path, None);
+        credentials
+    });
+
+    // Adiciona um novo remoto
+    let mut remote = repo.remote("origin", repo_url)?;
+
+    // Cria opções de envio
+    let mut push_options = PushOptions::new();
+    push_options.remote_callbacks(remote_callbacks);
+
+    // Realiza o push para o repositório remoto
+    remote
+        .push(&["refs/heads/main:refs/heads/main"], Some(&mut push_options))?;
+
+    info!("Push realizado com sucesso!");
+    Ok(())
 }
 
 #[cfg(test)]

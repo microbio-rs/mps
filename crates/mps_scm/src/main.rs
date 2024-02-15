@@ -12,6 +12,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 use color_eyre::eyre::Result;
+use std::path::Path;
 
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_ecr::{Client, Config};
@@ -83,9 +84,17 @@ async fn main() -> Result<()> {
 
     // mps_container: build dockerfile
     // mps_container: push docker image to registry
-    // TODO: push files to git repo
-    // TODO: update manifest k8s (dev,prod)
-    // TODO: get url load balancer
+    //
+    // mps_scm TODO: init, commit, push files to git repo
+    //
+    local::icp(
+        "/tmp/murilobsd/test-repo",
+        "git@github.com:murilobsd/test-repo.git",
+        "git",
+        Path::new("/home/user/.ssh/mykey"),
+    )?;
+    // mps_scm TODO: update manifest k8s (dev,prod)
+    // mps_scm TODO: get url load balancer
 
     Ok(())
 }
