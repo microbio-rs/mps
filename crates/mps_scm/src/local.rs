@@ -16,7 +16,7 @@ use std::path::Path;
 
 use color_eyre::eyre::Result;
 use git2::{
-    Commit, Error, IndexAddOption, PushOptions, RemoteCallbacks, Repository,
+    Error, IndexAddOption, PushOptions, RemoteCallbacks, Repository,
     Signature,
 };
 
@@ -89,11 +89,7 @@ pub fn icp(
     let tree = repo.find_tree(oid)?;
 
     // Realiza o commit inicial
-    // let signature = repo.signature()?;
-    // let parent_commit = None as Option<&Commit>;
     let signature = Signature::now("mps", "mps@mps.com")?;
-    // let parent_commit = None as Option<&Commit>;
-    // let parent_commit = repo.find_reference("")?.peel_to_commit()?;
     let commit_id = repo.commit(
         Some("HEAD"), // Atualiza a cabeça (HEAD)
         &signature,

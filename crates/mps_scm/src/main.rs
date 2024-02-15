@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 // Copyright (c) 2023 Murilo Ijanc' <mbsd@m0x.ru>
 //
 // Permission to use, copy, modify, and distribute this software for any
@@ -17,8 +18,7 @@ use std::path::Path;
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_ecr::{Client, Config};
 use mps_scm::{config::MpsScmConfig, ecr, github, local};
-use tracing::debug;
-use tracing::{info, instrument};
+use tracing::{debug, info, instrument};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -49,7 +49,7 @@ async fn main() -> Result<()> {
     //
     // clone sample repo
     //
-    let output = format!(
+    let _output = format!(
         "{path}/{owner}/{repo_name}",
         path = &scm_config.path,
         owner = &scm_config.github.owner,
@@ -82,10 +82,11 @@ async fn main() -> Result<()> {
     // // Criação do repositório
     // ecr::create_repository(&client, repository_name).await?;
 
-    // mps_container: build dockerfile
-    // mps_container: push docker image to registry
     //
-    // mps_scm TODO: init, commit, push files to git repo
+    // mps_container: build dockerfile, push docker image to registry
+    //
+
+    // mps_scm: init, commit, push files to git repo
     //
     local::icp(
         "/tmp/murilobsd/test-repo",
@@ -93,8 +94,8 @@ async fn main() -> Result<()> {
         "git",
         Path::new("/home/user/.ssh/mykey"),
     )?;
-    // mps_scm TODO: update manifest k8s (dev,prod)
-    // mps_scm TODO: get url load balancer
+    // mps_orchestration TODO: update manifest k8s (dev,prod)
+    // mps_orchestration TODO: get url load balancer
 
     Ok(())
 }
