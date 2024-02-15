@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-mbsd
+  namespace: platform-engineer
+  labels:
+    app: app-mbsd
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app-mbsd
+  template:
+    metadata:
+      labels:
+        app: app-mbsd
+    spec:
+      containers:
+      - name: app-mbsd
+        image: teste:0.0.1
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "500m"
+          limits:
+            memory: "256Mi"
+            cpu: "1000m"
+        ports:
+          - containerPort: 8080
