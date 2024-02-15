@@ -13,7 +13,11 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 use color_eyre::eyre::Result;
 
-use mps_scm::{config::MpsScmConfig, github, local};
+use mps_scm::{ecr, config::MpsScmConfig, github, local};
+use tracing::debug;
+use aws_sdk_ecr::{Client, Config};
+use tracing::{info, instrument};
+use aws_config::meta::region::RegionProviderChain;
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -42,10 +46,32 @@ async fn main() -> Result<()> {
         owner = &scm_config.github.owner,
         repo_name = &new_repo.name
     );
-    let sample_repo =
-        local::LocalProvider::clone(&scm_config.sample_repo, &output);
+    // let sample_repo =
+    //     local::LocalProvider::clone(&scm_config.sample_repo, &output);
+    // let git_dir = format!("{output}/.git", output=&output);
+
+    // TODO: remove git folder to reinit repo
+    // match std::fs::remove_dir_all(&git_dir) {
+    //     Ok(()) => debug!("Pasta .git removida com sucesso!"),
+    //     Err(err) => panic!("Erro ao remover a pasta .git: {}", err),
+    // };
+
     // TODO: render template files and write it into filesystem
+
     // TODO: create ecr repository
+    // Configuração do cliente AWS ECR
+    let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+    // Note: requires the `behavior-version-latest` feature enabled
+    let client_config = aws_config::from_env().region(region_provider).load().await;
+    let client = Client::new(&client_config);
+
+    // Nome do repositório a ser criado
+    let repository_name = &new_repo.name;
+
+    // Criação do repositório
+    ecr::create_repository(&client, repository_name).await?;
+
+    info!("Repositório criado com sucesso: {}", repository_name);
     // TODO: push files to new repo
     // TODO: update manifest k8s (dev,prod)
     // TODO: get url load balancer

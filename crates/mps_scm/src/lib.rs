@@ -15,3 +15,4 @@ pub mod config;
 pub mod github;
 pub mod grpc;
 pub mod local;
+pub mod ecr;
