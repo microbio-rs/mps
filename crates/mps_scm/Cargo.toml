@@ -35,11 +35,6 @@ workspace = true
 [lib]
 doctest = false
 
-[[bin]]
-name = "mps_scm"
-path = "src/main.rs"
-test = false
-
 [features]
 default     = ["grpc_client", "grpc_server"]
 grpc_server = []
