@@ -15,3 +15,15 @@ Microbe platform system - source system control
 9. Após a geração, o GitHub exibirá o token de acesso pessoal. Atenção: Copie o token imediatamente, pois ele só será exibido uma vez por razões de segurança. Se você perder o token, precisará gerar um novo.
 10. Guarde o token em um local seguro. Nunca compartilhe seu token de acesso pessoal e evite incluí-lo em código fonte ou repositórios públicos.
 11. Depois de copiar o token, clique no botão "Done" (Concluído) para finalizar o processo.
+
+## To Do
+
+* [ ] github settings default branch
+* [ ] github settings features remove wiki, issues, projects, preserve this repository
+* [ ] github settings pr: allow/disable (merge,squas,rebase) commits
+* [ ] github settings pr: always suggest updating
+* [ ] github settings pr: allow/auto merge
+* [ ] github settings pr: automatic delete branch
+* [ ] github settings branch: branch protection
+* [ ] github settings webhook: add
+* [ ] github settings ruleset (branch,tag)
