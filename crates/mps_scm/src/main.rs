@@ -81,8 +81,8 @@ async fn main() -> Result<()> {
     // // Criação do repositório
     // ecr::create_repository(&client, repository_name).await?;
 
-    // TODO: build dockerfile
-    // TODO: push docker image to registry
+    // mps_container: build dockerfile
+    // mps_container: push docker image to registry
     // TODO: push files to git repo
     // TODO: update manifest k8s (dev,prod)
     // TODO: get url load balancer
