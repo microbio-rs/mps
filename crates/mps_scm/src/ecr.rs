@@ -10,22 +10,22 @@ pub enum EcrError {
     AwsSdkError(#[from] Error),
 }
 
-
 #[instrument(skip(client))]
-pub async fn create_repository(client: &aws_sdk_ecr::Client, repository_name: &str) -> Result<(), EcrError> {
-
+pub async fn create_repository(
+    client: &aws_sdk_ecr::Client,
+    repository_name: &str,
+) -> Result<(), EcrError> {
     // Chamada para criar o repositório
-    match client.create_repository()
+    match client
+        .create_repository()
         .repository_name(repository_name)
         .send()
-        .await {
+        .await
+    {
         Ok(_) => {
             info!("Repositório {} criado com sucesso", repository_name);
             Ok(())
-        },
-        Err(err) => {
-            Err(EcrError::CreateRepositoryError(format!("{}", err)))
         }
+        Err(err) => Err(EcrError::CreateRepositoryError(format!("{}", err))),
     }
 }
-

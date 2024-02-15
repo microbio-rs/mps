@@ -13,11 +13,11 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 use color_eyre::eyre::Result;
 
-use mps_scm::{ecr, config::MpsScmConfig, github, local};
-use tracing::debug;
-use aws_sdk_ecr::{Client, Config};
-use tracing::{info, instrument};
 use aws_config::meta::region::RegionProviderChain;
+use aws_sdk_ecr::{Client, Config};
+use mps_scm::{config::MpsScmConfig, ecr, github, local};
+use tracing::debug;
+use tracing::{info, instrument};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -28,18 +28,26 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
     init_tracing();
 
+    //
     // load config
+    //
     let scm_config = MpsScmConfig::load("./crates/mps_scm/config.toml")?;
 
+    //
     // init a github provider
+    //
     let _provider = github::GithubProvider::new(scm_config.github.clone());
 
-    //TODO: create github repo
+    //
+    // create github repo
+    //
     let new_repo = github::NewRepository { name: "test-repo".to_string() };
     // let result = provider.create_github_repository(new_repo).await;
     // println!("{:?}", result);
 
-    // TODO: clone sample repo
+    //
+    // clone sample repo
+    //
     let output = format!(
         "{path}/{owner}/{repo_name}",
         path = &scm_config.path,
@@ -50,7 +58,9 @@ async fn main() -> Result<()> {
     //     local::LocalProvider::clone(&scm_config.sample_repo, &output);
     // let git_dir = format!("{output}/.git", output=&output);
 
-    // TODO: remove git folder to reinit repo
+    //
+    // remove git folder to reinit repo
+    //
     // match std::fs::remove_dir_all(&git_dir) {
     //     Ok(()) => debug!("Pasta .git removida com sucesso!"),
     //     Err(err) => panic!("Erro ao remover a pasta .git: {}", err),
@@ -58,21 +68,22 @@ async fn main() -> Result<()> {
 
     // TODO: render template files and write it into filesystem
 
-    // TODO: create ecr repository
+    //
+    // create ecr repository
+    //
     // Configuração do cliente AWS ECR
-    let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
-    // Note: requires the `behavior-version-latest` feature enabled
-    let client_config = aws_config::from_env().region(region_provider).load().await;
-    let client = Client::new(&client_config);
+    // let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+    // // Note: requires the `behavior-version-latest` feature enabled
+    // let client_config = aws_config::from_env().region(region_provider).load().await;
+    // let client = Client::new(&client_config);
+    // // Nome do repositório a ser criado
+    // let repository_name = &new_repo.name;
+    // // Criação do repositório
+    // ecr::create_repository(&client, repository_name).await?;
 
-    // Nome do repositório a ser criado
-    let repository_name = &new_repo.name;
-
-    // Criação do repositório
-    ecr::create_repository(&client, repository_name).await?;
-
-    info!("Repositório criado com sucesso: {}", repository_name);
-    // TODO: push files to new repo
+    // TODO: build dockerfile
+    // TODO: push docker image to registry
+    // TODO: push files to git repo
     // TODO: update manifest k8s (dev,prod)
     // TODO: get url load balancer
 
