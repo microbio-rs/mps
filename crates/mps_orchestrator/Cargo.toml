@@ -12,16 +12,17 @@ repository.workspace   = true
 rust-version.workspace = true
 
 [dependencies]
+color-eyre           = "0.6.2"
+jemallocator.workspace = true
+k8s-openapi          = { version = "0.21.0", features = ["latest"] }
+kube                 = { version = "0.88.1", features = ["runtime", "derive"] }
 serde                = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
-thiserror.workspace  = true
-tracing.workspace    = true
-kube                 = { version = "0.88.1", features = ["runtime", "derive"] }
-k8s-openapi          = { version = "0.21.0", features = ["latest"] }
-tokio                = { workspace = true, features = ["macros", "time"] }
-tera.workspace       = true
-color-eyre           = "0.6.2"
 serde_yaml.workspace = true
+tera.workspace       = true
+thiserror.workspace  = true
+tokio                = { workspace = true, features = ["macros", "time", "rt-multi-thread"] }
+tracing.workspace    = true
 
 [lints]
 workspace = true

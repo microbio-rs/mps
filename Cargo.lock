@@ -1889,6 +1889,7 @@ name = "mps_cloud"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
+ "jemallocator",
  "serde",
  "serde_json",
  "thiserror",
@@ -1918,6 +1919,7 @@ dependencies = [
  "dockerfile-parser",
  "flate2",
  "futures-util",
+ "jemallocator",
  "serde",
  "serde_json",
  "tar",
@@ -1942,6 +1944,7 @@ name = "mps_orchestrator"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
+ "jemallocator",
  "k8s-openapi",
  "kube",
  "serde",

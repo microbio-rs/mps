@@ -16,14 +16,16 @@ aws-config.workspace   = true
 aws-sdk-ecr.workspace  = true
 base64.workspace       = true
 bollard                = { version = "0.15.0", features = ["buildkit", "chrono"] }
-dockerfile-parser      = "0.8.0"
 color-eyre.workspace   = true
+dockerfile-parser      = "0.8.0"
 flate2                 = "1.0.28"
 futures-util.workspace = true
+jemallocator.workspace = true
 serde                  = { workspace = true, features = ["derive"] }
 serde_json.workspace   = true
 tar                    = "0.4.40"
 thiserror.workspace    = true
+tokio                  = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing.workspace      = true
 
 [lints]
@@ -36,4 +38,3 @@ doctest = false
 default = []
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["macros"] }

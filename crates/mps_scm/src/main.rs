@@ -16,7 +16,6 @@ use std::path::Path;
 
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_ecr::{Client, Config};
-use color_eyre::eyre::Result;
 use tracing::{debug, info, instrument};
 
 use mps_scm::{config::MpsScmConfig, ecr, github, local};
@@ -26,7 +25,7 @@ use mps_scm::{config::MpsScmConfig, ecr, github, local};
 static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
     init_tracing();
 
