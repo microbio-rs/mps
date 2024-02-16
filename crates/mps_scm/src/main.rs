@@ -29,76 +29,78 @@ async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
     init_tracing();
 
-    //
-    // load config
-    //
-    let scm_config = MpsScmConfig::load("./crates/mps_scm/config.toml")?;
+    mps_scm::cli::run().await;
 
-    //
-    // init a github provider
-    //
-    let _provider = github::GithubProvider::new(scm_config.github.clone());
+    ////
+    //// load config
+    ////
+    //let scm_config = MpsScmConfig::load("./crates/mps_scm/config.toml")?;
 
-    //
-    // create github repo
-    //
-    // let new_repo = github::NewRepository { name: "test-repo".to_string() };
-    // let result = provider.create_github_repository(new_repo).await;
-    // println!("{:?}", result);
+    ////
+    //// init a github provider
+    ////
+    //let _provider = github::GithubProvider::new(scm_config.github.clone());
 
-    //
-    // clone sample repo
-    //
-    // let _output = format!(
-    //     "{path}/{owner}/{repo_name}",
-    //     path = &scm_config.path,
-    //     owner = &scm_config.github.owner,
-    //     repo_name = &new_repo.name
-    // );
-    // let sample_repo =
-    //     local::LocalProvider::clone(&scm_config.sample_repo, &output);
-    // let git_dir = format!("{output}/.git", output=&output);
+    ////
+    //// create github repo
+    ////
+    //// let new_repo = github::NewRepository { name: "test-repo".to_string() };
+    //// let result = provider.create_github_repository(new_repo).await;
+    //// println!("{:?}", result);
 
-    //
-    // remove git folder to reinit repo
-    //
-    // match std::fs::remove_dir_all(&git_dir) {
-    //     Ok(()) => debug!("Pasta .git removida com sucesso!"),
-    //     Err(err) => panic!("Erro ao remover a pasta .git: {}", err),
-    // };
+    ////
+    //// clone sample repo
+    ////
+    //// let _output = format!(
+    ////     "{path}/{owner}/{repo_name}",
+    ////     path = &scm_config.path,
+    ////     owner = &scm_config.github.owner,
+    ////     repo_name = &new_repo.name
+    //// );
+    //// let sample_repo =
+    ////     local::LocalProvider::clone(&scm_config.sample_repo, &output);
+    //// let git_dir = format!("{output}/.git", output=&output);
 
-    // TODO: render template files and write it into filesystem
+    ////
+    //// remove git folder to reinit repo
+    ////
+    //// match std::fs::remove_dir_all(&git_dir) {
+    ////     Ok(()) => debug!("Pasta .git removida com sucesso!"),
+    ////     Err(err) => panic!("Erro ao remover a pasta .git: {}", err),
+    //// };
 
-    //
-    // create ecr repository
-    //
-    // Configuração do cliente AWS ECR
-    // let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
-    // // Note: requires the `behavior-version-latest` feature enabled
-    // let client_config = aws_config::from_env().region(region_provider).load().await;
-    // let client = Client::new(&client_config);
-    // // Nome do repositório a ser criado
-    // let repository_name = &new_repo.name;
-    // // Criação do repositório
-    // ecr::create_repository(&client, repository_name).await?;
+    //// TODO: render template files and write it into filesystem
 
-    //
-    // mps_container: build dockerfile, push docker image to registry
-    //
+    ////
+    //// create ecr repository
+    ////
+    //// Configuração do cliente AWS ECR
+    //// let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+    //// // Note: requires the `behavior-version-latest` feature enabled
+    //// let client_config = aws_config::from_env().region(region_provider).load().await;
+    //// let client = Client::new(&client_config);
+    //// // Nome do repositório a ser criado
+    //// let repository_name = &new_repo.name;
+    //// // Criação do repositório
+    //// ecr::create_repository(&client, repository_name).await?;
 
-    //
-    // mps_scm: init, commit, push files to git repo
-    //
-    // local::icp(
-    //     "/tmp/murilobsd/test-repo",
-    //     "git@github.com:murilobsd/test-repo.git",
-    //     "git",
-    //     Path::new("/home/user/.ssh/mykey"),
-    // )?;
+    ////
+    //// mps_container: build dockerfile, push docker image to registry
+    ////
 
-    //
-    // mps_orchestration: create manifest k8s (dev,prod) (deploy,service,namespace,ingress)
-    // mps_orchestration TODO: get url load balancer
+    ////
+    //// mps_scm: init, commit, push files to git repo
+    ////
+    //// local::icp(
+    ////     "/tmp/murilobsd/test-repo",
+    ////     "git@github.com:murilobsd/test-repo.git",
+    ////     "git",
+    ////     Path::new("/home/user/.ssh/mykey"),
+    //// )?;
+
+    ////
+    //// mps_orchestration: create manifest k8s (dev,prod) (deploy,service,namespace,ingress)
+    //// mps_orchestration TODO: get url load balancer
 
     Ok(())
 }
