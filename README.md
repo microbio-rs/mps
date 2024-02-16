@@ -5,6 +5,7 @@ microbe platform system
 | crate                 | description                              | status        |
 | -----------------     | ---------------------------------------- | ------------- |
 | [mps_cli][0]          | mps cli                                  | in progress   |
+| [mps_cloud][6]        | responsible for cloud manager            | in progress   |
 | [mps_config][3]       | responsible for reading config files     | in progress   |
 | [mps_container][4]    | responsible for containers manager       | in progress   |
 | [mps_im][2]           | responsible instante messaging manager   | in progress   |
@@ -17,3 +18,4 @@ microbe platform system
 [3]: ./crates/mps_config/README.md
 [4]: ./crates/mps_container/README.md
 [5]: ./crates/mps_orchestrator/README.md
+[6]: ./crates/mps_cloud/README.md

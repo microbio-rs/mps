@@ -1885,6 +1885,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "mps_cloud"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "mps_config"
 version = "0.1.0"
 dependencies = [
