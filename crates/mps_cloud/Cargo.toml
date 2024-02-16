@@ -12,6 +12,8 @@ repository.workspace   = true
 rust-version.workspace = true
 
 [dependencies]
+aws-config.workspace   = true
+aws-sdk-ecr.workspace  = true
 color-eyre.workspace   = true
 jemallocator.workspace = true
 serde                  = { workspace = true, features = ["derive"] }

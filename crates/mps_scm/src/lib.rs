@@ -13,7 +13,6 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 pub mod cli;
 pub mod config;
-pub mod ecr;
 pub mod github;
 pub mod grpc;
 pub mod local;

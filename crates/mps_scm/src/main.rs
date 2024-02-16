@@ -14,11 +14,9 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 use std::path::Path;
 
-use aws_config::meta::region::RegionProviderChain;
-use aws_sdk_ecr::{Client, Config};
 use tracing::{debug, info, instrument};
 
-use mps_scm::{config::MpsScmConfig, ecr, github, local};
+use mps_scm::{config::MpsScmConfig, github, local};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -30,11 +28,6 @@ async fn main() -> color_eyre::Result<()> {
     init_tracing();
 
     mps_scm::cli::run().await;
-
-    ////
-    //// load config
-    ////
-    //let scm_config = MpsScmConfig::load("./crates/mps_scm/config.toml")?;
 
     ////
     //// init a github provider
