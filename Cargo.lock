@@ -1902,6 +1902,7 @@ dependencies = [
  "aws-sdk-ecr",
  "base64",
  "bollard",
+ "color-eyre",
  "dockerfile-parser",
  "flate2",
  "futures-util",

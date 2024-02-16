@@ -17,6 +17,7 @@ aws-sdk-ecr.workspace  = true
 base64.workspace       = true
 bollard                = { version = "0.15.0", features = ["buildkit", "chrono"] }
 dockerfile-parser      = "0.8.0"
+color-eyre.workspace   = true
 flate2                 = "1.0.28"
 futures-util.workspace = true
 serde                  = { workspace = true, features = ["derive"] }
