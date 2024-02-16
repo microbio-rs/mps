@@ -1,0 +1,17 @@
+#
+# render config
+#
+
+[grpc_server]
+ip   = "0.0.0.0"
+port = 50056
+
+[database]
+uri      = "postgres://postgres:postgres@0.0.0.0:5432/mps_render"
+timeout  = 10
+max_pool = 10
+
+[amqp]
+uri         = "amqp://guest:guest@0.0.0.0:5672"
+timeout     = 10
+sample_queue = "sample_queue"
