@@ -15,6 +15,10 @@ use color_eyre::eyre::Result;
 use k8s_openapi::api::apps::v1::Deployment;
 use tera::{Context, Tera};
 
+//
+// mps_orchestration: create manifest k8s (dev,prod) (deploy,service,namespace,ingress)
+// mps_orchestration TODO: get url load balancer
+//
 fn main() -> Result<()> {
     color_eyre::install()?;
 
@@ -29,6 +33,7 @@ fn main() -> Result<()> {
     context.insert("version", "1.0");
     context.insert("namespace", "platform-engineering");
     context.insert("domain", "info");
+    context.insert("replicas", &2);
 
     let resultado = tera.render("deployment.yml", &context);
 
