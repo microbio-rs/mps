@@ -12,39 +12,15 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use color_eyre::eyre::Result;
-
-use mps_scm::{
-    config::MpsScmConfig,
-    github,
-    grpc::{
-        client,
-        scm::{CreateRepoRequest, Provider},
-    },
-};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
 static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
     init_tracing();
-
-    let scm_config = MpsScmConfig::load("./crates/mps_scm/config/config.toml")?;
-
-    let provider = github::GithubProvider::new(scm_config.github.clone());
-    let new_repo = github::NewRepository { name: "test-repo".to_string() };
-    let result = provider.create_github_repository(new_repo).await;
-    println!("{:?}", result);
-
-    // // create repo github
-    // let create_repo_req = CreateRepoRequest {
-    //     provider: Provider::Github.into(),
-    //     name: "aninha".into(),
-    // };
-    // client::create_repo(create_repo_req).await.unwrap();
 
     Ok(())
 }
