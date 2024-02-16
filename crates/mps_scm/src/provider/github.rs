@@ -11,6 +11,7 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 use std::{fmt, time};
 
 use color_eyre::eyre::Result;
@@ -87,6 +88,23 @@ pub enum GitHubError {
 pub struct GithubProvider {
     client: reqwest::Client,
     config: GithubConfig,
+}
+
+#[async_trait::async_trait]
+impl crate::MpsScmGithubPort for GithubProvider {
+    async fn create_repo(&self, name: &str) -> crate::NewRepo {
+        let resp = self
+            .create_github_repository(NewRepository { name: name.to_string() })
+            .await
+            .unwrap();
+        resp.into()
+    }
+}
+
+impl From<RepositoryResponse> for crate::NewRepo {
+    fn from(r: RepositoryResponse) -> Self {
+        Self { name: r.name, html_url: r.html_url }
+    }
 }
 
 impl GithubProvider {

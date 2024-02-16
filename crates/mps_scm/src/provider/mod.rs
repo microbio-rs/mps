@@ -12,23 +12,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::path::Path;
+pub(crate) mod github;
+pub(crate) use github::*;
 
-use serde::Deserialize;
-
-use super::github;
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct MpsScmConfig {
-    pub repos_path: String,
-    pub sample_repo: String,
-    pub github: github::GithubConfig,
-}
-
-impl MpsScmConfig {
-    pub fn load<P: AsRef<Path>>(
-        config_path: P,
-    ) -> Result<Self, mps_config::AppConfigError> {
-        Ok(mps_config::load(config_path)?)
-    }
-}
+pub(crate) mod local;
+pub(crate) use local::*;

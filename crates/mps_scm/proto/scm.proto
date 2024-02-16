@@ -16,5 +16,6 @@ message CreateRepoRequest {
 
 message CreateRepoResponse {
     string name = 1;
+    string html_url = 2;
 }
 

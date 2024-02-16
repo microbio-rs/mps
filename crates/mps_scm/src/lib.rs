@@ -11,8 +11,48 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 pub mod cli;
-pub mod config;
-pub mod github;
-pub mod grpc;
-pub mod local;
+
+pub(crate) mod config;
+pub(crate) use config::*;
+
+pub(crate) mod provider;
+pub(crate) use provider::*;
+
+pub(crate) mod grpc;
+pub(crate) use grpc::*;
+
+pub(crate) struct NewRepo {
+    pub name: String,
+    pub html_url: String,
+}
+
+#[async_trait::async_trait]
+pub trait MpsScmUseCase {
+    async fn create_repo(&self, name: &str) -> NewRepo;
+}
+
+#[async_trait::async_trait]
+pub trait MpsScmGithubPort {
+    async fn create_repo(&self, name: &str) -> NewRepo;
+}
+
+pub(crate) struct MpsScmService {
+    github_port: Box<dyn MpsScmGithubPort + Send + Sync>,
+}
+
+impl MpsScmService {
+    pub(crate) fn new(
+        github_port: Box<dyn MpsScmGithubPort + Send + Sync>,
+    ) -> Self {
+        Self { github_port }
+    }
+}
+
+#[async_trait::async_trait]
+impl MpsScmUseCase for MpsScmService {
+    async fn create_repo(&self, name: &str) -> NewRepo {
+        self.github_port.create_repo(name).await
+    }
+}

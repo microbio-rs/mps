@@ -1,28 +1,61 @@
+use std::sync::Arc;
+
 use tonic::{transport::Server, Request, Response, Status};
 
 use super::scm::scm_server::{Scm, ScmServer};
 use super::scm::{CreateRepoRequest, CreateRepoResponse};
 
-#[derive(Debug, Default)]
-struct MyScm {}
+#[derive(Clone)]
+pub(crate) struct MpsScmGrpcState {
+    create_repo_usecase: Arc<dyn crate::MpsScmUseCase + Send + Sync>
+}
+
+impl MpsScmGrpcState {
+    pub fn new(
+            create_repo_usecase: Arc<dyn crate::MpsScmUseCase + Send + Sync>
+        ) -> Self {
+        Self { create_repo_usecase }
+    }
+}
+
+#[derive(Clone)]
+struct MpsScmGrpcServer {
+    state: Arc<MpsScmGrpcState>
+}
+
+impl MpsScmGrpcServer {
+    pub fn new(state: Arc<MpsScmGrpcState>) -> Self {
+        Self { state }
+    }
+}
+
+impl From<crate::NewRepo> for CreateRepoResponse {
+    fn from(r: crate::NewRepo) -> Self {
+        Self {
+            name: r.name,
+            html_url: r.html_url
+        }
+    }
+}
 
 #[tonic::async_trait]
-impl Scm for MyScm {
+impl Scm for MpsScmGrpcServer {
     async fn create_repo(
         &self,
         request: Request<CreateRepoRequest>,
     ) -> Result<Response<CreateRepoResponse>, Status> {
         println!("Got a request: {:?}", &request);
 
-        let reply = CreateRepoResponse { name: request.into_inner().name };
+        let name: String = request.into_inner().name;
+        let resp = self.state.create_repo_usecase.create_repo(&name).await;
 
-        Ok(Response::new(reply))
+        Ok(Response::new(resp.into()))
     }
 }
 
-pub async fn server() {
+pub async fn server(state: Arc<MpsScmGrpcState>) {
     let addr = "[::1]:50051".parse().unwrap();
-    let scm = MyScm::default();
+    let scm = MpsScmGrpcServer::new(state);
 
     Server::builder()
         .add_service(ScmServer::new(scm))

@@ -1969,7 +1969,6 @@ dependencies = [
  "jemallocator",
  "serde",
  "serde_json",
- "tera",
  "thiserror",
  "tokio",
  "tracing",
@@ -2044,6 +2043,7 @@ dependencies = [
  "jemallocator",
  "serde",
  "serde_json",
+ "tera",
  "thiserror",
  "tokio",
  "tracing",
@@ -2053,6 +2053,7 @@ dependencies = [
 name = "mps_scm"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "aws-config",
  "aws-sdk-ecr",
  "clap",
