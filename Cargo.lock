@@ -1969,6 +1969,7 @@ dependencies = [
  "jemallocator",
  "serde",
  "serde_json",
+ "tera",
  "thiserror",
  "tokio",
  "tracing",
@@ -2028,6 +2029,21 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "tera",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "mps_render"
+version = "0.1.0"
+dependencies = [
+ "aws-config",
+ "aws-sdk-ecr",
+ "color-eyre",
+ "jemallocator",
+ "serde",
+ "serde_json",
  "thiserror",
  "tokio",
  "tracing",
