@@ -1933,6 +1933,7 @@ dependencies = [
  "kube",
  "serde",
  "serde_json",
+ "serde_yaml",
  "tera",
  "thiserror",
  "tokio",

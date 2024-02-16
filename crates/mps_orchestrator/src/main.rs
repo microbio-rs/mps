@@ -11,8 +11,9 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use tera::{Context, Tera};
 use color_eyre::eyre::Result;
+use k8s_openapi::api::apps::v1::Deployment;
+use tera::{Context, Tera};
 
 fn main() -> Result<()> {
     color_eyre::install()?;
@@ -29,19 +30,16 @@ fn main() -> Result<()> {
     context.insert("namespace", "platform-engineering");
     context.insert("domain", "info");
 
-    // Renderize o template
-    let names: Vec<&str> = tera.get_template_names().collect();
-    for tpl_name in names {
-        let resultado = tera.render(tpl_name, &context);
+    let resultado = tera.render("deployment.yml", &context);
 
-        // Verifique se a renderização foi bem-sucedida
-        match resultado {
-            Ok(renderizado) => println!("template renderizado:\n\n{}", renderizado),
-            Err(erro) => eprintln!("Erro ao renderizar o template: {:?}", erro),
-        };
-    }
-
+    // Verifique se a renderização foi bem-sucedida
+    match resultado {
+        Ok(renderizado) => {
+            let d: Deployment = serde_yaml::from_str(&renderizado)?;
+            println!("template renderizado:\n\n{:?}", d);
+        }
+        Err(erro) => eprintln!("Erro ao renderizar o template: {:?}", erro),
+    };
 
     Ok(())
 }
-
