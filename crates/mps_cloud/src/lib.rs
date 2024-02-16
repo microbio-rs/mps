@@ -1,4 +1,16 @@
 // Copyright (c) 2023 Murilo Ijanc' <mbsd@m0x.ru>
+////
+//// create ecr repository
+////
+//// Configuração do cliente AWS ECR
+//// let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+//// // Note: requires the `behavior-version-latest` feature enabled
+//// let client_config = aws_config::from_env().region(region_provider).load().await;
+//// let client = Client::new(&client_config);
+//// // Nome do repositório a ser criado
+//// let repository_name = &new_repo.name;
+//// // Criação do repositório
+//// ecr::create_repository(&client, repository_name).await?;
 use aws_sdk_ecr::Error;
 use thiserror::Error;
 use tracing::{info, instrument};

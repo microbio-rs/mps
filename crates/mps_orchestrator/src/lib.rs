@@ -12,6 +12,10 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+////
+//// mps_orchestration: create manifest k8s (dev,prod) (deploy,service,namespace,ingress)
+//// mps_orchestration TODO: get url load balancer
+
 use k8s_openapi::api::core::v1::Pod;
 use serde_json::json;
 
