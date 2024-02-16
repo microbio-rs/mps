@@ -11,6 +11,8 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+use std::path::Path;
+
 use config::{Config, Environment, File};
 use serde::de::DeserializeOwned;
 use thiserror::Error;
@@ -22,15 +24,15 @@ pub enum AppConfigError {
     Load(#[from] config::ConfigError),
 }
 
-pub fn load<T>(config_path: &str) -> Result<T, AppConfigError>
+pub fn load<T, P: AsRef<Path>>(config_path: P) -> Result<T, AppConfigError>
 where
     T: DeserializeOwned + std::fmt::Debug,
 {
-    info!("Loading configuration from: {}", config_path);
+    info!("Loading configuration from: {}", config_path.as_ref().display());
 
     let config = Config::builder()
         // Load configuration from the specified file path
-        .add_source(File::with_name(config_path))
+        .add_source(File::with_name(config_path.as_ref().to_str().unwrap()))
         // Override configuration with environment variables
         .add_source(Environment::with_prefix("MPS"))
         .build()
