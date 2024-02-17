@@ -2058,6 +2058,7 @@ dependencies = [
  "aws-sdk-ecr",
  "clap",
  "color-eyre",
+ "colored",
  "git2",
  "jemallocator",
  "mockall",
@@ -2074,6 +2075,7 @@ dependencies = [
  "tonic-build",
  "tracing",
  "tracing-subscriber",
+ "url",
 ]
 
 [[package]]
@@ -3767,6 +3769,7 @@ dependencies = [
  "form_urlencoded",
  "idna",
  "percent-encoding",
+ "serde",
 ]
 
 [[package]]
