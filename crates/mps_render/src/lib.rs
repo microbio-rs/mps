@@ -11,3 +11,82 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+use std::io;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+
+use tera::{Context, Tera};
+use tracing::debug;
+
+#[derive(thiserror::Error, Debug)]
+pub enum MpsRenderError {
+    #[error("Template error: {0}")]
+    Tera(#[from] tera::Error),
+    #[error("Io error: {0}")]
+    Io(#[from] io::Error),
+}
+
+pub fn render<P: AsRef<Path>>(
+    origem: P,
+    destino: P,
+    context: Context,
+) -> Result<(), MpsRenderError> {
+    let mut tera = Tera::default();
+    mount_tera(&mut tera, origem.as_ref())?;
+    copiar_arquivos(&tera, &context, origem.as_ref(), destino.as_ref())?;
+
+    Ok(())
+}
+
+fn mount_tera(tera: &mut Tera, origem: &Path) -> Result<(), MpsRenderError> {
+    if origem.is_dir() {
+        if !origem.to_str().unwrap().contains(".git") {
+            for entrada in std::fs::read_dir(origem)? {
+                let entrada = entrada?;
+                let origem_arquivo = entrada.path();
+
+                mount_tera(tera, &origem_arquivo)?;
+            }
+        }
+    } else {
+        tera.add_template_file(origem.to_str().unwrap(), None)?;
+    }
+
+    Ok(())
+}
+
+fn copiar_arquivos(
+    tera: &Tera,
+    context: &Context,
+    origem: &Path,
+    destino: &Path,
+) -> Result<(), MpsRenderError> {
+    if origem.is_dir() {
+        if !origem.to_str().unwrap().contains(".git") {
+            if !destino.exists() {
+                std::fs::create_dir_all(destino)?;
+            }
+
+            for entrada in std::fs::read_dir(origem)? {
+                let entrada = entrada?;
+                let origem_arquivo = entrada.path();
+                let destino_arquivo = destino.join(entrada.file_name());
+
+                copiar_arquivos(
+                    tera,
+                    context,
+                    &origem_arquivo,
+                    &destino_arquivo,
+                )?;
+            }
+        }
+    } else {
+        // println!("render from {} to {}", origem.display(), destino.display());
+        let content = tera.render(origem.to_str().unwrap(), context)?;
+        let mut destino_file = std::fs::File::create(&destino)?;
+        destino_file.write_all(&content.as_bytes())?;
+        // std::fs::copy(origem, destino)?;
+    }
+
+    Ok(())
+}
