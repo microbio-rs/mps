@@ -16,19 +16,23 @@ use std::path::Path;
 
 use serde::Deserialize;
 
-use super::github;
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct MpsScmConfig {
     pub repos_path: String,
     pub sample_repo: String,
-    pub github: github::GithubConfig,
+    pub github: crate::GithubConfig,
+}
+
+#[derive(thiserror::Error, Debug)]
+pub(crate) enum MpsScmConfigError {
+    #[error("Config errror: {0}")]
+    Config(#[from] mps_config::AppConfigError),
 }
 
 impl MpsScmConfig {
     pub fn load<P: AsRef<Path>>(
         config_path: P,
-    ) -> Result<Self, mps_config::AppConfigError> {
+    ) -> Result<Self, MpsScmConfigError> {
         Ok(mps_config::load(config_path)?)
     }
 }
