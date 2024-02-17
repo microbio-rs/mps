@@ -11,46 +11,39 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-////
-//// create ecr repository
-////
-//// Configuração do cliente AWS ECR
-//// let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
-//// // Note: requires the `behavior-version-latest` feature enabled
-//// let client_config = aws_config::from_env().region(region_provider).load().await;
-//// let client = Client::new(&client_config);
-//// // Nome do repositório a ser criado
-//// let repository_name = &new_repo.name;
-//// // Criação do repositório
-//// ecr::create_repository(&client, repository_name).await?;
-use aws_sdk_ecr::Error;
-use thiserror::Error;
-use tracing::{info, instrument};
+use aws_sdk_ecr::{
+    config::{Credentials, Region},
+    error::SdkError,
+    operation::create_repository::CreateRepositoryError,
+    Client,
+};
 
-#[derive(Error, Debug)]
-pub enum EcrError {
-    #[error("Failed to create repository: {0}")]
-    CreateRepositoryError(String),
-    #[error("AWS SDK Error: {0}")]
-    AwsSdkError(#[from] Error),
+#[derive(thiserror::Error, Debug)]
+pub enum MpsCloudError {
+    #[error("failed to create ecr repository: {0}")]
+    AwsSdkError(#[from] SdkError<CreateRepositoryError>),
 }
 
-#[instrument(skip(client))]
-pub async fn create_repository(
-    client: &aws_sdk_ecr::Client,
+pub async fn ecr_create_repository(
+    access_key: &str,
+    access_secret: &str,
     repository_name: &str,
-) -> Result<(), EcrError> {
-    // Chamada para criar o repositório
-    match client
+) -> Result<String, MpsCloudError> {
+    let credentials =
+        Credentials::new(access_key, access_secret, None, None, "ecr");
+
+    let config = aws_config::from_env()
+        .credentials_provider(credentials)
+        .region(Region::new("us-east-1"))
+        .load()
+        .await;
+
+    let client = Client::new(&config);
+
+    let resp = client
         .create_repository()
         .repository_name(repository_name)
         .send()
-        .await
-    {
-        Ok(_) => {
-            info!("Repositório {} criado com sucesso", repository_name);
-            Ok(())
-        }
-        Err(err) => Err(EcrError::CreateRepositoryError(format!("{}", err))),
-    }
+        .await?;
+    Ok(resp.repository().unwrap().repository_uri().unwrap().to_string())
 }
