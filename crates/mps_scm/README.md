@@ -16,6 +16,12 @@ Microbe platform system - source system control
 10. Guarde o token em um local seguro. Nunca compartilhe seu token de acesso pessoal e evite incluí-lo em código fonte ou repositórios públicos.
 11. Depois de copiar o token, clique no botão "Done" (Concluído) para finalizar o processo.
 
+## create repo
+
+```console
+grpcurl -plaintext -import-path ./crates/mps_scm/proto -proto scm.proto -d '{"name": "mps-test-repo"}' '[::1]:50051' scm.Scm/CreateRepo
+```
+
 ## To Do
 
 * [ ] github settings default branch
