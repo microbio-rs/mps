@@ -15,6 +15,7 @@
 use std::{fmt::Display, path::Path};
 
 use git2::{
+    Cred,
     build::RepoBuilder, FetchOptions, IndexAddOption, PushOptions,
     RemoteCallbacks, Repository, Signature,
 };
