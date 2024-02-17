@@ -7,20 +7,20 @@ use super::scm::{CreateRepoRequest, CreateRepoResponse};
 
 #[derive(Clone)]
 pub(crate) struct MpsScmGrpcState {
-    create_repo_usecase: Arc<dyn crate::MpsScmUseCase + Send + Sync>
+    create_repo_usecase: Arc<dyn crate::MpsScmUseCase + Send + Sync>,
 }
 
 impl MpsScmGrpcState {
     pub fn new(
-            create_repo_usecase: Arc<dyn crate::MpsScmUseCase + Send + Sync>
-        ) -> Self {
+        create_repo_usecase: Arc<dyn crate::MpsScmUseCase + Send + Sync>,
+    ) -> Self {
         Self { create_repo_usecase }
     }
 }
 
 #[derive(Clone)]
 struct MpsScmGrpcServer {
-    state: Arc<MpsScmGrpcState>
+    state: Arc<MpsScmGrpcState>,
 }
 
 impl MpsScmGrpcServer {
@@ -31,10 +31,7 @@ impl MpsScmGrpcServer {
 
 impl From<crate::NewRepo> for CreateRepoResponse {
     fn from(r: crate::NewRepo) -> Self {
-        Self {
-            name: r.name,
-            html_url: r.html_url
-        }
+        Self { name: r.name, html_url: r.html_url }
     }
 }
 

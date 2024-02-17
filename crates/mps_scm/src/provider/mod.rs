@@ -16,4 +16,3 @@ pub(crate) mod github;
 pub(crate) use github::*;
 
 pub(crate) mod local;
-pub(crate) use local::*;

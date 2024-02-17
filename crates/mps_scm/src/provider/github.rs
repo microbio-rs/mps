@@ -78,6 +78,7 @@ pub enum GitHubError {
     RequestError(#[from] reqwest::Error),
     #[error("Erro ao desserializar a resposta JSON: {0}")]
     JsonError(#[from] serde_json::Error),
+    #[allow(dead_code)]
     #[error("Erro na API do GitHub: {0}")]
     APIError(GitHubAPIError),
     #[error("Limite de taxa atingido. Tentativas esgotadas.")]
@@ -181,6 +182,7 @@ impl GithubProvider {
         }
     }
 
+    #[allow(dead_code)]
     pub async fn get_rate_limit(&self) -> Result<RateLimit, GitHubError> {
         let url = format!(
             "{}/rate_limit",

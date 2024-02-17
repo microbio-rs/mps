@@ -12,115 +12,168 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use std::path::Path;
+use std::{fmt::Display, path::Path};
 
-use color_eyre::eyre::Result;
 use git2::{
-    Error, IndexAddOption, PushOptions, RemoteCallbacks, Repository, Signature,
+    build::RepoBuilder, FetchOptions, IndexAddOption, PushOptions,
+    RemoteCallbacks, Repository, Signature,
 };
-
 use tracing::{debug, info};
 
-pub struct LocalProvider;
+#[derive(thiserror::Error, Debug)]
+pub(crate) enum LocalError {
+    #[error("Lib git2 errror: {0}")]
+    Git2Error(#[from] git2::Error),
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct LocalConfig {
+    pub owner: String,
+    pub timeout: u64,
+    pub max_retry: u64,
+}
+
+// impl LocalConfig {
+// }
+
+////
+//// clone sample repo
+////
+//// let _output = format!(
+////     "{path}/{owner}/{repo_name}",
+////     path = &scm_config.path,
+////     owner = &scm_config.github.owner,
+////     repo_name = &new_repo.name
+//// );
+//// let sample_repo =
+////     local::LocalProvider::clone(&scm_config.sample_repo, &output);
+//// let git_dir = format!("{output}/.git", output=&output);
+
+pub(crate) struct LocalProvider;
 
 impl LocalProvider {
-    pub fn create_repository(name: &str) -> Result<Repository> {
-        let repo = Repository::init(name)?;
-        Ok(repo)
-    }
+    pub(crate) fn icp(
+        &self,
+        repo_path: &str,
+        repo_url: &str,
+        user: &str,
+        ssh_priv_key_path: &Path,
+    ) -> Result<(), LocalError> {
+        // Inicializa um novo repositório Git ou abre um existente
+        let repo = Repository::init(repo_path)?;
+        info!("Repositório Git inicializado com sucesso em {}", repo_path);
 
-    // pub fn setup_main_branch(repo: &Repository) -> Result<()> {
-    //     let head = repo.head()?;
-    //     let head_commit = head.peel_to_commit()?;
-    //     // let head_commit = repo.find_commit(head.target().unwrap())?;
+        // Adiciona todos os arquivos ao staging
+        let mut index = repo.index()?;
+        index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
+        let oid = index.write_tree()?;
+        let tree = repo.find_tree(oid)?;
 
-    //     // Create main branch
-    //     // repo.branch("main", &head_commit, false)?;
-    //     let branch_ref = repo.branch("main", &head_commit, false)?;
-
-    //     // Move a HEAD para a nova branch
-    //     repo.set_head(branch_ref.name().unwrap().unwrap())?;
-
-    //     Ok(())
-    // }
-
-    pub fn initial_commit(repo: &Repository) -> Result<()> {
-        let signature = Signature::now("Mps", "mps@mps.com")?;
-        let tree_id = repo.index()?.write_tree()?;
-        let tree = repo.find_tree(tree_id)?;
-
-        // Create initial commit
-        repo.commit(
-            Some("HEAD"),
+        // Realiza o commit inicial
+        let signature = Signature::now("mps", "mps@mps.com")?;
+        let commit_id = repo.commit(
+            Some("HEAD"), // Atualiza a cabeça (HEAD)
             &signature,
             &signature,
-            "init commit",
+            "Initial commit",
             &tree,
             &[],
         )?;
 
+        info!("Commit inicial realizado com sucesso. ID: {}", commit_id);
+
+        // Configura as credenciais para o envio ao repositório remoto
+        let mut remote_callbacks = RemoteCallbacks::new();
+        remote_callbacks.credentials(|_url, _username, _allowed| {
+            let credentials =
+                git2::Cred::ssh_key(user, None, ssh_priv_key_path, None);
+            credentials
+        });
+
+        // Adiciona um novo remoto
+        let mut remote = repo.remote("origin", repo_url)?;
+
+        // Cria opções de envio
+        let mut push_options = PushOptions::new();
+        push_options.remote_callbacks(remote_callbacks);
+
+        // Realiza o push para o repositório remoto
+        remote.push(
+            &["refs/heads/main:refs/heads/main"],
+            Some(&mut push_options),
+        )?;
+
+        info!("Push realizado com sucesso!");
         Ok(())
     }
 
-    pub fn clone(url: &str, to: &str) -> Result<Repository> {
-        debug!("cloning repo from {} to {}", url, to);
-        let repo = Repository::clone(url, to)?;
-        debug!("repo cloned {} to {}", url, to);
+    pub(crate) fn create_repository<P: AsRef<Path> + Display + Copy>(
+        path: P,
+    ) -> Result<Repository, LocalError> {
+        debug!("creating repo from on {}", path);
+        let repo = Repository::init(path)?;
+        debug!("repo created on {}", path);
         Ok(repo)
     }
-}
 
-// init, commit, push
-pub fn icp(
-    repo_path: &str,
-    repo_url: &str,
-    user: &str,
-    ssh_priv_key_path: &Path,
-) -> Result<(), Error> {
-    // Inicializa um novo repositório Git ou abre um existente
-    let repo = Repository::init(repo_path)?;
-    info!("Repositório Git inicializado com sucesso em {}", repo_path);
+    // TODO: return
+    pub(crate) fn clone<P: AsRef<Path> + Display + Copy>(
+        url: url::Url,
+        to: P,
+    ) -> Result<(), LocalError> {
+        debug!("cloning repo from {} to {}", url, to);
+        let mut builder = RepoBuilder::new();
+        let mut fetch_options = FetchOptions::new();
+        let mut remote_callbacks = RemoteCallbacks::new();
 
-    // Adiciona todos os arquivos ao staging
-    let mut index = repo.index()?;
-    index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
-    let oid = index.write_tree()?;
-    let tree = repo.find_tree(oid)?;
+        remote_callbacks.credentials(|_url, _username, _allowed| {
+            let credentials =
+                git2::Cred::ssh_key("git", None, Path::new("."), None);
+            credentials
+        });
+        fetch_options.remote_callbacks(remote_callbacks);
 
-    // Realiza o commit inicial
-    let signature = Signature::now("mps", "mps@mps.com")?;
-    let commit_id = repo.commit(
-        Some("HEAD"), // Atualiza a cabeça (HEAD)
-        &signature,
-        &signature,
-        "Initial commit",
-        &tree,
-        &[],
-    )?;
+        builder.fetch_options(fetch_options);
+        builder.clone(url.as_str(), to.as_ref())?;
+        debug!("repo cloned {} to {}", url, to);
+        Ok(())
+    }
 
-    info!("Commit inicial realizado com sucesso. ID: {}", commit_id);
+    fn pull() {
+        // Caminho do repositório local
+        let repo_path = Path::new("/caminho/do/seu/repo");
 
-    // Configura as credenciais para o envio ao repositório remoto
-    let mut remote_callbacks = RemoteCallbacks::new();
-    remote_callbacks.credentials(|_url, _username, _allowed| {
-        let credentials =
-            git2::Cred::ssh_key(user, None, ssh_priv_key_path, None);
-        credentials
-    });
+        // Abrir o repositório
+        let repo = match Repository::open(repo_path) {
+            Ok(repo) => repo,
+            Err(e) => panic!("Falha ao abrir o repositório: {}", e),
+        };
 
-    // Adiciona um novo remoto
-    let mut remote = repo.remote("origin", repo_url)?;
+        // Configurar callbacks remotos para autenticação SSH
+        let mut callbacks = RemoteCallbacks::new();
+        callbacks.credentials(|_url, username, _allowed| {
+            let username = username.expect("Username not provided");
+            Cred::ssh_key_from_agent(username)
+        });
 
-    // Cria opções de envio
-    let mut push_options = PushOptions::new();
-    push_options.remote_callbacks(remote_callbacks);
+        // Configurar opções de fetch com callbacks remotos
+        let mut fetch_options = FetchOptions::new();
+        fetch_options.remote_callbacks(callbacks);
 
-    // Realiza o push para o repositório remoto
-    remote
-        .push(&["refs/heads/main:refs/heads/main"], Some(&mut push_options))?;
+        // Encontrar o controle remoto "origin"
+        let mut remote = match repo.find_remote("origin") {
+            Ok(remote) => remote,
+            Err(e) => {
+                panic!("Falha ao encontrar o controle remoto 'origin': {}", e)
+            }
+        };
 
-    info!("Push realizado com sucesso!");
-    Ok(())
+        // Realizar o pull
+        match remote.fetch(&["master"], Some(&mut fetch_options), None) {
+            Ok(_) => println!("Pull realizado com sucesso!"),
+            Err(e) => eprintln!("Erro ao realizar o pull: {}", e),
+        }
+    }
 }
 
 #[cfg(test)]

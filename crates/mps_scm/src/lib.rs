@@ -21,7 +21,6 @@ pub(crate) mod provider;
 pub(crate) use provider::*;
 
 pub(crate) mod grpc;
-pub(crate) use grpc::*;
 
 pub(crate) struct NewRepo {
     pub name: String,
@@ -29,12 +28,12 @@ pub(crate) struct NewRepo {
 }
 
 #[async_trait::async_trait]
-pub trait MpsScmUseCase {
+pub(crate) trait MpsScmUseCase {
     async fn create_repo(&self, name: &str) -> NewRepo;
 }
 
 #[async_trait::async_trait]
-pub trait MpsScmGithubPort {
+pub(crate) trait MpsScmGithubPort {
     async fn create_repo(&self, name: &str) -> NewRepo;
 }
 

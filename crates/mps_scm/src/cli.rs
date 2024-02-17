@@ -12,36 +12,15 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::{sync::Arc, path::PathBuf};
+use std::{path::PathBuf, sync::Arc};
 
-use clap::{value_parser, Arg, Command};
+use clap::{
+    builder::styling::AnsiColor, value_parser, Arg, ArgAction, ColorChoice,
+    Command,
+};
+use colored::Colorize;
 
-use crate::{config::MpsScmConfig, grpc};
-
-////
-//// init a github provider
-////
-//let _provider = github::GithubProvider::new(scm_config.github.clone());
-
-////
-//// create github repo
-////
-//// let new_repo = github::NewRepository { name: "test-repo".to_string() };
-//// let result = provider.create_github_repository(new_repo).await;
-//// println!("{:?}", result);
-
-////
-//// clone sample repo
-////
-//// let _output = format!(
-////     "{path}/{owner}/{repo_name}",
-////     path = &scm_config.path,
-////     owner = &scm_config.github.owner,
-////     repo_name = &new_repo.name
-//// );
-//// let sample_repo =
-////     local::LocalProvider::clone(&scm_config.sample_repo, &output);
-//// let git_dir = format!("{output}/.git", output=&output);
+use crate::{grpc, MpsScmConfig};
 
 ////
 //// remove git folder to reinit repo
@@ -61,11 +40,49 @@ use crate::{config::MpsScmConfig, grpc};
 ////     Path::new("/home/user/.ssh/mykey"),
 //// )?;
 pub async fn run() {
+    let banner: String = r#"
+        ███╗   ███╗██████╗ ███████╗      ███████╗ ██████╗███╗   ███╗
+        ████╗ ████║██╔══██╗██╔════╝      ██╔════╝██╔════╝████╗ ████║
+        ██╔████╔██║██████╔╝███████╗█████╗███████╗██║     ██╔████╔██║
+        ██║╚██╔╝██║██╔═══╝ ╚════██║╚════╝╚════██║██║     ██║╚██╔╝██║
+        ██║ ╚═╝ ██║██║     ███████║      ███████║╚██████╗██║ ╚═╝ ██║
+        ╚═╝     ╚═╝╚═╝     ╚══════╝      ╚══════╝ ╚═════╝╚═╝     ╚═╝
+                      mps - source control manager"#
+        .green()
+        .to_string();
+
     let matches = Command::new("mps_scm")
+        .styles(
+            clap::builder::Styles::styled()
+                .header(AnsiColor::Yellow.on_default())
+                .usage(AnsiColor::White.on_default())
+                .literal(AnsiColor::Green.on_default())
+                .placeholder(AnsiColor::Green.on_default()),
+        )
+        .color(ColorChoice::Auto)
+        .max_term_width(80)
         .version("0.1.0")
+        .next_display_order(1000)
         .author("Murilo Ijanc'")
-        .about("mps microservice - source control manager")
+        .about(banner)
         .subcommand(Command::new("grpc").about("Run grpc server"))
+        .arg(
+            Arg::new("log-level")
+                .short('L')
+                .long("log-level")
+                .help("Set log level")
+                .hide(true)
+                .value_parser(["trace", "debug", "info"])
+                .global(true),
+        )
+        .arg(
+            Arg::new("quiet")
+                .short('q')
+                .long("quiet")
+                .help("Suppress diagnostic output")
+                .action(ArgAction::SetTrue)
+                .global(true),
+        )
         .arg(
             Arg::new("config")
                 .short('c')
@@ -77,16 +94,30 @@ pub async fn run() {
         )
         .get_matches();
 
+    // if matches.get_flag("quiet") {
+    //    flags.log_level = Some(Level::Error);
+    //  } else if let Some(log_level) = matches.get_one::<String>("log-level") {
+    //    flags.log_level = match log_level.as_str() {
+    //      "trace" => Some(Level::Trace),
+    //      "debug" => Some(Level::Debug),
+    //      "info" => Some(Level::Info),
+    //      _ => unreachable!(),
+    //    };
+    //  }
+
+    // read config
     let config_path: &PathBuf =
         matches.get_one("config").expect("`config` is required");
-
     let scm_config = MpsScmConfig::load(config_path).unwrap();
 
     match matches.subcommand() {
         Some(("grpc", _)) => {
-            let provider = crate::GithubProvider::new(scm_config.github.clone());
+            // TODO: better aprote
+            let provider =
+                crate::GithubProvider::new(scm_config.github.clone());
             let service = crate::MpsScmService::new(Box::new(provider));
             let state = grpc::MpsScmGrpcState::new(Arc::new(service));
+
             grpc::server(Arc::new(state)).await
         }
         _ => {}

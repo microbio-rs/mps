@@ -28,6 +28,7 @@ aws-sdk-ecr        = "1.13.0"
 base64             = "0.21.7"
 clap               = "4.5.0"
 color-eyre         = "0.6.2"
+colored            = "2.1.0"
 futures-util       = "0.3.30"
 git2               = "0.18.2"
 jemallocator       = "0.5.4"
@@ -44,6 +45,7 @@ tokio              = "1.36.0"
 tonic              = "0.11.0"
 tracing            = "0.1.40"
 tracing-subscriber = "0.3.18"
+url                = "2.5.0"
 
 [profile.release]
 # Configurations explicitly listed here for clarity.
