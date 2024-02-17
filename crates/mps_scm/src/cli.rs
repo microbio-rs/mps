@@ -23,14 +23,6 @@ use colored::Colorize;
 use crate::{grpc, MpsScmConfig};
 
 ////
-//// remove git folder to reinit repo
-////
-//// match std::fs::remove_dir_all(&git_dir) {
-////     Ok(()) => debug!("Pasta .git removida com sucesso!"),
-////     Err(err) => panic!("Erro ao remover a pasta .git: {}", err),
-//// };
-
-////
 //// mps_scm: init, commit, push files to git repo
 ////
 //// local::icp(
@@ -39,6 +31,7 @@ use crate::{grpc, MpsScmConfig};
 ////     "git",
 ////     Path::new("/home/user/.ssh/mykey"),
 //// )?;
+
 pub async fn run() {
     let banner: String = r#"
         ███╗   ███╗██████╗ ███████╗      ███████╗ ██████╗███╗   ███╗
@@ -94,32 +87,42 @@ pub async fn run() {
         )
         .get_matches();
 
-    // if matches.get_flag("quiet") {
-    //    flags.log_level = Some(Level::Error);
-    //  } else if let Some(log_level) = matches.get_one::<String>("log-level") {
-    //    flags.log_level = match log_level.as_str() {
-    //      "trace" => Some(Level::Trace),
-    //      "debug" => Some(Level::Debug),
-    //      "info" => Some(Level::Info),
-    //      _ => unreachable!(),
-    //    };
-    //  }
-
     // read config
     let config_path: &PathBuf =
         matches.get_one("config").expect("`config` is required");
     let scm_config = MpsScmConfig::load(config_path).unwrap();
 
-    match matches.subcommand() {
-        Some(("grpc", _)) => {
-            // TODO: better aprote
-            let provider =
-                crate::GithubProvider::new(scm_config.github.clone());
-            let service = crate::MpsScmService::new(Box::new(provider));
-            let state = grpc::MpsScmGrpcState::new(Arc::new(service));
+    // local clone
+    let local_provider = crate::LocalProvider::new(scm_config.local.clone());
+    let repo_path = local_provider.clone_sample("mps-sample-nestjs").unwrap();
+    println!("Repo path is {}", repo_path.display());
 
-            grpc::server(Arc::new(state)).await
-        }
-        _ => {}
-    };
+    // // if matches.get_flag("quiet") {
+    // //    flags.log_level = Some(Level::Error);
+    // //  } else if let Some(log_level) = matches.get_one::<String>("log-level") {
+    // //    flags.log_level = match log_level.as_str() {
+    // //      "trace" => Some(Level::Trace),
+    // //      "debug" => Some(Level::Debug),
+    // //      "info" => Some(Level::Info),
+    // //      _ => unreachable!(),
+    // //    };
+    // //  }
+
+    // // read config
+    // let config_path: &PathBuf =
+    //     matches.get_one("config").expect("`config` is required");
+    // let scm_config = MpsScmConfig::load(config_path).unwrap();
+
+    // match matches.subcommand() {
+    //     Some(("grpc", _)) => {
+    //         // TODO: better aprote
+    //         let provider =
+    //             crate::GithubProvider::new(scm_config.github.clone());
+    //         let service = crate::MpsScmService::new(Box::new(provider));
+    //         let state = grpc::MpsScmGrpcState::new(Arc::new(service));
+
+    //         grpc::server(Arc::new(state)).await
+    //     }
+    //     _ => {}
+    // };
 }

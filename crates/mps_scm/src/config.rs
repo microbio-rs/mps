@@ -18,8 +18,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct MpsScmConfig {
-    pub repos_path: String,
-    pub sample_repo: String,
+    pub local: crate::LocalConfig,
     pub github: crate::GithubConfig,
 }
 

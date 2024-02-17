@@ -12,11 +12,13 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use std::{fmt::Display, path::Path};
+use std::{
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 
 use git2::{
-    Cred,
-    build::RepoBuilder, FetchOptions, IndexAddOption, PushOptions,
+    build::RepoBuilder, Cred, FetchOptions, IndexAddOption, PushOptions,
     RemoteCallbacks, Repository, Signature,
 };
 use tracing::{debug, info};
@@ -28,31 +30,73 @@ pub(crate) enum LocalError {
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
-pub struct LocalConfig {
-    pub owner: String,
-    pub timeout: u64,
-    pub max_retry: u64,
+pub(crate) struct LocalConfig {
+    pub(crate) base_git_path: PathBuf,
+    pub(crate) git_user: String,
+    pub(crate) owner: String,
+    pub(crate) ssh_prv_key: PathBuf,
+    pub(crate) sample_repo: String,
 }
 
-// impl LocalConfig {
-// }
+impl LocalConfig {
+    fn repo_path(&self) -> PathBuf {
+        self.base_git_path.join(&self.owner)
+    }
+}
 
-////
-//// clone sample repo
-////
-//// let _output = format!(
-////     "{path}/{owner}/{repo_name}",
-////     path = &scm_config.path,
-////     owner = &scm_config.github.owner,
-////     repo_name = &new_repo.name
-//// );
-//// let sample_repo =
-////     local::LocalProvider::clone(&scm_config.sample_repo, &output);
-//// let git_dir = format!("{output}/.git", output=&output);
-
-pub(crate) struct LocalProvider;
+pub(crate) struct LocalProvider {
+    config: LocalConfig,
+}
 
 impl LocalProvider {
+    pub fn new(config: LocalConfig) -> Self {
+        Self { config }
+    }
+}
+
+impl LocalProvider {
+    pub(crate) fn clone_sample(
+        &self,
+        name: &str,
+    ) -> Result<PathBuf, LocalError> {
+        self.clone(
+            &self.config.sample_repo,
+            self.config.repo_path().join(name).as_path(),
+        )
+    }
+
+    pub(crate) fn clone<P: AsRef<Path> + Copy>(
+        &self,
+        url: &str,
+        to: P,
+    ) -> Result<PathBuf, LocalError> {
+        // TODO: check if folder (to) exist if so just pull
+        debug!("cloning repo from {} to {}", url, to.as_ref().display());
+
+        let mut builder = RepoBuilder::new();
+        let mut fetch_options = FetchOptions::new();
+        let mut remote_callbacks = RemoteCallbacks::new();
+
+        // mount credentials based on ssh
+        remote_callbacks.credentials(|_url, _username, _allowed| {
+            let credentials = git2::Cred::ssh_key(
+                &self.config.git_user,
+                None,
+                self.config.ssh_prv_key.as_path(),
+                None,
+            );
+            credentials
+        });
+        fetch_options.remote_callbacks(remote_callbacks);
+        builder.fetch_options(fetch_options);
+        let repo = builder.clone(url, to.as_ref())?;
+
+        // TODO: check if folder exist because has clone no has folder
+        debug!("{} cloned in to {}", url, to.as_ref().display());
+
+        Ok(repo.workdir().unwrap().to_path_buf())
+    }
+
     pub(crate) fn icp(
         &self,
         repo_path: &str,
@@ -115,29 +159,6 @@ impl LocalProvider {
         let repo = Repository::init(path)?;
         debug!("repo created on {}", path);
         Ok(repo)
-    }
-
-    // TODO: return
-    pub(crate) fn clone<P: AsRef<Path> + Display + Copy>(
-        url: url::Url,
-        to: P,
-    ) -> Result<(), LocalError> {
-        debug!("cloning repo from {} to {}", url, to);
-        let mut builder = RepoBuilder::new();
-        let mut fetch_options = FetchOptions::new();
-        let mut remote_callbacks = RemoteCallbacks::new();
-
-        remote_callbacks.credentials(|_url, _username, _allowed| {
-            let credentials =
-                git2::Cred::ssh_key("git", None, Path::new("."), None);
-            credentials
-        });
-        fetch_options.remote_callbacks(remote_callbacks);
-
-        builder.fetch_options(fetch_options);
-        builder.clone(url.as_str(), to.as_ref())?;
-        debug!("repo cloned {} to {}", url, to);
-        Ok(())
     }
 
     fn pull() {
