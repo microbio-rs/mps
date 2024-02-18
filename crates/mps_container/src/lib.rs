@@ -157,11 +157,12 @@ fn build_options(id: &str) -> BuildImageOptions<&str> {
     }
 }
 
-async fn docker_connect() -> Docker {
+
+pub async fn docker_connect() -> Docker {
     Docker::connect_with_socket_defaults().unwrap()
 }
 
-async fn build_image(docker: &Docker, id: &str, dockerfile_content: &str) {
+pub async fn build_image(docker: &Docker, id: &str, dockerfile_content: &str) {
     let compressed = compress(dockerfile_content);
     let build_image_options = build_options(id);
 
