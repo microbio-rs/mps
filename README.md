@@ -13,9 +13,9 @@ microbe platform system
 | [mps_orchestrator][5] | responsible orchestrator manager         | in progress   |
 | [mps_render][8]       | responsible render templates of projects | in progress   |
 | [mps_scm][1]          | responsible source control manager       | in progress   |
-| mps_group             | same as team manager                     | in progess    |
-| mps_monitoring        | collect metrics from projects            | in progess    |
-| mps_project           | responsible project manager              | in progess    |
+| mps_group             | same as team manager                     | in progress   |
+| mps_monitoring        | collect metrics from projects            | in progress   |
+| mps_project           | responsible project manager              | in progress   |
 
 ## create "project"
 
