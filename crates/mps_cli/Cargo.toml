@@ -26,8 +26,8 @@ test = false
 mps_scm              = { version = "0.1.0", path = "../mps_scm", features = ["grpc_client"], default-features = false }
 tokio                = { workspace = true, features = ["rt-multi-thread", "macros"] }
 color-eyre.workspace = true
-mps_log = { version = "0.1.0", path = "../mps_log" }
-tracing.workspace = true
+mps_log              = { version = "0.1.0", path = "../mps_log" }
+tracing.workspace    = true
 
 [target.'cfg(not(target_env = "msvc"))'.dependencies]
 jemallocator = { workspace = true }

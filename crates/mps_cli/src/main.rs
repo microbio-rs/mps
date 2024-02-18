@@ -13,8 +13,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use tracing::{info, warn, debug};
 use mps_log::MpsLog;
+use tracing::{debug, info, warn};
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -26,9 +26,8 @@ async fn main() -> color_eyre::Result<()> {
 
     MpsLog::builder()
         .filter_level("debug")
-        .format("full")
-        .with_ansi(false)
-        .init().unwrap();
+        .with_ansi(true)
+        .init()?;
 
     info!("info message");
     warn!("warn message");
