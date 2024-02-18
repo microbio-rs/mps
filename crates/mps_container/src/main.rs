@@ -45,8 +45,7 @@ pub enum MpsContainerError {
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    let repo_uri =
-        "{account_id}.dkr.ecr.{region}.amazonaws.com/{project_name}";
+    let repo_uri = "{account_id}.dkr.ecr.{region}.amazonaws.com/{project_name}";
     let tag = "0.0.1";
     let path = Path::new("/tmp/murilobsd/mps-sample-nestjs-1");
     let dockerfile_name = "Dockerfile";
@@ -115,7 +114,6 @@ fn compress(build_path: &str) -> Result<Vec<u8>, MpsContainerError> {
     );
     c.write_all(&uncompressed)?;
     Ok(c.finish()?)
-
 }
 
 async fn get_credential() -> (String, String) {
@@ -136,8 +134,12 @@ async fn get_credential() -> (String, String) {
     (parts[0].to_string(), parts[1].to_string())
 }
 
-
-async fn push_image(docker: &Docker, reposity_uri: &str, tag: &str, password: &str) {
+async fn push_image(
+    docker: &Docker,
+    reposity_uri: &str,
+    tag: &str,
+    password: &str,
+) {
     ////
     //// Tag
     ////

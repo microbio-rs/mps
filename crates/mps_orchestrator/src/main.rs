@@ -32,22 +32,36 @@ async fn main() -> color_eyre::Result<()> {
 
     // Crie um contexto de dados para o template
     let mut context = Context::new();
-    context.insert("name", "hello-world");
-    context.insert("port", &8081);
-    context.insert("image", "gcr.io/google-samples/hello-app");
-    context.insert("version", "1.0");
+    context.insert("name", "mps-sample-nestjs");
+    context.insert("port", &3000);
+    context.insert(
+        "image",
+        "account_id.dkr.ecr.region.amazonaws.com/project_name",
+    );
+    context.insert("version", "0.0.1");
     context.insert("namespace", "platform-engineering");
     context.insert("domain", "info");
     context.insert("replicas", &2);
 
-    let resultado = tera.render("deployment.yml", &context);
+    // let namespace = tera.render("namespace.yml", &context);
+    // match namespace {
+    //     Ok(renderizado) => {
+    //         // let d: Deployment = serde_yaml::from_str(&renderizado)?;
+    //         // println!("template renderizado:\n\n{:?}", d);
+    //         mps_orchestrator::create_namespace(&renderizado).await.unwrap()
+    //     }
+    //     Err(erro) => eprintln!("Erro ao renderizar o template: {:?}", erro),
+    // };
 
-    // Verifique se a renderização foi bem-sucedida
-    match resultado {
-        Ok(renderizado) => {
-            let d: Deployment = serde_yaml::from_str(&renderizado)?;
-            println!("template renderizado:\n\n{:?}", d);
-        }
+    let deployment = tera.render("deployment.yml", &context);
+    match deployment {
+        Ok(renderizado) => mps_orchestrator::create_deployment(
+            &renderizado,
+            "mps-sample-nestjs",
+            "platform-engineering",
+        )
+        .await
+        .unwrap(),
         Err(erro) => eprintln!("Erro ao renderizar o template: {:?}", erro),
     };
 
