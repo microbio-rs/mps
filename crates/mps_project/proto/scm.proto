@@ -1,0 +1,21 @@
+syntax = "proto3";
+package scm;
+
+service Scm {
+    rpc CreateRepo(CreateRepoRequest) returns (CreateRepoResponse);
+}
+
+enum Provider {
+    github = 0;
+}
+
+message CreateRepoRequest {
+    Provider provider = 1;
+    string name = 2;
+}
+
+message CreateRepoResponse {
+    string name = 1;
+    string html_url = 2;
+}
+

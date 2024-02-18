@@ -15,7 +15,7 @@ microbe platform system
 | [mps_scm][1]          | responsible source control manager       | in progress   |
 | mps_group             | same as team manager                     | in progress   |
 | mps_monitoring        | collect metrics from projects            | in progress   |
-| mps_project           | responsible project manager              | in progress   |
+| [mps_project][9]      | responsible project manager              | in progress   |
 
 ## create "project"
 
@@ -67,3 +67,4 @@ out: -
 [6]: ./crates/mps_cloud/README.md
 [7]: ./crates/mps_render/README.md
 [8]: ./crates/mps_log/README.md
+[9]: ./crates/mps_project/README.md
