@@ -12,7 +12,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::{time::Duration, path::PathBuf, sync::Arc};
+use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use clap::{
     builder::styling::AnsiColor, value_parser, Arg, ArgAction, ColorChoice,
@@ -20,7 +20,7 @@ use clap::{
 };
 use colored::Colorize;
 use sqlx::postgres::PgConnectOptions;
-use sqlx::{PgPool};
+use sqlx::PgPool;
 
 use crate::{grpc, MpsProjectConfig, MpsProjectError};
 
@@ -82,13 +82,15 @@ pub async fn run() -> Result<(), MpsProjectError> {
     mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
 
     // let pool_options = PgConnectOptions::new()
-    //     .connect_timeout(Duration::from_secs(5)) 
+    //     .connect_timeout(Duration::from_secs(5))
     //     .max_connections(10)
     //     .connection_str("postgres://postgres:postgres@0.0.0.0:5432/mps_project");
 
-    let pool = PgPool::connect("postgres://postgres:postgres@0.0.0.0:5432/mps_project")
-        .await
-        .expect("Failed to connect to the database");
+    let pool = PgPool::connect(
+        "postgres://postgres:postgres@0.0.0.0:5432/mps_project",
+    )
+    .await
+    .expect("Failed to connect to the database");
 
     let project_repo = crate::ProjectRepository::new(pool);
     project_repo.seed(10).await?;

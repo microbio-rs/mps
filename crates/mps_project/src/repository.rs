@@ -11,11 +11,11 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-use fake::{Fake, Faker};
-use sqlx::{PgPool, Executor};
 use chrono::{DateTime, Utc};
-use uuid::Uuid;
+use fake::{Fake, Faker};
+use sqlx::{Executor, PgPool};
 use thiserror::Error;
+use uuid::Uuid;
 
 #[derive(Debug, Error)]
 pub enum ProjectRepositoryError {
@@ -45,7 +45,10 @@ impl ProjectRepository {
         ProjectRepository { pool }
     }
 
-    pub async fn create(&self, project: Project) -> Result<Project, ProjectRepositoryError> {
+    pub async fn create(
+        &self,
+        project: Project,
+    ) -> Result<Project, ProjectRepositoryError> {
         // let id = Uuid::new_v4();
         // let created_at = Utc::now();
         // let updated_at = created_at;
@@ -68,7 +71,10 @@ impl ProjectRepository {
         .await?)
     }
 
-    pub async fn read(&self, project_id: Uuid) -> Result<Project, ProjectRepositoryError> {
+    pub async fn read(
+        &self,
+        project_id: Uuid,
+    ) -> Result<Project, ProjectRepositoryError> {
         Ok(sqlx::query_as!(
             Project,
             "SELECT * FROM projects WHERE id = $1",
@@ -78,7 +84,12 @@ impl ProjectRepository {
         .await?)
     }
 
-    pub async fn update(&self, project_id: Uuid, name: &str, description: &str) -> Result<Project, ProjectRepositoryError> {
+    pub async fn update(
+        &self,
+        project_id: Uuid,
+        name: &str,
+        description: &str,
+    ) -> Result<Project, ProjectRepositoryError> {
         let updated_at = Utc::now();
 
         sqlx::query_as!(
@@ -91,7 +102,10 @@ impl ProjectRepository {
         .map_err(ProjectRepositoryError::from)
     }
 
-    pub async fn delete(&self, project_id: Uuid) -> Result<(), ProjectRepositoryError> {
+    pub async fn delete(
+        &self,
+        project_id: Uuid,
+    ) -> Result<(), ProjectRepositoryError> {
         sqlx::query!("DELETE FROM projects WHERE id = $1", project_id)
             .execute(&self.pool)
             .await
@@ -100,20 +114,28 @@ impl ProjectRepository {
         Ok(())
     }
 
-    pub async fn list(&self, page: i64, page_size: i64) -> Result<Vec<Project>, ProjectRepositoryError> {
+    pub async fn list(
+        &self,
+        page: i64,
+        page_size: i64,
+    ) -> Result<Vec<Project>, ProjectRepositoryError> {
         let offset = (page - 1) * page_size;
 
         sqlx::query_as!(
             Project,
             "SELECT * FROM projects ORDER BY created_at LIMIT $1 OFFSET $2",
-            page_size, offset
+            page_size,
+            offset
         )
         .fetch_all(&self.pool)
         .await
         .map_err(ProjectRepositoryError::from)
     }
 
-    pub async fn seed(&self, count: usize) -> Result<(), ProjectRepositoryError> {
+    pub async fn seed(
+        &self,
+        count: usize,
+    ) -> Result<(), ProjectRepositoryError> {
         for _ in 0..count {
             let p: Project = Faker.fake();
 
@@ -167,4 +189,3 @@ impl ProjectRepository {
 //     project_repository.seed(5).await.expect("Failed to seed projects");
 //     println!("Seeded 5 projects");
 // }
-

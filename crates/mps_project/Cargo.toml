@@ -15,26 +15,34 @@ rust-version.workspace = true
 mps_config = { version = "0.1.0", path = "../mps_config" }
 mps_log    = { version = "0.1.0", path = "../mps_log" }
 
-aws-config.workspace   = true
-aws-sdk-ecr.workspace  = true
-clap.workspace         = true
-color-eyre.workspace   = true
-git2.workspace         = true
+aws-config.workspace = true
+aws-sdk-ecr.workspace = true
+clap.workspace = true
+color-eyre.workspace = true
+git2.workspace = true
 jemallocator.workspace = true
-prost                  = "0.12.3"
-reqwest                = { version = "0.11.24", features = ["json"] }
-serde                  = { workspace = true, features = ["derive"] }
-serde_json.workspace   = true
-thiserror.workspace    = true
-tokio                  = { workspace = true, features = ["rt-multi-thread", "macros"] }
-tonic.workspace        = true
-tracing.workspace      = true
-async-trait.workspace  = true
-url                    = { workspace = true, features = ["serde"] }
-colored.workspace      = true
+prost = "0.12.3"
+reqwest = { version = "0.11.24", features = ["json"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+tonic.workspace = true
+tracing.workspace = true
+async-trait.workspace = true
+url = { workspace = true, features = ["serde"] }
+colored.workspace = true
 fake = { workspace = true, features = ["derive", "uuid", "chrono"] }
 uuid = { workspace = true, features = ["v4", "fast-rng", "serde"] }
-sqlx = { version = "0.7.3", features = ["postgres", "macros", "migrate", "uuid", "chrono", "runtime-tokio", "tls-rustls"] }
+sqlx = { version = "0.7.3", features = [
+  "postgres",
+  "macros",
+  "migrate",
+  "uuid",
+  "chrono",
+  "runtime-tokio",
+  "tls-rustls",
+] }
 chrono = { workspace = true, features = ["serde"] }
 
 [lints]
