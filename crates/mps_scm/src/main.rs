@@ -19,7 +19,7 @@ static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    init_tracing();
+    // init_tracing();
 
     mps_scm::cli::run().await;
 
@@ -28,7 +28,7 @@ async fn main() -> color_eyre::Result<()> {
     Ok(())
 }
 
-fn init_tracing() {
-    use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
-    registry().with(fmt::layer()).with(EnvFilter::from_env("MPS_LOG")).init();
-}
+// fn init_tracing() {
+//     use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
+//     registry().with(fmt::layer()).with(EnvFilter::from_env("MPS_LOG")).init();
+// }
