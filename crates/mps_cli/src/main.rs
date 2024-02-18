@@ -13,6 +13,9 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+use tracing::{info, warn, debug};
+use mps_log::MpsLog;
+
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
 static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
@@ -20,12 +23,16 @@ static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    init_tracing();
+
+    MpsLog::builder()
+        .filter_level("debug")
+        .format("full")
+        .with_ansi(false)
+        .init().unwrap();
+
+    info!("info message");
+    warn!("warn message");
+    debug!("debug message");
 
     Ok(())
-}
-
-fn init_tracing() {
-    use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
-    registry().with(fmt::layer()).with(EnvFilter::from_env("MPS_LOG")).init();
 }
