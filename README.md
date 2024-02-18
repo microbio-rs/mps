@@ -9,13 +9,13 @@ microbe platform system
 | [mps_config][3]       | responsible for reading config files     | in progress   |
 | [mps_container][4]    | responsible for containers manager       | in progress   |
 | [mps_im][2]           | responsible instante messaging manager   | in progress   |
-| [mps_log][7]           | log | in progress   |
+| [mps_log][7]          | mps log                                  | in progress   |
 | [mps_orchestrator][5] | responsible orchestrator manager         | in progress   |
 | [mps_render][8]       | responsible render templates of projects | in progress   |
 | [mps_scm][1]          | responsible source control manager       | in progress   |
-| mps_project          | | |
-| mps_group | | |
-| mps_monitoring | | |
+| mps_group             | same as team manager                     | in progess    |
+| mps_monitoring        | collect metrics from projects            | in progess    |
+| mps_project           | responsible project manager              | in progess    |
 
 ## create "project"
 
