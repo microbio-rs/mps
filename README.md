@@ -21,8 +21,9 @@ microbe platform system
 
 1. Create github repo
 ```
-in: project_name
-out: project_name, git_url
+before: base_path /tmp, path ssh key, user git, owner /tmp/owner
+in: url_boilerplate,
+out: the full path from where the repository was cloned
 ```
 
 2. Clone sample (clone boilerplate template)
