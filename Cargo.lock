@@ -2038,6 +2038,7 @@ name = "mps_log"
 version = "0.1.0"
 dependencies = [
  "clia-local-offset",
+ "thiserror",
  "time",
  "tracing",
  "tracing-subscriber",

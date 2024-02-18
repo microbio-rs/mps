@@ -21,7 +21,6 @@ const FORMAT_COMPACT: &str = "compact";
 const FORMAT_JSON: &str = "json";
 const FORMAT_FULL: &str = "full";
 
-/// The tracing configuration properties.
 #[derive(Debug, Clone)]
 pub struct MpsLog {
     filter_level: String,
@@ -33,6 +32,9 @@ pub struct MpsLog {
     with_thread_names: bool,
     with_source_location: bool,
 }
+
+#[derive(thiserror::Error, Debug)]
+pub enum MpsLogError {}
 
 impl Default for MpsLog {
     fn default() -> Self {
@@ -101,7 +103,7 @@ impl MpsLog {
         self
     }
 
-    pub fn init(self) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn init(self) -> Result<Self, MpsLogError> {
         // Local offset timezone init, and set time format.
         let offset = clia_local_offset::current_local_offset()
             .expect("Can not get local offset!");

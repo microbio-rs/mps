@@ -13,6 +13,7 @@ rust-version.workspace = true
 
 [dependencies]
 clia-local-offset = "0.1"
+thiserror.workspace = true
 time = { version = "0.3.34", features = ["macros"] }
 tracing.workspace = true
 tracing-subscriber = { version = "0.3", features = [
