@@ -1,4 +1,3 @@
-#![allow(unused_imports)]
 // Copyright (c) 2023 Murilo Ijanc' <mbsd@m0x.ru>
 //
 // Permission to use, copy, modify, and distribute this software for any
@@ -13,9 +12,6 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use mps_log::MpsLog;
-use tracing::{debug, info, warn};
-
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
 static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
@@ -24,14 +20,10 @@ static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
-    MpsLog::builder()
+    mps_log::MpsLog::builder()
         .filter_level("debug")
         .with_ansi(true)
         .init()?;
-
-    info!("info message");
-    warn!("warn message");
-    debug!("debug message");
 
     Ok(())
 }
