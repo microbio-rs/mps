@@ -31,7 +31,7 @@ pub enum MpsProjectError {
     #[error("failed load log: {0}")]
     Log(#[from] mps_log::MpsLogError),
     #[error("failed project repository: {0}")]
-    ProjectRepository(#[from] crate::ProjectRepositoryError),
+    Repository(#[from] repository::RepositoryError),
 }
 
 pub(crate) struct NewRepo {

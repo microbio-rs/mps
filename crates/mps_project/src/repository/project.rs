@@ -11,13 +11,16 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+use std::process::Command;
+
 use chrono::{DateTime, Utc};
 use fake::{Fake, Faker};
 use sqlx::{Executor, PgPool};
-use thiserror::Error;
+use tracing::{error, info};
 use uuid::Uuid;
 
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum ProjectRepositoryError {
     #[error("SQL error: {0}")]
     SqlxError(#[from] sqlx::Error),
@@ -145,47 +148,3 @@ impl ProjectRepository {
         Ok(())
     }
 }
-
-// // A função de migração para criar a tabela
-// async fn create_projects_table(pool: &PgPool) -> Result<(), ProjectRepositoryError> {
-//     sqlx::migrate!("./migrations")
-//         .run(pool)
-//         .await
-//         .map_err(ProjectRepositoryError::from)?;
-
-//     Ok(())
-// }
-
-// #[tokio::main]
-// async fn main() {
-//     let database_url = "postgresql://your_username:your_password@localhost/your_database";
-//     let pool = PgPool::connect(&database_url).await.expect("Failed to connect to the database");
-
-//     // Crie a tabela de projetos
-//     create_projects_table(&pool).await.expect("Failed to create projects table");
-
-//     // Crie a instância do repositório
-//     let project_repository = ProjectRepository::new(pool);
-
-//     // Exemplo de operações CRUD
-//     let user_id = Uuid::new_v4();
-//     let created_project = project_repository.create(user_id, "Project Name", "Project Description").await.expect("Failed to create project");
-//     println!("Created project: {:?}", created_project);
-
-//     let read_project = project_repository.read(created_project.id).await.expect("Failed to read project");
-//     println!("Read project: {:?}", read_project);
-
-//     let updated_project = project_repository.update(created_project.id, "Updated Name", "Updated Description").await.expect("Failed to update project");
-//     println!("Updated project: {:?}", updated_project);
-
-//     project_repository.delete(created_project.id).await.expect("Failed to delete project");
-//     println!("Deleted project with id: {:?}", created_project.id);
-
-//     // Exemplo de listagem com paginação
-//     let projects = project_repository.list(1, 10).await.expect("Failed to list projects");
-//     println!("Projects list: {:?}", projects);
-
-//     // Exemplo de seed
-//     project_repository.seed(5).await.expect("Failed to seed projects");
-//     println!("Seeded 5 projects");
-// }

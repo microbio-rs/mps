@@ -51,6 +51,26 @@ pub async fn run() -> Result<(), MpsProjectError> {
         .author("Murilo Ijanc'")
         .about(banner)
         .subcommand(Command::new("grpc").about("Run grpc server"))
+        .subcommand(
+            Command::new("migration").about("Run migrations").arg(
+                Arg::new("path")
+                    .long("path")
+                    .value_name("PATH")
+                    .help("Caminho da pasta migrations")
+                    .value_parser(value_parser!(PathBuf))
+                    .required(true),
+            ),
+        )
+        .subcommand(
+            Command::new("seed").about("Run seed").arg(
+                Arg::new("size")
+                    .long("size")
+                    .value_name("SIZE")
+                    .help("Quantidade de registros gerados")
+                    .default_value("10")
+                    .required(true),
+            ),
+        )
         .arg(
             Arg::new("log-level")
                 .short('L')
@@ -86,14 +106,18 @@ pub async fn run() -> Result<(), MpsProjectError> {
     //     .max_connections(10)
     //     .connection_str("postgres://postgres:postgres@0.0.0.0:5432/mps_project");
 
-    let pool = PgPool::connect(
-        "postgres://postgres:postgres@0.0.0.0:5432/mps_project",
-    )
-    .await
-    .expect("Failed to connect to the database");
+    let database_uri = "postgres://postgres:postgres@0.0.0.0:5432/mps_project";
+    // let pool = PgPool::connect(database_uri)
+    // .await
+    // .expect("Failed to connect to the database");
 
-    let project_repo = crate::ProjectRepository::new(pool);
-    project_repo.seed(10).await?;
+    // let project_repo = crate::ProjectRepository::new(pool);
+    // project_repo.seed(10).await?;
+
+    crate::run_migration(
+        database_uri,
+        "/home/msi/src/mps/crates/mps_project/migrations",
+    )?;
 
     // read config
     let config_path: &PathBuf =

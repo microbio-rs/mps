@@ -20,10 +20,7 @@ static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
-    mps_log::MpsLog::builder()
-        .filter_level("debug")
-        .with_ansi(true)
-        .init()?;
+    mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
 
     Ok(())
 }

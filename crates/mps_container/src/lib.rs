@@ -157,7 +157,6 @@ fn build_options(id: &str) -> BuildImageOptions<&str> {
     }
 }
 
-
 pub async fn docker_connect() -> Docker {
     Docker::connect_with_socket_defaults().unwrap()
 }
