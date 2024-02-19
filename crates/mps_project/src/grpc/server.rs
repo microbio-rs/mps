@@ -16,12 +16,15 @@ use chrono::Utc;
 use sqlx::PgPool;
 use tonic::{transport::Server, Request, Response, Status};
 use uuid::Uuid;
+use serde::Deserialize;
+use tracing::info;
 
 use super::proto::{
     create_project_response::Result as CreateResult,
     delete_project_response::Result as DeleteResult,
     read_project_response::Result as ReadResult,
     update_project_response::Result as UpdateResult, *,
+    project_crud_server::ProjectCrudServer,
 };
 
 use crate::repository::{Project, ProjectRepository};
@@ -199,16 +202,31 @@ impl project_crud_server::ProjectCrud for CrudService {
 //     }
 // }
 
-// pub async fn server(state: Arc<MpsScmGrpcState>) {
-//     let addr = "[::1]:50051".parse().unwrap();
-//     let scm = MpsScmGrpcServer::new(state);
+#[derive(Debug, Clone, Deserialize)]
+pub struct GrpcConfig{
+    pub ip: String,
+    pub port: u16,
+}
 
-//     Server::builder()
-//         .add_service(ScmServer::new(scm))
-//         .serve(addr)
-//         .await
-//         .unwrap();
-// }
+impl GrpcConfig {
+    pub fn address(&self) -> String {
+        format!("{}:{}", self.ip, self.port)
+    }
+}
+
+// pub async fn server(state: Arc<MpsScmGrpcState>) {
+pub async fn server(conf: &GrpcConfig, project_repository: ProjectRepository) {
+    let addr = conf.address().parse().unwrap();
+
+    info!("Start grpc server on {addr}");
+    let scm = CrudService { project_repository};
+
+    Server::builder()
+        .add_service(ProjectCrudServer::new(scm))
+        .serve(addr)
+        .await
+        .unwrap();
+}
 
 // #[cfg(test)]
 // mod tests {

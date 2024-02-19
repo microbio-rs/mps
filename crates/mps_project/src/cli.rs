@@ -106,35 +106,36 @@ pub async fn run() -> Result<(), MpsProjectError> {
     //     .max_connections(10)
     //     .connection_str("postgres://postgres:postgres@0.0.0.0:5432/mps_project");
 
-    let database_uri = "postgres://postgres:postgres@0.0.0.0:5432/mps_project";
-    // let pool = PgPool::connect(database_uri)
-    // .await
-    // .expect("Failed to connect to the database");
-
-    // let project_repo = crate::ProjectRepository::new(pool);
+    // let database_uri = "postgres://postgres:postgres@0.0.0.0:5432/mps_project";
     // project_repo.seed(10).await?;
 
-    crate::run_migration(
-        database_uri,
-        "/home/msi/src/mps/crates/mps_project/migrations",
-    )?;
+    // crate::run_migration(
+    //     database_uri,
+    //     "/home/msi/src/mps/crates/mps_project/migrations",
+    // )?;
 
     // read config
     let config_path: &PathBuf =
         matches.get_one("config").expect("`config` is required");
     let project_config = MpsProjectConfig::load(config_path)?;
+    let pool = PgPool::connect(&project_config.database.uri)
+    .await
+    .expect("Failed to connect to the database");
 
-    // match matches.subcommand() {
-    //     Some(("grpc", _)) => {
-    //         // TODO: better aprote
-    //         let provider =
-    //             crate::GithubProvider::new(project_config.github.clone());
-    //         let service = crate::MpsProjectService::new(Box::new(provider));
-    //         let state = grpc::MpsProjectGrpcState::new(Arc::new(service));
+    let project_repo = crate::ProjectRepository::new(pool);
 
-    //         grpc::server(Arc::new(state)).await
-    //     }
-    //     _ => {}
-    // };
+    match matches.subcommand() {
+        Some(("grpc", _)) => {
+            // TODO: better aprote
+            // let provider =
+            //     crate::GithubProvider::new(project_config.github.clone());
+            // let service = crate::MpsProjectService::new(Box::new(provider));
+            // let state = grpc::MpsProjectGrpcState::new(Arc::new(service));
+
+            // grpc::server(Arc::new(state)).await
+            grpc::server(&project_config.grpc_server, project_repo).await
+        }
+        _ => {}
+    };
     Ok(())
 }

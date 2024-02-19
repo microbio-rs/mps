@@ -17,8 +17,17 @@ use std::path::Path;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
+pub struct DatabaseConfig {
+    pub uri: String,
+    pub timeout: u64,
+    pub max_pool: usize,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct MpsProjectConfig {
     pub log_level: String,
+    pub database: DatabaseConfig,
+    pub grpc_server: crate::grpc::GrpcConfig,
 }
 
 #[derive(thiserror::Error, Debug)]
