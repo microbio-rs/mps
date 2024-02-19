@@ -14,7 +14,7 @@ pub struct CreateProjectResponse {
     #[prost(enumeration = "create_project_response::Result", tag = "1")]
     pub result: i32,
     #[prost(message, optional, tag = "2")]
-    pub project: ::core::option::Option<Project>,
+    pub project: ::core::option::Option<ProjectResponse>,
 }
 /// Nested message and enum types in `CreateProjectResponse`.
 pub mod create_project_response {
@@ -67,7 +67,7 @@ pub struct ReadProjectResponse {
     #[prost(enumeration = "read_project_response::Result", tag = "1")]
     pub result: i32,
     #[prost(message, optional, tag = "2")]
-    pub project: ::core::option::Option<Project>,
+    pub project: ::core::option::Option<ProjectResponse>,
 }
 /// Nested message and enum types in `ReadProjectResponse`.
 pub mod read_project_response {
@@ -218,7 +218,7 @@ pub mod delete_project_response {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Project {
+pub struct ProjectResponse {
     #[prost(string, tag = "1")]
     pub id: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]

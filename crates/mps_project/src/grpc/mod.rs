@@ -1,6 +1,6 @@
 pub mod proto {
-    tonic::include_proto!("application_proto");
     tonic::include_proto!("project_proto");
+    // tonic::include_proto!("application_proto");
 }
 
 #[cfg(feature = "grpc_server")]

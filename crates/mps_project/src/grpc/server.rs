@@ -20,21 +20,13 @@ use tonic::{transport::Server, Request, Response, Status};
 use uuid::Uuid;
 
 use super::proto::{
-    create_project_response::Result as CreateResult, delete_project_response::Result as DeleteResult,
-    read_project_response::Result as ReadResult, update_project_response::Result as UpdateResult,
-    *,
+    create_project_response::Result as CreateResult,
+    delete_project_response::Result as DeleteResult,
+    read_project_response::Result as ReadResult,
+    update_project_response::Result as UpdateResult, *,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Project {
-    id: Uuid,
-    user_id: Uuid,
-    name: String,
-    description: String,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-}
-
+use crate::repository::{Project, ProjectRepository};
 
 impl From<Project> for ProjectResponse {
     fn from(project: Project) -> Self {
@@ -49,13 +41,12 @@ impl From<Project> for ProjectResponse {
     }
 }
 
-#[derive(Default)]
 pub struct CrudService {
-    db_pool: PgPool,
+    project_repository: ProjectRepository,
 }
 
 #[tonic::async_trait]
-impl crud_server::Crud for CrudService {
+impl project_crud_server::ProjectCrud for CrudService {
     async fn create_project(
         &self,
         request: Request<CreateProjectRequest>,
@@ -64,21 +55,22 @@ impl crud_server::Crud for CrudService {
 
         let project = Project {
             id: Uuid::new_v4(),
-            user_id: Uuid::parse_str(&project_req.user_id).map_err(|_| Status::invalid_argument("Invalid user ID"))?,
+            user_id: Uuid::parse_str(&project_req.user_id)
+                .map_err(|_| Status::invalid_argument("Invalid user ID"))?,
             name: project_req.name,
             description: project_req.description,
             created_at: Utc::now(),
             updated_at: Utc::now(),
         };
 
-        if let Err(e) = project.validate() {
-            return Err(Status::invalid_argument(e.to_string()));
-        }
+        // if let Err(e) = project.validate() {
+        //     return Err(Status::invalid_argument(e.to_string()));
+        // }
 
-        match Project::create(&self.db_pool, &project).await {
+        match self.project_repository.create(&project).await {
             Ok(_) => {
                 let response = CreateProjectResponse {
-                    result: Some(CreateResult::Success.into()),
+                    result: CreateResult::Success.into(),
                     project: Some(project.into()),
                 };
                 Ok(Response::new(response))
@@ -91,11 +83,12 @@ impl crud_server::Crud for CrudService {
         &self,
         request: Request<ReadProjectRequest>,
     ) -> Result<Response<ReadProjectResponse>, Status> {
-        let project_id = Uuid::parse_str(&request.into_inner().id).map_err(|_| Status::invalid_argument("Invalid project ID"))?;
-        match Project::read(&self.db_pool, project_id).await {
+        let project_id = Uuid::parse_str(&request.into_inner().id)
+            .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
+        match self.project_repository.read(project_id).await {
             Ok(project) => {
                 let response = ReadProjectResponse {
-                    result: Some(ReadResult::Success.into()),
+                    result: ReadResult::Success.into(),
                     project: Some(project.into()),
                 };
                 Ok(Response::new(response))
@@ -109,26 +102,28 @@ impl crud_server::Crud for CrudService {
         request: Request<UpdateProjectRequest>,
     ) -> Result<Response<UpdateProjectResponse>, Status> {
         let project_req = request.into_inner();
-        let project_id = Uuid::parse_str(&project_req.id).map_err(|_| Status::invalid_argument("Invalid project ID"))?;
+        let project_id = Uuid::parse_str(&project_req.id)
+            .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
 
-        let mut project = match Project::read(&self.db_pool, project_id).await {
+        let mut project = match self.project_repository.read(project_id).await {
             Ok(project) => project,
             Err(_) => return Err(Status::not_found("Project not found")),
         };
 
-        project.user_id = Uuid::parse_str(&project_req.user_id).map_err(|_| Status::invalid_argument("Invalid user ID"))?;
+        project.user_id = Uuid::parse_str(&project_req.user_id)
+            .map_err(|_| Status::invalid_argument("Invalid user ID"))?;
         project.name = project_req.name;
         project.description = project_req.description;
         project.updated_at = Utc::now();
 
-        if let Err(e) = project.validate() {
-            return Err(Status::invalid_argument(e.to_string()));
-        }
+        // if let Err(e) = project.validate() {
+        //     return Err(Status::invalid_argument(e.to_string()));
+        // }
 
-        match Project::update(&self.db_pool, &project).await {
+        match self.project_repository.update(&project).await {
             Ok(_) => {
                 let response = UpdateProjectResponse {
-                    result: Some(UpdateResult::Success.into()),
+                    result: UpdateResult::Success.into(),
                 };
                 Ok(Response::new(response))
             }
@@ -140,11 +135,12 @@ impl crud_server::Crud for CrudService {
         &self,
         request: Request<DeleteProjectRequest>,
     ) -> Result<Response<DeleteProjectResponse>, Status> {
-        let project_id = Uuid::parse_str(&request.into_inner().id).map_err(|_| Status::invalid_argument("Invalid project ID"))?;
-        match Project::delete(&self.db_pool, project_id).await {
+        let project_id = Uuid::parse_str(&request.into_inner().id)
+            .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
+        match self.project_repository.delete(project_id).await {
             Ok(_) => {
                 let response = DeleteProjectResponse {
-                    result: Some(DeleteResult::Success.into()),
+                    result: DeleteResult::Success.into(),
                 };
                 Ok(Response::new(response))
             }

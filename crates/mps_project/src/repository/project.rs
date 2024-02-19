@@ -39,6 +39,7 @@ pub struct Project {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Clone)]
 pub struct ProjectRepository {
     pool: PgPool,
 }
@@ -50,7 +51,7 @@ impl ProjectRepository {
 
     pub async fn create(
         &self,
-        project: Project,
+        project: &Project,
     ) -> Result<Project, ProjectRepositoryError> {
         // let id = Uuid::new_v4();
         // let created_at = Utc::now();
@@ -89,16 +90,13 @@ impl ProjectRepository {
 
     pub async fn update(
         &self,
-        project_id: Uuid,
-        name: &str,
-        description: &str,
+        project: &Project,
     ) -> Result<Project, ProjectRepositoryError> {
-        let updated_at = Utc::now();
 
         sqlx::query_as!(
             Project,
             "UPDATE projects SET name = $1, description = $2, updated_at = $3 WHERE id = $4 RETURNING *",
-            name, description, updated_at, project_id
+            project.name, project.description, project.updated_at, project.id
         )
         .fetch_one(&self.pool)
         .await
@@ -142,7 +140,7 @@ impl ProjectRepository {
         for _ in 0..count {
             let p: Project = Faker.fake();
 
-            self.create(p).await?;
+            self.create(&p).await?;
         }
 
         Ok(())
