@@ -119,8 +119,8 @@ pub async fn run() -> Result<(), MpsProjectError> {
         matches.get_one("config").expect("`config` is required");
     let project_config = MpsProjectConfig::load(config_path)?;
     let pool = PgPool::connect(&project_config.database.uri)
-    .await
-    .expect("Failed to connect to the database");
+        .await
+        .expect("Failed to connect to the database");
 
     let project_repo = crate::ProjectRepository::new(pool);
 

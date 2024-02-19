@@ -13,18 +13,18 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 use chrono::Utc;
+use serde::Deserialize;
 use sqlx::PgPool;
 use tonic::{transport::Server, Request, Response, Status};
-use uuid::Uuid;
-use serde::Deserialize;
 use tracing::info;
+use uuid::Uuid;
 
 use super::proto::{
     create_project_response::Result as CreateResult,
     delete_project_response::Result as DeleteResult,
+    project_crud_server::ProjectCrudServer,
     read_project_response::Result as ReadResult,
     update_project_response::Result as UpdateResult, *,
-    project_crud_server::ProjectCrudServer,
 };
 
 use crate::repository::{Project, ProjectRepository};
@@ -203,7 +203,7 @@ impl project_crud_server::ProjectCrud for CrudService {
 // }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct GrpcConfig{
+pub struct GrpcConfig {
     pub ip: String,
     pub port: u16,
 }
@@ -219,7 +219,7 @@ pub async fn server(conf: &GrpcConfig, project_repository: ProjectRepository) {
     let addr = conf.address().parse().unwrap();
 
     info!("Start grpc server on {addr}");
-    let scm = CrudService { project_repository};
+    let scm = CrudService { project_repository };
 
     Server::builder()
         .add_service(ProjectCrudServer::new(scm))
