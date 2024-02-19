@@ -1,5 +1,6 @@
-pub mod scm {
-    tonic::include_proto!("scm");
+pub mod proto {
+    tonic::include_proto!("application_proto");
+    tonic::include_proto!("project_proto");
 }
 
 #[cfg(feature = "grpc_server")]

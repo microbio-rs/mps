@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package application_proto;
+
+service ApplicationCrud {
+  rpc CreateApplication(CreateApplicationRequest) returns (CreateApplicationResponse);
+  rpc ReadApplication(ReadApplicationRequest) returns (ReadApplicationResponse);
+  rpc UpdateApplication(UpdateApplicationRequest) returns (UpdateApplicationResponse);
+  rpc DeleteApplication(DeleteApplicationRequest) returns (DeleteApplicationResponse);
+}
+
+message CreateApplicationRequest {
+  string user_id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message CreateApplicationResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+  Application application = 2;
+}
+
+message ReadApplicationRequest {
+  string id = 1;
+}
+
+message ReadApplicationResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+  Application application = 2;
+}
+
+message UpdateApplicationRequest {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string description = 4;
+}
+
+message UpdateApplicationResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+}
+
+message DeleteApplicationRequest {
+  string id = 1;
+}
+
+message DeleteApplicationResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+}
+
+message Application {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string description = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+

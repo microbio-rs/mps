@@ -12,18 +12,18 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use super::scm::scm_client::ScmClient;
-use super::scm::CreateRepoRequest;
+// use super::scm::scm_client::ScmClient;
+// use super::scm::CreateRepoRequest;
 
-#[allow(dead_code)]
-pub async fn create_repo(
-    request: CreateRepoRequest,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = ScmClient::connect("http://[::1]:50051").await?;
+// #[allow(dead_code)]
+// pub async fn create_repo(
+//     request: CreateRepoRequest,
+// ) -> Result<(), Box<dyn std::error::Error>> {
+//     let mut client = ScmClient::connect("http://[::1]:50051").await?;
 
-    let response = client.create_repo(request).await?;
+//     let response = client.create_repo(request).await?;
 
-    println!("RESPONSE={:?}", response);
+//     println!("RESPONSE={:?}", response);
 
-    Ok(())
-}
+//     Ok(())
+// }

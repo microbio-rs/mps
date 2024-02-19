@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package project_proto;
+
+service ProjectCrud {
+  rpc CreateProject(CreateProjectRequest) returns (CreateProjectResponse);
+  rpc ReadProject(ReadProjectRequest) returns (ReadProjectResponse);
+  rpc UpdateProject(UpdateProjectRequest) returns (UpdateProjectResponse);
+  rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse);
+}
+
+message CreateProjectRequest {
+  string user_id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message CreateProjectResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+  Project project = 2;
+}
+
+message ReadProjectRequest {
+  string id = 1;
+}
+
+message ReadProjectResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+  Project project = 2;
+}
+
+message UpdateProjectRequest {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string description = 4;
+}
+
+message UpdateProjectResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+}
+
+message DeleteProjectRequest {
+  string id = 1;
+}
+
+message DeleteProjectResponse {
+  enum Result {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  Result result = 1;
+}
+
+message Project {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string description = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
