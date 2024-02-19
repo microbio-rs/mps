@@ -92,7 +92,6 @@ impl ProjectRepository {
         &self,
         project: &Project,
     ) -> Result<Project, ProjectRepositoryError> {
-
         sqlx::query_as!(
             Project,
             "UPDATE projects SET name = $1, description = $2, updated_at = $3 WHERE id = $4 RETURNING *",
