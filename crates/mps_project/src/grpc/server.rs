@@ -12,10 +12,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use chrono::{DateTime, Utc};
-use prost::Message;
-use serde::{Deserialize, Serialize};
-use sqlx::{PgPool, Result};
+use chrono::Utc;
+use sqlx::PgPool;
 use tonic::{transport::Server, Request, Response, Status};
 use uuid::Uuid;
 
