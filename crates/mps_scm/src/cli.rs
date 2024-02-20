@@ -92,10 +92,10 @@ pub async fn run() {
         matches.get_one("config").expect("`config` is required");
     let scm_config = MpsScmConfig::load(config_path).unwrap();
 
-    // local clone
-    let local_provider = crate::LocalProvider::new(scm_config.local.clone());
-    let repo_path = local_provider.clone_sample("mps-sample-nestjs").unwrap();
-    println!("Repo path is {}", repo_path.display());
+    // // local clone
+    // let local_provider = crate::LocalProvider::new(scm_config.local.clone());
+    // let repo_path = local_provider.clone_sample("mps-sample-nestjs").unwrap();
+    // println!("Repo path is {}", repo_path.display());
 
     // // if matches.get_flag("quiet") {
     // //    flags.log_level = Some(Level::Error);
@@ -108,21 +108,16 @@ pub async fn run() {
     // //    };
     // //  }
 
-    // // read config
-    // let config_path: &PathBuf =
-    //     matches.get_one("config").expect("`config` is required");
-    // let scm_config = MpsScmConfig::load(config_path).unwrap();
+    match matches.subcommand() {
+        Some(("grpc", _)) => {
+            // TODO: better aprote
+            let provider =
+                crate::GithubProvider::new(scm_config.github.clone());
+            let service = crate::MpsScmService::new(Box::new(provider));
+            let state = grpc::MpsScmGrpcState::new(Arc::new(service));
 
-    // match matches.subcommand() {
-    //     Some(("grpc", _)) => {
-    //         // TODO: better aprote
-    //         let provider =
-    //             crate::GithubProvider::new(scm_config.github.clone());
-    //         let service = crate::MpsScmService::new(Box::new(provider));
-    //         let state = grpc::MpsScmGrpcState::new(Arc::new(service));
-
-    //         grpc::server(Arc::new(state)).await
-    //     }
-    //     _ => {}
-    // };
+            grpc::server(Arc::new(state)).await
+        }
+        _ => {}
+    };
 }

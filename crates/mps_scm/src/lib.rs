@@ -20,9 +20,10 @@ pub(crate) use config::*;
 pub(crate) mod provider;
 pub(crate) use provider::*;
 
-pub(crate) mod grpc;
+pub mod grpc;
 
-pub(crate) struct NewRepo {
+#[derive(Debug)]
+pub struct NewRepo {
     pub name: String,
     pub html_url: String,
 }

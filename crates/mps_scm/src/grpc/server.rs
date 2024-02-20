@@ -19,7 +19,7 @@ use super::scm::scm_server::{Scm, ScmServer};
 use super::scm::{CreateRepoRequest, CreateRepoResponse};
 
 #[derive(Clone)]
-pub(crate) struct MpsScmGrpcState {
+pub struct MpsScmGrpcState {
     create_repo_usecase: Arc<dyn crate::MpsScmUseCase + Send + Sync>,
 }
 
@@ -54,8 +54,6 @@ impl Scm for MpsScmGrpcServer {
         &self,
         request: Request<CreateRepoRequest>,
     ) -> Result<Response<CreateRepoResponse>, Status> {
-        println!("Got a request: {:?}", &request);
-
         let name: String = request.into_inner().name;
         let resp = self.state.create_repo_usecase.create_repo(&name).await;
 
