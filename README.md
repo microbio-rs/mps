@@ -17,6 +17,12 @@ microbe platform system
 | mps_monitoring        | collect metrics from projects            | in progress   |
 | [mps_project][9]      | responsible project manager              | in progress   |
 
+## generate offline mode
+
+```console
+cargo sqlx prepare --check --workspace
+```
+
 ## create "project"
 
 1. Create github repo
