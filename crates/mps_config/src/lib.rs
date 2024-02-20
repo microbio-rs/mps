@@ -42,7 +42,7 @@ where
     let app_config: T =
         config.try_deserialize().map_err(AppConfigError::Load)?;
 
-    debug!("Configuration loaded successfully: {:?}", app_config);
+    debug!("Configuration loaded successfully");
 
     Ok(app_config)
 }
