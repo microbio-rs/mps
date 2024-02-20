@@ -22,21 +22,21 @@ todo          = "warn"
 unimplemented = "warn"
 
 [workspace.dependencies]
-uuid         = "1.7.0"
-fake         = "2.9.2"
-chrono       = "0.4.34"
 async-trait  = "0.1.77"
 aws-config   = { version = "1.1.5", features = ["behavior-version-latest"] }
 aws-sdk-ecr  = "1.13.0"
 base64       = "0.21.7"
+chrono       = "0.4.34"
 clap         = "4.5.0"
 color-eyre   = "0.6.2"
 colored      = "2.1.0"
+fake         = "2.9.2"
 futures-util = "0.3.30"
 git2         = "0.18.2"
 jemallocator = "0.5.4"
 mockall      = "0.12.1"
 mockito      = "1.2.0"
+rdkafka = "0.36.2" 
 regex        = "1.10.3"
 serde        = "1.0.196"
 serde_json   = "1.0.113"
@@ -48,6 +48,7 @@ tokio        = "1.36.0"
 tonic        = "0.11.0"
 tracing      = "0.1.40"
 url          = "2.5.0"
+uuid         = "1.7.0"
 
 [profile.release]
 # Configurations explicitly listed here for clarity.

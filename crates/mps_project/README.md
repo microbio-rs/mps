@@ -8,6 +8,12 @@ Microbe platform system - project manager
 4. cargo run -p mps_project -- seed --size 10 --config crates/mps_project/config.toml
 5. cargo run -p mps_project -- grpc_server --config crates/mps_project/config.toml
 
+## kafka
+
+docker-compose up kafka
+docker-compose exec -it kafka /bin/bash
+kafka-topics --create --topic projects --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
+
 ## CreateProject
 
 ```console

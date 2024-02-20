@@ -25,6 +25,7 @@ jemallocator.workspace = true
 prost = "0.12.3"
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
+rdkafka.workspace = true
 sqlx = { version = "0.7.3", features = [
   "postgres",
   "macros",
