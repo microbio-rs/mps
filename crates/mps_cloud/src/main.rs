@@ -20,13 +20,15 @@ static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
-    let repo_uri = mps_cloud::ecr_create_repository(
-        "acess_key",
-        "access_secret",
-        "my-repo-test",
-    )
-    .await?;
-    println!("repo_uri = {repo_uri}");
+    // let repo_uri = mps_cloud::ecr_create_repository(
+    //     "acess_key",
+    //     "access_secret",
+    //     "my-repo-test",
+    // )
+    // .await?;
+    // println!("repo_uri = {repo_uri}");
+
+    mps_cloud::server().await;
 
     Ok(())
 }
