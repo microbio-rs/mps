@@ -19,14 +19,28 @@ use serde::Deserialize;
 #[derive(Debug, Clone, Deserialize)]
 pub struct DatabaseConfig {
     pub uri: String,
-    pub timeout: u64,
     pub max_pool: usize,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct KafkaConfig {
+    pub ip: String,
+    pub port: u16,
+    pub timeout: u64,
+    pub topic: String,
+}
+
+impl KafkaConfig {
+    pub fn address(&self) -> String {
+        format!("{}:{}", self.ip, self.port)
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct MpsProjectConfig {
     pub log_level: String,
     pub database: DatabaseConfig,
+    pub kafka: KafkaConfig,
     pub grpc_server: crate::grpc::GrpcConfig,
 }
 

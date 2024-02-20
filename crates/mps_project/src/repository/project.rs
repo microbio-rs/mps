@@ -18,7 +18,7 @@ use chrono::{DateTime, Utc};
 use fake::{Fake, Faker};
 use sqlx::{Executor, PgPool};
 use tracing::{error, info};
-use uuid::Uuid;
+use uuid::{uuid, Uuid};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProjectRepositoryError {
@@ -137,7 +137,9 @@ impl ProjectRepository {
         count: usize,
     ) -> Result<(), ProjectRepositoryError> {
         for _ in 0..count {
-            let p: Project = Faker.fake();
+            let mut p: Project = Faker.fake();
+            // fix user id
+            p.user_id = uuid!("a97dfb95-2805-79bc-5e02-86083146a3a4");
 
             self.create(&p).await?;
         }
