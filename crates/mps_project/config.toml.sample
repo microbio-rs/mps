@@ -16,3 +16,9 @@ max_pool = 10
 uri         = "amqp://guest:guest@0.0.0.0:5672"
 timeout     = 10
 slack_queue = "slack_queue"
+
+[kafka]
+uri     = "0.0.0.0"
+port    = 9092
+timeout = 10
+topics  = "projects"

@@ -15,12 +15,12 @@
 use std::time::Duration;
 
 use rdkafka::config::ClientConfig;
-use rdkafka::producer::{FutureProducer, FutureRecord};
 use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::message::Message;
+use rdkafka::producer::{FutureProducer, FutureRecord};
 use rdkafka::util::Timeout;
-use uuid::Uuid;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Project {
@@ -41,19 +41,15 @@ pub async fn kafka_check_run() {
         .expect("Producer creation error");
 
     // Criação de um novo projeto (simulação)
-    let new_project = Project {
-        id: Uuid::new_v4(),
-        name: String::from("Novo Projeto"),
-    };
+    let new_project =
+        Project { id: Uuid::new_v4(), name: String::from("Novo Projeto") };
 
     // Serialização do projeto para JSON
     let project_json = serde_json::to_string(&new_project).unwrap();
 
     // Envio do projeto para o tópico do Kafka
     let key = new_project.id.to_string();
-    let record = FutureRecord::to(kafka_topic)
-        .key(&key)
-        .payload(&project_json);
+    let record = FutureRecord::to(kafka_topic).key(&key).payload(&project_json);
 
     // Envio assíncrono da mensagem para o tópico
     let delivery_status = producer.send(record, Timeout::Never).await;
@@ -76,7 +72,7 @@ pub async fn kafka_check_run() {
     // Loop de recebimento de mensagens
     loop {
         match consumer.recv().await {
-        // match consumer.poll(Duration::from_millis(100)) {
+            // match consumer.poll(Duration::from_millis(100)) {
             Ok(message) => {
                 // Processamento da mensagem recebida
                 match message.payload_view::<str>() {
@@ -104,4 +100,3 @@ pub async fn kafka_check_run() {
         }
     }
 }
-
