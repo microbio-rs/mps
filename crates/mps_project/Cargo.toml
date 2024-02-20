@@ -14,6 +14,7 @@ rust-version.workspace = true
 [dependencies]
 mps_config = { version = "0.1.0", path = "../mps_config" }
 mps_log    = { version = "0.1.0", path = "../mps_log" }
+mps_scm    = { version = "0.1.0", path = "../mps_scm", features = ["grpc_client"] }
 
 async-trait.workspace = true
 clap.workspace = true

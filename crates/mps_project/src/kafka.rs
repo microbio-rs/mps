@@ -36,8 +36,15 @@ pub enum KafkaEventBusError {
     IoError(#[from] std::io::Error),
 }
 
-impl From<(rdkafka::error::KafkaError, rdkafka::message::OwnedMessage)> for KafkaEventBusError {
-    fn from((error, _): (rdkafka::error::KafkaError, rdkafka::message::OwnedMessage)) -> Self {
+impl From<(rdkafka::error::KafkaError, rdkafka::message::OwnedMessage)>
+    for KafkaEventBusError
+{
+    fn from(
+        (error, _): (
+            rdkafka::error::KafkaError,
+            rdkafka::message::OwnedMessage,
+        ),
+    ) -> Self {
         Self::Kafka(error)
     }
 }
@@ -55,7 +62,6 @@ struct ProjectCreatedEvent {
 }
 
 pub async fn producer(config: &KafkaConfig) -> Result<(), KafkaEventBusError> {
-
     // Configurações do produtor Kafka
     let producer: FutureProducer = ClientConfig::new()
         .set("bootstrap.servers", config.address())
@@ -72,7 +78,8 @@ pub async fn producer(config: &KafkaConfig) -> Result<(), KafkaEventBusError> {
 
     // Envio do projeto para o tópico do Kafka
     let key = new_project.id.to_string();
-    let record = FutureRecord::to(&config.topic).key(&key).payload(&project_json);
+    let record =
+        FutureRecord::to(&config.topic).key(&key).payload(&project_json);
 
     // Envio assíncrono da mensagem para o tópico
     producer.send(record, Timeout::Never).await?;
@@ -82,7 +89,6 @@ pub async fn producer(config: &KafkaConfig) -> Result<(), KafkaEventBusError> {
     // }
 
     Ok(())
-
 }
 
 pub async fn consumer(_config: &KafkaConfig) {}

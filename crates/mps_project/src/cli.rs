@@ -124,7 +124,24 @@ pub async fn run() -> Result<(), MpsProjectError> {
 
     let project_repo = crate::ProjectRepository::new(pool);
 
-    crate::kafka::kafka_check_run().await;
+    // crate::kafka::kafka_check_run().await;
+
+    // request grpc
+    let create_request = mps_scm::grpc::scm::CreateRepoRequest {
+        provider: mps_scm::grpc::scm::Provider::Github.into(),
+        name: "mps-simple-repo".to_string(),
+    };
+    let grpc_scm_config = mps_scm::grpc::client::ScmGrpcClientConfig {
+        host: "http://[::1]".to_string(),
+        port: 50051,
+    };
+    let mut grpc_scm_client =
+        mps_scm::grpc::client::ScmGrpcClient::new(&grpc_scm_config)
+            .await
+            .unwrap();
+
+    let repo = grpc_scm_client.create_repo(create_request).await.unwrap();
+    println!("repo = {repo:?}");
 
     match matches.subcommand() {
         Some(("grpc", _)) => {
@@ -135,7 +152,8 @@ pub async fn run() -> Result<(), MpsProjectError> {
             // let state = grpc::MpsProjectGrpcState::new(Arc::new(service));
 
             // grpc::server(Arc::new(state)).await
-            grpc::server(&project_config.grpc_server, project_repo).await
+            // grpc::server(&project_config.grpc_server, project_repo).await
+            println!("");
         }
         _ => {}
     };
