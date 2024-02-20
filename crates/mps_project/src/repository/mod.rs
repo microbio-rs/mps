@@ -21,7 +21,6 @@ pub use project::*;
 
 pub mod application;
 
-
 #[derive(Debug, thiserror::Error)]
 pub enum RepositoryError {
     #[error("project repository error: {0}")]

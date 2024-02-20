@@ -12,7 +12,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::{path::PathBuf};
+use std::path::PathBuf;
 
 use clap::{
     builder::styling::AnsiColor, value_parser, Arg, ArgAction, ColorChoice,

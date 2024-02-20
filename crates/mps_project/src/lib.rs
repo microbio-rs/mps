@@ -24,7 +24,6 @@ pub(crate) mod grpc;
 
 pub(crate) mod kafka;
 
-
 #[derive(thiserror::Error, Debug)]
 pub enum MpsProjectError {
     #[error("failed parse cli arguments: {0}")]
