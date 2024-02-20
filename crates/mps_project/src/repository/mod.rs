@@ -20,7 +20,7 @@ pub mod project;
 pub use project::*;
 
 pub mod application;
-pub use application::*;
+
 
 #[derive(Debug, thiserror::Error)]
 pub enum RepositoryError {

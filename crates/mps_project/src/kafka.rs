@@ -12,7 +12,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::time::Duration;
+
 
 use rdkafka::config::ClientConfig;
 use rdkafka::consumer::{Consumer, StreamConsumer};
@@ -85,7 +85,7 @@ pub async fn producer(config: &KafkaConfig) -> Result<(), KafkaEventBusError> {
 
 }
 
-pub async fn consumer(config: &KafkaConfig) {}
+pub async fn consumer(_config: &KafkaConfig) {}
 
 pub async fn kafka_check_run() {
     // Configurações do Kafka

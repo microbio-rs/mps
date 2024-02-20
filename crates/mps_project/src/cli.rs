@@ -12,14 +12,14 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::{path::PathBuf, sync::Arc, time::Duration};
+use std::{path::PathBuf};
 
 use clap::{
     builder::styling::AnsiColor, value_parser, Arg, ArgAction, ColorChoice,
     Command,
 };
 use colored::Colorize;
-use sqlx::postgres::PgConnectOptions;
+
 use sqlx::PgPool;
 
 use crate::{grpc, MpsProjectConfig, MpsProjectError};

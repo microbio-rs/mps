@@ -23,7 +23,7 @@ pub(crate) use repository::*;
 pub(crate) mod grpc;
 
 pub(crate) mod kafka;
-pub(crate) use kafka::*;
+
 
 #[derive(thiserror::Error, Debug)]
 pub enum MpsProjectError {

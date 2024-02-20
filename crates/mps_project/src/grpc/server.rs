@@ -14,7 +14,7 @@
 
 use chrono::Utc;
 use serde::Deserialize;
-use sqlx::PgPool;
+
 use tonic::{transport::Server, Request, Response, Status};
 use tracing::info;
 use uuid::Uuid;
