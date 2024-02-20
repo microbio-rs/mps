@@ -2293,6 +2293,7 @@ dependencies = [
  "mockito",
  "mps_config",
  "mps_log",
+ "mps_scm",
  "prost",
  "rdkafka",
  "serde",
