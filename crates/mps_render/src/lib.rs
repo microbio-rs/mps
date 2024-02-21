@@ -13,17 +13,23 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 use std::io;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use tera::{Context, Tera};
-use tracing::debug;
 
 #[derive(thiserror::Error, Debug)]
 pub enum MpsRenderError {
     #[error("Template error: {0}")]
     Tera(#[from] tera::Error),
+
     #[error("Io error: {0}")]
     Io(#[from] io::Error),
+
+    #[error("not found `repository uri` in sdk response")]
+    RepositoryUriNotFound,
+
+    #[error("not found `repository` in sdk response")]
+    RepositoryNotFound,
 }
 
 pub fn render<P: AsRef<Path>>(
@@ -90,3 +96,59 @@ fn copiar_arquivos(
 
     Ok(())
 }
+
+pub mod render {
+    tonic::include_proto!("render_proto");
+}
+use tonic::{transport::Server, Request, Response, Status};
+
+use crate::render::render_server::{Render, RenderServer};
+use crate::render::{
+    create_repo_response::Result as CreateResult,
+    CreateRepoRequest, CreateRepoResponse, RepoResponse,
+};
+
+#[derive(Default)]
+pub struct MpsRenderGrpcServer;
+
+impl From<String> for RepoResponse {
+    fn from(s: String) -> Self {
+        RepoResponse { name: s }
+    }
+}
+
+#[tonic::async_trait]
+impl Render for MpsRenderGrpcServer {
+    async fn create_repo(
+        &self,
+        request: Request<CreateRepoRequest>,
+    ) -> Result<Response<CreateRepoResponse>, Status> {
+        let name: String = request.into_inner().name;
+        todo!()
+        // let resp = render_create_repository("", "", &name).await;
+        // if let Err(e) = resp {
+        //     return Err(Status::invalid_argument(e.to_string()));
+        // }
+
+        // let resp = resp.unwrap();
+
+        // let response = CreateRepoResponse {
+        //     result: CreateResult::Success.into(),
+        //     repository: Some(resp.into()),
+        // };
+
+        // Ok(Response::new(response))
+    }
+}
+
+pub async fn server() {
+    let addr = "[::1]:50060".parse().unwrap();
+    let render = MpsRenderGrpcServer::default();
+
+    Server::builder()
+        .add_service(RenderServer::new(render))
+        .serve(addr)
+        .await
+        .unwrap();
+}
+

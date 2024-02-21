@@ -12,16 +12,30 @@ repository.workspace   = true
 rust-version.workspace = true
 
 [dependencies]
-aws-config.workspace   = true
-aws-sdk-ecr.workspace  = true
+mps_config = { version = "0.1.0", path = "../mps_config" }
+mps_log    = { version = "0.1.0", path = "../mps_log" }
+
+async-trait.workspace = true
+chrono = { workspace = true, features = ["serde"] }
 color-eyre.workspace   = true
 jemallocator.workspace = true
+prost = "0.12.3"
 serde                  = { workspace = true, features = ["derive"] }
 serde_json.workspace   = true
+sqlx = { version = "0.7.3", features = [
+  "postgres",
+  "macros",
+  "migrate",
+  "uuid",
+  "chrono",
+  "runtime-tokio",
+  "tls-rustls",
+] }
 tera.workspace         = true
 thiserror.workspace    = true
 tokio                  = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing.workspace      = true
+tonic.workspace = true
 
 [lints]
 workspace = true
@@ -34,3 +48,6 @@ default = []
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["macros"] }
+
+[build-dependencies]
+tonic-build = "0.11.0"
