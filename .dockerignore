@@ -1,0 +1,15 @@
+.cargo
+.dockerignore
+.editorconfig
+.git
+.ignore
+.sqlx
+.taplo
+README.md
+deny.toml
+docker
+docker-compose.yml
+justfile
+rust-toolchain.toml
+rustfmt.toml
+target
