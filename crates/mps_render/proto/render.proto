@@ -1,26 +1,27 @@
 syntax = "proto3";
 
-package render_proto;
+package template_proto;
 
-service Render {
-  rpc CreateRepo(CreateRepoRequest) returns (CreateRepoResponse);
+service Template {
+  rpc Render(RenderTemplateRequest) returns (RenderTemplateResponse);
   /* rpc ReadRepo(ReadRepoRequest) returns (ReadRepoResponse); */
   /* rpc UpdateRepo(UpdateRepoRequest) returns (UpdateRepoResponse); */
   /* rpc DeleteRepo(DeleteRepoRequest) returns (DeleteRepoResponse); */
 }
 
-message CreateRepoRequest {
-  string name = 2;
+message RenderTemplateRequest {
+  string input = 1;
+  string context = 2;
 }
 
-message CreateRepoResponse {
+message RenderTemplateResponse {
   enum Result {
     SUCCESS = 0;
     FAILURE = 1;
   }
 
   Result result = 1;
-  RepoResponse repository = 2;
+  RenderResponse render = 2;
 }
 
 /* message ReadRepoRequest { */
@@ -34,7 +35,7 @@ message CreateRepoResponse {
 /*   } */
 
 /*   Result result = 1; */
-/*   RepoResponse repository = 2; */
+/*   RepoResponse render = 2; */
 /* } */
 
 /* message UpdateRepoRequest { */
@@ -66,8 +67,7 @@ message CreateRepoResponse {
 /*   Result result = 1; */
 /* } */
 
-message RepoResponse {
-  string name = 3;
+message RenderResponse {
+  string output = 3;
 }
-
 

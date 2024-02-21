@@ -16,9 +16,21 @@ use std::io::Write;
 use std::path::Path;
 
 use tera::{Context, Tera};
+use tonic::{transport::Server, Request, Response, Status};
+use serde::{Serialize, Deserialize};
+
+pub mod template {
+    tonic::include_proto!("template_proto");
+}
+
+use crate::template::template_server::{Template, TemplateServer};
+use crate::template::{
+    render_template_response::Result as RenderResult,
+    RenderTemplateRequest, RenderTemplateResponse, RenderResponse,
+};
 
 #[derive(thiserror::Error, Debug)]
-pub enum MpsRenderError {
+pub enum MpsTemplateError {
     #[error("Template error: {0}")]
     Tera(#[from] tera::Error),
 
@@ -26,11 +38,16 @@ pub enum MpsRenderError {
     Io(#[from] io::Error),
 }
 
-pub fn render<P: AsRef<Path>>(
+#[derive(Debug, Serialize, Deserialize)]
+pub struct BasicTemplateContext {
+    pub project_name: String
+}
+
+pub fn template<P: AsRef<Path>>(
     origem: P,
     destino: P,
     context: Context,
-) -> Result<(), MpsRenderError> {
+) -> Result<(), MpsTemplateError> {
     let mut tera = Tera::default();
     // TODO: improve this, this gets bad when the directory has numerous files
     mount_tera(&mut tera, origem.as_ref())?;
@@ -39,7 +56,7 @@ pub fn render<P: AsRef<Path>>(
     Ok(())
 }
 
-fn mount_tera(tera: &mut Tera, origem: &Path) -> Result<(), MpsRenderError> {
+fn mount_tera(tera: &mut Tera, origem: &Path) -> Result<(), MpsTemplateError> {
     if origem.is_dir() {
         if !origem.to_str().unwrap().contains(".git") {
             for entrada in std::fs::read_dir(origem)? {
@@ -61,7 +78,7 @@ fn copiar_arquivos(
     context: &Context,
     origem: &Path,
     destino: &Path,
-) -> Result<(), MpsRenderError> {
+) -> Result<(), MpsTemplateError> {
     if origem.is_dir() {
         if !origem.to_str().unwrap().contains(".git") {
             if !destino.exists() {
@@ -82,7 +99,7 @@ fn copiar_arquivos(
             }
         }
     } else {
-        // println!("render from {} to {}", origem.display(), destino.display());
+        // println!("template from {} to {}", origem.display(), destino.display());
         let content = tera.render(origem.to_str().unwrap(), context)?;
         let mut destino_file = std::fs::File::create(&destino)?;
         destino_file.write_all(&content.as_bytes())?;
@@ -92,42 +109,31 @@ fn copiar_arquivos(
     Ok(())
 }
 
-pub mod render {
-    tonic::include_proto!("render_proto");
-}
-use tonic::{transport::Server, Request, Response, Status};
-
-use crate::render::render_server::{Render, RenderServer};
-use crate::render::{
-    create_repo_response::Result as CreateResult,
-    CreateRepoRequest, CreateRepoResponse, RepoResponse,
-};
-
 #[derive(Default)]
-pub struct MpsRenderGrpcServer;
+pub struct MpsTemplateGrpcServer;
 
-impl From<String> for RepoResponse {
-    fn from(s: String) -> Self {
-        RepoResponse { name: s }
-    }
-}
+// impl From<String> for RepoResponse {
+//     fn from(s: String) -> Self {
+//         RepoResponse { name: s }
+//     }
+// }
 
 #[tonic::async_trait]
-impl Render for MpsRenderGrpcServer {
-    async fn create_repo(
+impl Template for MpsTemplateGrpcServer {
+    async fn render(
         &self,
-        request: Request<CreateRepoRequest>,
-    ) -> Result<Response<CreateRepoResponse>, Status> {
-        let name: String = request.into_inner().name;
+        request: Request<RenderTemplateRequest>,
+    ) -> Result<Response<RenderTemplateResponse>, Status> {
+        let input_path: String = request.into_inner().input;
         todo!()
-        // let resp = render_create_repository("", "", &name).await;
+        // let resp = template_create_repository("", "", &name).await;
         // if let Err(e) = resp {
         //     return Err(Status::invalid_argument(e.to_string()));
         // }
 
         // let resp = resp.unwrap();
 
-        // let response = CreateRepoResponse {
+        // let response = RenderResponse {
         //     result: CreateResult::Success.into(),
         //     repository: Some(resp.into()),
         // };
@@ -138,10 +144,10 @@ impl Render for MpsRenderGrpcServer {
 
 pub async fn server() {
     let addr = "[::1]:50060".parse().unwrap();
-    let render = MpsRenderGrpcServer::default();
+    let template = MpsTemplateGrpcServer::default();
 
     Server::builder()
-        .add_service(RenderServer::new(render))
+        .add_service(TemplateServer::new(template))
         .serve(addr)
         .await
         .unwrap();

@@ -25,13 +25,15 @@ async fn main() -> color_eyre::Result<()> {
     let mut context = Context::new();
     context.insert("project_name", "my-js-project");
 
-    if let Err(e) = mps_render::render(
-        "/tmp/murilobsd/mps-sample-nestjs",
-        "/tmp/murilobsd/mps-sample-nestjs-1",
-        context,
-    ) {
-        eprintln!("Render error: {e}");
-    }
+    mps_render::server().await;
+
+    // if let Err(e) = mps_render::render(
+    //     "/tmp/murilobsd/mps-sample-nestjs",
+    //     "/tmp/murilobsd/mps-sample-nestjs-1",
+    //     context,
+    // ) {
+    //     eprintln!("Render error: {e}");
+    // }
 
     Ok(())
 }
