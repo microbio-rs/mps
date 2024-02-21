@@ -11,12 +11,14 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_ecr::{
     config::{Credentials, Region},
     error::SdkError,
     operation::create_repository::CreateRepositoryError,
     Client,
 };
+use base64::prelude::*;
 
 pub mod ecr {
     tonic::include_proto!("ecr_proto");
@@ -113,4 +115,32 @@ pub async fn ecr_create_repository(
         },
         None => Err(MpsCloudError::RepositoryNotFound),
     }
+}
+
+async fn get_credential() -> (String, String) {
+    // Struct credentials to push
+    // https://docs.rs/bollard/latest/bollard/auth/struct.DockerCredentials.html
+    //
+    // AWS ECR
+    // https://docs.rs/aws-sdk-ecr/latest/aws_sdk_ecr/types/struct.AuthorizationData.html
+    //
+
+    let region_provider =
+        RegionProviderChain::first_try(Some("us-east-1").map(Region::new))
+            .or_default_provider()
+            .or_else(Region::new("us-east-1"));
+
+    let shared_config =
+        aws_config::from_env().region(region_provider).load().await;
+    let client = aws_sdk_ecr::Client::new(&shared_config);
+    let token = client.get_authorization_token().send().await.unwrap();
+    let authorization =
+        token.authorization_data()[0].authorization_token().unwrap();
+    let data = BASE64_STANDARD.decode(authorization.as_bytes()).unwrap();
+    let parts = String::from_utf8(data).unwrap();
+    let parts: Vec<&str> = parts.split(':').collect();
+    // dbg!(&parts);
+    // Example in go for split AuthorizationData
+    // https://github.com/chialab/aws-ecr-get-login-password/blob/main/main.go
+    (parts[0].to_string(), parts[1].to_string())
 }

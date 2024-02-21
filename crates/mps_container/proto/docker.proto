@@ -10,8 +10,12 @@ service Container {
 }
 
 message BuildContainerRequest {
-  string input = 1;
-  string context = 2;
+  string local_path = 1;
+  string repo_uri = 2;
+  string tag = 3;
+  string path = 4;
+  string dockerfile_name = 5;
+  string dockerfile_path = 6;
 }
 
 message BuildContainerResponse {
@@ -21,7 +25,7 @@ message BuildContainerResponse {
   }
 
   Result result = 1;
-  BuildResponse render = 2;
+  BuildResponse build = 2;
 }
 
 /* message ReadRepoRequest { */
@@ -68,6 +72,6 @@ message BuildContainerResponse {
 /* } */
 
 message BuildResponse {
-  string output = 3;
+  string repo_uri = 3;
 }
 

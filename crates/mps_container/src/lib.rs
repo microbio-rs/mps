@@ -44,16 +44,17 @@ pub mod container {
 
 use crate::container::container_server::{Container, ContainerServer};
 use crate::container::{
-    build_container_response::Result as BuildResult, BuildResponse,
-    BuildContainerRequest, BuildContainerResponse,
+    build_container_response::Result as BuildResult, BuildContainerRequest,
+    BuildContainerResponse, BuildResponse,
 };
-
 
 #[derive(thiserror::Error, Debug)]
 pub enum MpsContainerError {
     #[error("failed bollard: {0}")]
     Bollard(#[from] bollard::errors::Error),
-    #[error("failed io: {0}")]
+
+    // #[error("failed io: {0}")]
+    #[error(transparent)]
     IoError(#[from] std::io::Error),
 }
 
@@ -96,15 +97,10 @@ pub async fn docker_connect() -> Result<Docker, MpsContainerError> {
 }
 
 fn compress(build_path: &str) -> Result<Vec<u8>, MpsContainerError> {
-    // let tar_file_path = "/tmp/murilobsd/arquivo.tar";
-    // let tar_file = std::fs::File::create(tar_file_path)?;
-    // let mut builder = tar::Builder::new(tar_file);
-    // builder.append_dir_all("", build_path)?;
-
     let mut buf = vec![];
     let mut tar = tar::Builder::new(&mut buf);
     tar.append_dir_all(".", build_path)?;
-    let uncompressed = tar.into_inner().unwrap();
+    let uncompressed = tar.into_inner()?;
     let mut c = flate2::write::GzEncoder::new(
         Vec::new(),
         flate2::Compression::default(),
@@ -209,31 +205,58 @@ pub struct MpsContainerGrpcServer;
 //     }
 // }
 
+#[derive(Debug)]
+pub struct DockerBuildParams {
+    local_path: String,
+    repo_uri: String,
+    tag: String,
+    path: String,
+    dockerfile_name: String,
+    dockerfile_path: String,
+}
+
+impl From<BuildContainerRequest> for DockerBuildParams {
+    fn from(p: BuildContainerRequest) -> Self {
+        Self {
+            local_path: p.local_path,
+            repo_uri: p.repo_uri,
+            tag: p.tag,
+            path: p.path,
+            dockerfile_name: p.dockerfile_name,
+            dockerfile_path: p.dockerfile_path,
+        }
+    }
+}
+
 #[tonic::async_trait]
 impl Container for MpsContainerGrpcServer {
     async fn build(
         &self,
         request: Request<BuildContainerRequest>,
     ) -> Result<Response<BuildContainerResponse>, Status> {
-        todo!()
-        // let input_path: String = request.get_ref().input.to_string();
-        // let output_path = String::from("/tmp/murilobsd/mps-sample-nestjs-1");
-        // let context_json: BasicContainerContext =
-        //     serde_json::from_str(&request.get_ref().context).unwrap();
-        // let context: Context = Context::from_serialize(context_json).unwrap();
+        let params: DockerBuildParams = request.into_inner().into();
 
-        // if let Err(e) =
-        //     render(input_path.as_str(), output_path.as_str(), context)
-        // {
-        //     return Err(Status::invalid_argument(e.to_string()));
-        // }
+        let docker = docker_connect().await.unwrap();
+        if let Err(e) = build_image(
+            &docker,
+            &params.repo_uri,
+            &params.tag,
+            params.local_path.as_str(),
+        )
+        .await
+        {
+            return Err(Status::invalid_argument(e.to_string()));
+        }
 
-        // let response = BuildContainerResponse {
-        //     result: BuildResult::Success.into(),
-        //     render: Some(BuildResponse { output: output_path }),
-        // };
+        let (_, password) = get_credential().await;
+        push_image(&docker, &params.repo_uri, &params.tag, &password).await;
 
-        // Ok(Response::new(response))
+        let response = BuildContainerResponse {
+            result: BuildResult::Success.into(),
+            build: Some(BuildResponse { repo_uri: params.repo_uri }),
+        };
+
+        Ok(Response::new(response))
     }
 }
 
