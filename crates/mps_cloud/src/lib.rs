@@ -25,8 +25,8 @@ use tonic::{transport::Server, Request, Response, Status};
 
 use crate::ecr::ecr_server::{Ecr, EcrServer};
 use crate::ecr::{
-    create_repo_response::Result as CreateResult,
-    CreateRepoRequest, CreateRepoResponse, RepoResponse,
+    create_repo_response::Result as CreateResult, CreateRepoRequest,
+    CreateRepoResponse, RepoResponse,
 };
 
 #[derive(thiserror::Error, Debug)]

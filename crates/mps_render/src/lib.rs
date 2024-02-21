@@ -15,9 +15,9 @@ use std::io;
 use std::io::Write;
 use std::path::Path;
 
+use serde::{Deserialize, Serialize};
 use tera::{Context, Tera};
 use tonic::{transport::Server, Request, Response, Status};
-use serde::{Serialize, Deserialize};
 
 pub mod template {
     tonic::include_proto!("template_proto");
@@ -25,8 +25,8 @@ pub mod template {
 
 use crate::template::template_server::{Template, TemplateServer};
 use crate::template::{
-    render_template_response::Result as RenderResult,
-    RenderTemplateRequest, RenderTemplateResponse, RenderResponse,
+    render_template_response::Result as RenderResult, RenderResponse,
+    RenderTemplateRequest, RenderTemplateResponse,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -40,10 +40,10 @@ pub enum MpsTemplateError {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BasicTemplateContext {
-    pub project_name: String
+    pub project_name: String,
 }
 
-pub fn template<P: AsRef<Path>>(
+pub fn render<P: AsRef<Path>>(
     origem: P,
     destino: P,
     context: Context,
@@ -124,21 +124,28 @@ impl Template for MpsTemplateGrpcServer {
         &self,
         request: Request<RenderTemplateRequest>,
     ) -> Result<Response<RenderTemplateResponse>, Status> {
-        let input_path: String = request.into_inner().input;
-        todo!()
-        // let resp = template_create_repository("", "", &name).await;
-        // if let Err(e) = resp {
-        //     return Err(Status::invalid_argument(e.to_string()));
-        // }
+        let input_path: String = request.get_ref().input.to_string();
+        let output_path = String::from("/tmp/murilobsd/mps-sample-nestjs-1");
+        let context_json: BasicTemplateContext =
+            serde_json::from_str(&request.get_ref().context).unwrap();
+        let context: Context = Context::from_serialize(context_json).unwrap();
 
-        // let resp = resp.unwrap();
+        if let Err(e) = render(
+            input_path.as_str(),
+            output_path.as_str(),
+            context,
+        ) {
+            return Err(Status::invalid_argument(e.to_string()));
+        }
 
-        // let response = RenderResponse {
-        //     result: CreateResult::Success.into(),
-        //     repository: Some(resp.into()),
-        // };
+        let response = RenderTemplateResponse {
+            result: RenderResult::Success.into(),
+            render: Some(RenderResponse {
+                output: output_path,
+            }),
+        };
 
-        // Ok(Response::new(response))
+        Ok(Response::new(response))
     }
 }
 
@@ -152,4 +159,3 @@ pub async fn server() {
         .await
         .unwrap();
 }
-

@@ -17,10 +17,10 @@ mps_log    = { version = "0.1.0", path = "../mps_log" }
 
 async-trait.workspace = true
 chrono = { workspace = true, features = ["serde"] }
-color-eyre.workspace   = true
+color-eyre.workspace = true
 prost = "0.12.3"
-serde                  = { workspace = true, features = ["derive"] }
-serde_json.workspace   = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
 sqlx = { version = "0.7.3", features = [
   "postgres",
   "macros",
@@ -30,10 +30,10 @@ sqlx = { version = "0.7.3", features = [
   "runtime-tokio",
   "tls-rustls",
 ] }
-tera.workspace         = true
-thiserror.workspace    = true
-tokio                  = { workspace = true, features = ["macros", "rt-multi-thread"] }
-tracing.workspace      = true
+tera.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tracing.workspace = true
 tonic.workspace = true
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
