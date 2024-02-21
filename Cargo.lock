@@ -2180,6 +2180,7 @@ dependencies = [
  "async-trait",
  "aws-config",
  "aws-sdk-ecr",
+ "base64",
  "chrono",
  "color-eyre",
  "mps_config",
@@ -2219,12 +2220,15 @@ dependencies = [
  "dockerfile-parser",
  "flate2",
  "futures-util",
+ "prost",
  "serde",
  "serde_json",
  "tar",
  "thiserror",
  "tikv-jemallocator",
  "tokio",
+ "tonic 0.11.0",
+ "tonic-build",
  "tracing",
 ]
 

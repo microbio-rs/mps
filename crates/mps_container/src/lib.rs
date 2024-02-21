@@ -27,52 +27,93 @@ use bollard::models::BuildInfoAux;
 use bollard::Docker;
 use dockerfile_parser::Dockerfile;
 
+use base64::prelude::*;
 use futures_util::stream::StreamExt;
 
-use base64::prelude::*;
 use bollard::auth::DockerCredentials;
 use bollard::image::PushImageOptions;
-use bollard::image::TagImageOptions;
 use std::io::Write;
 
 use std::default::Default;
 
-async fn push_image(docker: &Docker, id: &str, repo: &str) {
-    //
-    // Tag
-    //
-    let tag_options = Some(TagImageOptions { repo, tag: "latest" });
+use tonic::{transport::Server, Request, Response, Status};
 
-    docker.tag_image(id, tag_options).await;
-
-    ////
-    //// Push
-    ////
-    let push_options = Some(PushImageOptions { tag: "latest" });
-
-    let credentials = Some(DockerCredentials {
-        username: Some("AWS".to_string()),
-        password: Some("password".to_string()),
-        ..Default::default()
-    });
-
-    let stream = docker.push_image(repo, push_options, credentials);
-
-    stream
-        .for_each(|l| async {
-            println!("{:?}", l.unwrap());
-        })
-        .await;
+pub mod container {
+    tonic::include_proto!("docker_proto");
 }
 
-async fn get_credential() -> (String, String) {
-    // Struct credentials to push
-    // https://docs.rs/bollard/latest/bollard/auth/struct.DockerCredentials.html
-    //
-    // AWS ECR
-    // https://docs.rs/aws-sdk-ecr/latest/aws_sdk_ecr/types/struct.AuthorizationData.html
-    //
+use crate::container::container_server::{Container, ContainerServer};
+use crate::container::{
+    build_container_response::Result as BuildResult, BuildResponse,
+    BuildContainerRequest, BuildContainerResponse,
+};
 
+
+#[derive(thiserror::Error, Debug)]
+pub enum MpsContainerError {
+    #[error("failed bollard: {0}")]
+    Bollard(#[from] bollard::errors::Error),
+    #[error("failed io: {0}")]
+    IoError(#[from] std::io::Error),
+}
+
+pub async fn build_image(
+    docker: &Docker,
+    image_name: &str,
+    tag: &str,
+    build_path: &str,
+) -> Result<(), MpsContainerError> {
+    println!("{image_name}");
+    let compressed = compress(build_path)?;
+    let build_image_options = BuildImageOptions {
+        dockerfile: "Dockerfile",
+        t: &format!("{image_name}:{tag}"),
+        // nocache: true,
+        // q: true,
+        version: BuilderVersion::BuilderBuildKit,
+        // pull: true,
+        // rm: true,
+        session: Some(String::from(image_name)),
+        ..Default::default()
+    };
+
+    let mut image_build_stream =
+        docker.build_image(build_image_options, None, Some(compressed.into()));
+
+    while let Some(Ok(bollard::models::BuildInfo {
+        aux: Some(BuildInfoAux::BuildKit(inner)),
+        ..
+    })) = image_build_stream.next().await
+    {
+        println!("Response: {:?}", inner);
+    }
+
+    Ok(())
+}
+
+pub async fn docker_connect() -> Result<Docker, MpsContainerError> {
+    Ok(Docker::connect_with_socket_defaults()?)
+}
+
+fn compress(build_path: &str) -> Result<Vec<u8>, MpsContainerError> {
+    // let tar_file_path = "/tmp/murilobsd/arquivo.tar";
+    // let tar_file = std::fs::File::create(tar_file_path)?;
+    // let mut builder = tar::Builder::new(tar_file);
+    // builder.append_dir_all("", build_path)?;
+
+    let mut buf = vec![];
+    let mut tar = tar::Builder::new(&mut buf);
+    tar.append_dir_all(".", build_path)?;
+    let uncompressed = tar.into_inner().unwrap();
+    let mut c = flate2::write::GzEncoder::new(
+        Vec::new(),
+        flate2::Compression::default(),
+    );
+    c.write_all(&uncompressed)?;
+    Ok(c.finish()?)
+}
+
+pub async fn get_credential() -> (String, String) {
     let region_provider =
         RegionProviderChain::first_try(Some("us-east-1").map(Region::new))
             .or_default_provider()
@@ -87,10 +128,41 @@ async fn get_credential() -> (String, String) {
     let data = BASE64_STANDARD.decode(authorization.as_bytes()).unwrap();
     let parts = String::from_utf8(data).unwrap();
     let parts: Vec<&str> = parts.split(':').collect();
-    // dbg!(&parts);
-    // Example in go for split AuthorizationData
-    // https://github.com/chialab/aws-ecr-get-login-password/blob/main/main.go
     (parts[0].to_string(), parts[1].to_string())
+}
+
+pub async fn push_image(
+    docker: &Docker,
+    reposity_uri: &str,
+    tag: &str,
+    password: &str,
+) {
+    ////
+    //// Tag
+    ////
+    //let tag_options = Some(TagImageOptions { repo, tag: "latest" });
+
+    //docker.tag_image(id, tag_options).await;
+
+    ////
+    //// Push
+    ////
+    let push_options = Some(PushImageOptions { tag });
+
+    let credentials = Some(DockerCredentials {
+        username: Some("AWS".to_string()),
+        password: Some(password.to_string()),
+        ..Default::default()
+    });
+    let repo = format!("{reposity_uri}:{tag}");
+
+    let stream = docker.push_image(&repo, push_options, credentials);
+
+    stream
+        .for_each(|l| async {
+            println!("{:?}", l.unwrap());
+        })
+        .await;
 }
 
 fn get_port_from_dockerfile(dockerfile: &str) -> Option<u16> {
@@ -128,105 +200,104 @@ fn get_port_from_dockerfile(dockerfile: &str) -> Option<u16> {
     }
 }
 
-fn compress(dockerfile: &str) -> Vec<u8> {
-    let mut header = tar::Header::new_gnu();
-    header.set_path("Dockerfile").unwrap();
-    header.set_size(dockerfile.len() as u64);
-    header.set_mode(0o755);
-    header.set_cksum();
-    let mut tar = tar::Builder::new(Vec::new());
-    tar.append(&header, dockerfile.as_bytes()).unwrap();
+#[derive(Default)]
+pub struct MpsContainerGrpcServer;
 
-    let uncompressed = tar.into_inner().unwrap();
-    let mut c = flate2::write::GzEncoder::new(
-        Vec::new(),
-        flate2::Compression::default(),
-    );
-    c.write_all(&uncompressed).unwrap();
-    c.finish().unwrap()
-}
+// impl From<String> for RepoResponse {
+//     fn from(s: String) -> Self {
+//         RepoResponse { name: s }
+//     }
+// }
 
-fn build_options(id: &str) -> BuildImageOptions<&str> {
-    BuildImageOptions {
-        t: id,
-        dockerfile: "Dockerfile",
-        version: BuilderVersion::BuilderBuildKit,
-        pull: true,
-        session: Some(String::from(id)),
-        ..Default::default()
+#[tonic::async_trait]
+impl Container for MpsContainerGrpcServer {
+    async fn build(
+        &self,
+        request: Request<BuildContainerRequest>,
+    ) -> Result<Response<BuildContainerResponse>, Status> {
+        todo!()
+        // let input_path: String = request.get_ref().input.to_string();
+        // let output_path = String::from("/tmp/murilobsd/mps-sample-nestjs-1");
+        // let context_json: BasicContainerContext =
+        //     serde_json::from_str(&request.get_ref().context).unwrap();
+        // let context: Context = Context::from_serialize(context_json).unwrap();
+
+        // if let Err(e) =
+        //     render(input_path.as_str(), output_path.as_str(), context)
+        // {
+        //     return Err(Status::invalid_argument(e.to_string()));
+        // }
+
+        // let response = BuildContainerResponse {
+        //     result: BuildResult::Success.into(),
+        //     render: Some(BuildResponse { output: output_path }),
+        // };
+
+        // Ok(Response::new(response))
     }
 }
 
-pub async fn docker_connect() -> Docker {
-    Docker::connect_with_socket_defaults().unwrap()
+pub async fn server() {
+    let addr = "[::1]:50061".parse().unwrap();
+    let container = MpsContainerGrpcServer::default();
+
+    Server::builder()
+        .add_service(ContainerServer::new(container))
+        .serve(addr)
+        .await
+        .unwrap();
 }
 
-pub async fn build_image(docker: &Docker, id: &str, dockerfile_content: &str) {
-    let compressed = compress(dockerfile_content);
-    let build_image_options = build_options(id);
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    let mut image_build_stream =
-        docker.build_image(build_image_options, None, Some(compressed.into()));
+//     #[ignore]
+//     #[tokio::test]
+//     async fn docker_push_image() {
+//         let client = docker_connect().await;
+//         push_image(&client, "myimage", "").await;
+//         assert!(true);
+//     }
 
-    while let Some(Ok(bollard::models::BuildInfo {
-        aux: Some(BuildInfoAux::BuildKit(inner)),
-        ..
-    })) = image_build_stream.next().await
-    {
-        println!("Response: {:?}", inner);
-    }
-}
+//     #[ignore]
+//     #[tokio::test]
+//     async fn aws_ecr_credential() {
+//         let _credential = get_credential().await;
+//         assert!(true);
+//     }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+//     #[ignore]
+//     #[tokio::test]
+//     async fn docker_build_image() {
+//         let client = docker_connect().await;
+//         let dockerfile = String::from(
+//             "FROM alpine as builder1
+//     RUN touch bollard.txt
+//     FROM alpine as builder2
+//     RUN --mount=type=bind,from=builder1,target=mnt cp mnt/bollard.txt buildkit-bollard.txt
+//     ENTRYPOINT ls buildkit-bollard.txt
+//     ",
+//         );
 
-    #[ignore]
-    #[tokio::test]
-    async fn docker_push_image() {
-        let client = docker_connect().await;
-        push_image(&client, "myimage", "").await;
-        assert!(true);
-    }
+//         build_image(&client, "myimage", &dockerfile).await;
 
-    #[ignore]
-    #[tokio::test]
-    async fn aws_ecr_credential() {
-        let _credential = get_credential().await;
-        assert!(true);
-    }
+//         assert!(true);
+//     }
 
-    #[ignore]
-    #[tokio::test]
-    async fn docker_build_image() {
-        let client = docker_connect().await;
-        let dockerfile = String::from(
-            "FROM alpine as builder1
-    RUN touch bollard.txt
-    FROM alpine as builder2
-    RUN --mount=type=bind,from=builder1,target=mnt cp mnt/bollard.txt buildkit-bollard.txt
-    ENTRYPOINT ls buildkit-bollard.txt
-    ",
-        );
-
-        build_image(&client, "myimage", &dockerfile).await;
-
-        assert!(true);
-    }
-
-    #[test]
-    fn get_port_dockerfile() {
-        let dockerfile = String::from(
-            "FROM alpine as builder1
-    RUN touch bollard.txt
-    FROM alpine as builder2
-    RUN --mount=type=bind,from=builder1,target=mnt cp mnt/bollard.txt buildkit-bollard.txt
-    EXPOSE 3000
-    ENTRYPOINT ls buildkit-bollard.txt
-            "
-        );
-        let port = get_port_from_dockerfile(&dockerfile);
-        assert!(port.is_some());
-        assert_eq!(3000 as u16, port.unwrap());
-    }
-}
+//     #[test]
+//     fn get_port_dockerfile() {
+//         let dockerfile = String::from(
+//             "FROM alpine as builder1
+//     RUN touch bollard.txt
+//     FROM alpine as builder2
+//     RUN --mount=type=bind,from=builder1,target=mnt cp mnt/bollard.txt buildkit-bollard.txt
+//     EXPOSE 3000
+//     ENTRYPOINT ls buildkit-bollard.txt
+//             "
+//         );
+//         let port = get_port_from_dockerfile(&dockerfile);
+//         assert!(port.is_some());
+//         assert_eq!(3000 as u16, port.unwrap());
+//     }
+// }
