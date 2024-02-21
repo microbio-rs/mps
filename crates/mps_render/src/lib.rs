@@ -24,12 +24,6 @@ pub enum MpsRenderError {
 
     #[error("Io error: {0}")]
     Io(#[from] io::Error),
-
-    #[error("not found `repository uri` in sdk response")]
-    RepositoryUriNotFound,
-
-    #[error("not found `repository` in sdk response")]
-    RepositoryNotFound,
 }
 
 pub fn render<P: AsRef<Path>>(
@@ -38,6 +32,7 @@ pub fn render<P: AsRef<Path>>(
     context: Context,
 ) -> Result<(), MpsRenderError> {
     let mut tera = Tera::default();
+    // TODO: improve this, this gets bad when the directory has numerous files
     mount_tera(&mut tera, origem.as_ref())?;
     copiar_arquivos(&tera, &context, origem.as_ref(), destino.as_ref())?;
 
