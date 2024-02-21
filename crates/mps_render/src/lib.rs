@@ -130,19 +130,15 @@ impl Template for MpsTemplateGrpcServer {
             serde_json::from_str(&request.get_ref().context).unwrap();
         let context: Context = Context::from_serialize(context_json).unwrap();
 
-        if let Err(e) = render(
-            input_path.as_str(),
-            output_path.as_str(),
-            context,
-        ) {
+        if let Err(e) =
+            render(input_path.as_str(), output_path.as_str(), context)
+        {
             return Err(Status::invalid_argument(e.to_string()));
         }
 
         let response = RenderTemplateResponse {
             result: RenderResult::Success.into(),
-            render: Some(RenderResponse {
-                output: output_path,
-            }),
+            render: Some(RenderResponse { output: output_path }),
         };
 
         Ok(Response::new(response))
