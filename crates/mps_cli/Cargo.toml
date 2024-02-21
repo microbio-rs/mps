@@ -29,5 +29,5 @@ color-eyre.workspace = true
 mps_log              = { version = "0.1.0", path = "../mps_log" }
 tracing.workspace    = true
 
-[target.'cfg(not(target_env = "msvc"))'.dependencies]
-jemallocator = { workspace = true }
+[target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
+workspace = true

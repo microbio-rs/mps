@@ -20,13 +20,15 @@ color-eyre.workspace   = true
 dockerfile-parser      = "0.8.0"
 flate2                 = "1.0.28"
 futures-util.workspace = true
-jemallocator.workspace = true
 serde                  = { workspace = true, features = ["derive"] }
 serde_json.workspace   = true
 tar                    = "0.4.40"
 thiserror.workspace    = true
 tokio                  = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tracing.workspace      = true
+
+[target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
+workspace = true
 
 [lints]
 workspace = true

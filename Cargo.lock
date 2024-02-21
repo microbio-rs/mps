@@ -1797,26 +1797,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 
 [[package]]
-name = "jemalloc-sys"
-version = "0.5.4+5.3.0-patched"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac6c1946e1cea1788cbfde01c993b52a10e2da07f4bac608228d1bed20bfebf2"
-dependencies = [
- "cc",
- "libc",
-]
-
-[[package]]
-name = "jemallocator"
-version = "0.5.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0de374a9f8e63150e6f5e8a60cc14c668226d7a347d8aee1a45766e3c4dd3bc"
-dependencies = [
- "jemalloc-sys",
- "libc",
-]
-
-[[package]]
 name = "jobserver"
 version = "0.1.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2186,9 +2166,9 @@ name = "mps_cli"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
- "jemallocator",
  "mps_log",
  "mps_scm",
+ "tikv-jemallocator",
  "tokio",
  "tracing",
 ]
@@ -2202,7 +2182,6 @@ dependencies = [
  "aws-sdk-ecr",
  "chrono",
  "color-eyre",
- "jemallocator",
  "mps_config",
  "mps_log",
  "prost",
@@ -2210,6 +2189,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "thiserror",
+ "tikv-jemallocator",
  "tokio",
  "tonic 0.11.0",
  "tonic-build",
@@ -2239,11 +2219,11 @@ dependencies = [
  "dockerfile-parser",
  "flate2",
  "futures-util",
- "jemallocator",
  "serde",
  "serde_json",
  "tar",
  "thiserror",
+ "tikv-jemallocator",
  "tokio",
  "tracing",
 ]
@@ -2275,7 +2255,6 @@ name = "mps_orchestrator"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
- "jemallocator",
  "k8s-openapi",
  "kube",
  "serde",
@@ -2283,6 +2262,7 @@ dependencies = [
  "serde_yaml",
  "tera",
  "thiserror",
+ "tikv-jemallocator",
  "tokio",
  "tracing",
 ]
@@ -2297,7 +2277,6 @@ dependencies = [
  "color-eyre",
  "colored",
  "fake",
- "jemallocator",
  "mockall",
  "mockito",
  "mps_config",
@@ -2310,6 +2289,7 @@ dependencies = [
  "sqlx",
  "tempfile",
  "thiserror",
+ "tikv-jemallocator",
  "tokio",
  "tonic 0.11.0",
  "tonic-build",
@@ -2325,7 +2305,6 @@ dependencies = [
  "async-trait",
  "chrono",
  "color-eyre",
- "jemallocator",
  "mps_config",
  "mps_log",
  "prost",
@@ -2334,6 +2313,7 @@ dependencies = [
  "sqlx",
  "tera",
  "thiserror",
+ "tikv-jemallocator",
  "tokio",
  "tonic 0.11.0",
  "tonic-build",
@@ -2351,7 +2331,6 @@ dependencies = [
  "color-eyre",
  "colored",
  "git2",
- "jemallocator",
  "mockall",
  "mockito",
  "mps_config",
@@ -2361,6 +2340,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror",
+ "tikv-jemallocator",
  "tokio",
  "tonic 0.11.0",
  "tonic-build",
@@ -4011,6 +3991,26 @@ checksum = "3fdd6f064ccff2d6567adcb3873ca630700f00b5ad3f060c25b5dcfd9a4ce152"
 dependencies = [
  "cfg-if",
  "once_cell",
+]
+
+[[package]]
+name = "tikv-jemalloc-sys"
+version = "0.5.4+5.3.0-patched"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9402443cb8fd499b6f327e40565234ff34dbda27460c5b47db0db77443dd85d1"
+dependencies = [
+ "cc",
+ "libc",
+]
+
+[[package]]
+name = "tikv-jemallocator"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "965fe0c26be5c56c94e38ba547249074803efd52adfb66de62107d95aab3eaca"
+dependencies = [
+ "libc",
+ "tikv-jemalloc-sys",
 ]
 
 [[package]]

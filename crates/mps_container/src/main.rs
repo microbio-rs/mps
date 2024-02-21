@@ -30,9 +30,9 @@ use bollard::image::TagImageOptions;
 use std::io::Read;
 use std::io::Write;
 
-#[cfg(not(target_env = "msvc"))]
+#[cfg(all(target_env = "musl", target_pointer_width = "64"))]
 #[global_allocator]
-static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 #[derive(thiserror::Error, Debug)]
 pub enum MpsContainerError {

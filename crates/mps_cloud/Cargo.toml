@@ -20,7 +20,6 @@ aws-config.workspace = true
 aws-sdk-ecr.workspace = true
 chrono = { workspace = true, features = ["serde"] }
 color-eyre.workspace = true
-jemallocator.workspace = true
 prost = "0.12.3"
 serde = { workspace = true, features = ["derive"] }
 serde_json.workspace = true
@@ -38,6 +37,9 @@ tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tonic.workspace = true
 tracing.workspace = true
 uuid = { workspace = true, features = ["v4", "fast-rng", "serde"] }
+
+[target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
+workspace = true
 
 [lints]
 workspace = true

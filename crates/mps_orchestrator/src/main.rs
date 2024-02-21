@@ -19,9 +19,9 @@ use tera::{Context, Tera};
 // mps_orchestration TODO: get url load balancer
 //
 
-#[cfg(not(target_env = "msvc"))]
+#[cfg(all(target_env = "musl", target_pointer_width = "64"))]
 #[global_allocator]
-static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
