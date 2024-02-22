@@ -15,36 +15,58 @@ use std::path::Path;
 
 use config::{Config, Environment, File};
 use serde::de::DeserializeOwned;
-use thiserror::Error;
 use tracing::{debug, error, info};
 
-#[derive(Debug, Error)]
-pub enum AppConfigError {
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
     #[error("Failed to load configuration: {0}")]
     Load(#[from] config::ConfigError),
+
+    #[error("error not a file: {0}")]
+    NotFile(String),
+
+    #[error("error not a toml extension: {0}")]
+    NotToml(String),
+
+    #[error("failed convert path to str: {0}")]
+    Utf8Error(String),
 }
 
-pub fn load<T, P: AsRef<Path>>(config_path: P) -> Result<T, AppConfigError>
+pub fn load<T, P: AsRef<Path>>(config_path: P) -> Result<T, Error>
 where
     T: DeserializeOwned + std::fmt::Debug,
 {
-    info!("Loading configuration from: {}", config_path.as_ref().display());
+    let path_ref = config_path.as_ref();
 
-    let config = Config::builder()
-        // Load configuration from the specified file path
-        .add_source(File::with_name(config_path.as_ref().to_str().unwrap()))
-        // Override configuration with environment variables
-        .add_source(Environment::with_prefix("MPS"))
-        .build()
-        .map_err(AppConfigError::Load)?;
+    info!("Loading configuration from: {:?}", path_ref);
 
-    // Deserialize the configuration
-    let app_config: T =
-        config.try_deserialize().map_err(AppConfigError::Load)?;
+    if !path_ref.is_file() {
+        return Err(Error::NotFile(format!("{path_ref:?}")))
+    }
 
-    debug!("Configuration loaded successfully");
+    if let Some(extension) = path_ref.extension() {
+        if extension != "toml" {
+            return Err(Error::NotToml(format!("{path_ref:?}")))
+        }
+    }
 
-    Ok(app_config)
+    if let Some(path) = path_ref.to_str() {
+        let config = Config::builder()
+            .add_source(File::with_name(path))
+            .add_source(Environment::with_prefix("MPS"))
+            .build()
+            .map_err(Error::Load)?;
+
+        let app_config: T =
+            config.try_deserialize().map_err(Error::Load)?;
+
+        debug!("Configuration loaded successfully");
+
+        Ok(app_config)
+    } else {
+        Err(Error::Utf8Error(format!("{path_ref:?}")))
+    }
+
 }
 
 #[cfg(test)]

@@ -22,9 +22,9 @@ use colored::Colorize;
 
 use sqlx::PgPool;
 
-use crate::{grpc, MpsProjectConfig, MpsProjectError};
+use crate::{grpc, MpsProjectConfig, Error};
 
-pub async fn run() -> Result<(), MpsProjectError> {
+pub async fn run() -> Result<(), Error> {
     let banner: String = r#"
 ███╗   ███╗██████╗ ███████╗      ██████╗ ██████╗  ██████╗      ██╗███████╗ ██████╗████████╗
 ████╗ ████║██╔══██╗██╔════╝      ██╔══██╗██╔══██╗██╔═══██╗     ██║██╔════╝██╔════╝╚══██╔══╝

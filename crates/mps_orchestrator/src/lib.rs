@@ -16,11 +16,10 @@
 use k8s_openapi::api::apps::v1::Deployment;
 use k8s_openapi::api::core::v1::{Namespace, Pod};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 use kube::{
     api::{
-        Api, DeleteParams, ListParams, Object, Patch, PatchParams, PostParams,
+        Api, PostParams,
         ResourceExt,
     },
     runtime::wait::{await_condition, conditions::is_pod_running},
@@ -66,7 +65,7 @@ pub async fn create_namespace(
     // Criar o novo namespace
     let created_namespace = namespaces.create(&Default::default(), &n).await?;
 
-    println!("Namespace criado");
+    println!("Namespace criado: {created_namespace:?}");
 
     Ok(())
 }

@@ -34,7 +34,7 @@ pub struct MpsLog {
 }
 
 #[derive(thiserror::Error, Debug)]
-pub enum MpsLogError {}
+pub enum Error {}
 
 impl Default for MpsLog {
     fn default() -> Self {
@@ -103,7 +103,7 @@ impl MpsLog {
         self
     }
 
-    pub fn init(self) -> Result<Self, MpsLogError> {
+    pub fn init(self) -> Result<Self, Error> {
         // Local offset timezone init, and set time format.
         let offset = clia_local_offset::current_local_offset()
             .expect("Can not get local offset!");

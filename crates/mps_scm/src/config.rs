@@ -24,8 +24,8 @@ pub struct MpsScmConfig {
 
 #[derive(thiserror::Error, Debug)]
 pub(crate) enum MpsScmConfigError {
-    #[error("Config errror: {0}")]
-    Config(#[from] mps_config::AppConfigError),
+    #[error("Config error: {0}")]
+    Config(#[from] mps_config::Error),
 }
 
 impl MpsScmConfig {

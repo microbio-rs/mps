@@ -44,16 +44,10 @@ pub struct MpsProjectConfig {
     pub grpc_server: crate::grpc::GrpcConfig,
 }
 
-#[derive(thiserror::Error, Debug)]
-pub(crate) enum MpsProjectConfigError {
-    #[error("Config errror: {0}")]
-    Config(#[from] mps_config::AppConfigError),
-}
-
 impl MpsProjectConfig {
     pub fn load<P: AsRef<Path>>(
         config_path: P,
-    ) -> Result<Self, MpsProjectConfigError> {
+    ) -> Result<Self, crate::Error> {
         Ok(mps_config::load(config_path)?)
     }
 }

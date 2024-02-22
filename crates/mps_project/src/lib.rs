@@ -24,17 +24,23 @@ pub(crate) mod grpc;
 
 pub(crate) mod kafka;
 
-#[derive(thiserror::Error, Debug)]
-pub enum MpsProjectError {
-    #[error("failed parse cli arguments: {0}")]
-    Clap(#[from] clap::Error),
-    #[error("failed parse config: {0}")]
-    Config(#[from] config::MpsProjectConfigError),
-    #[error("failed load log: {0}")]
-    Log(#[from] mps_log::MpsLogError),
-    #[error("failed project repository: {0}")]
-    Repository(#[from] repository::RepositoryError),
+pub mod error {
+    #[derive(thiserror::Error, Debug)]
+    pub enum Error {
+        #[error("failed parse cli arguments: {0}")]
+        Clap(#[from] clap::Error),
+
+        #[error("failed parse config: {0}")]
+        Config(#[from] mps_config::Error),
+
+        #[error("failed load log: {0}")]
+        Log(#[from] mps_log::Error),
+
+        #[error("failed project repository: {0}")]
+        Repository(#[from] crate::repository::RepositoryError),
+    }
 }
+pub use error::*;
 
 pub(crate) struct NewRepo {
     pub name: String,
