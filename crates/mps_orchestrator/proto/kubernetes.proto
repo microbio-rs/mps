@@ -1,27 +1,26 @@
 syntax = "proto3";
 
-package template_proto;
+package kubernetes_proto;
 
-service Template {
-  rpc Render(RenderTemplateRequest) returns (RenderTemplateResponse);
+service Kubernetes {
+  rpc Apply(ApplyKubernetesRequest) returns (ApplyKubernetesResponse);
   /* rpc ReadRepo(ReadRepoRequest) returns (ReadRepoResponse); */
   /* rpc UpdateRepo(UpdateRepoRequest) returns (UpdateRepoResponse); */
   /* rpc DeleteRepo(DeleteRepoRequest) returns (DeleteRepoResponse); */
 }
 
-message RenderTemplateRequest {
-  string input = 1;
-  string context = 2;
+message ApplyKubernetesRequest {
+  string context = 1;
 }
 
-message RenderTemplateResponse {
+message ApplyKubernetesResponse {
   enum Result {
     SUCCESS = 0;
     FAILURE = 1;
   }
 
   Result result = 1;
-  RenderResponse render = 2;
+  ApplyResponse application = 2;
 }
 
 /* message ReadRepoRequest { */
@@ -67,7 +66,7 @@ message RenderTemplateResponse {
 /*   Result result = 1; */
 /* } */
 
-message RenderResponse {
-  string output = 3;
+message ApplyResponse {
+  string name = 1;
 }
 

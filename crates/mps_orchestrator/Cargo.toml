@@ -22,6 +22,8 @@ tera.workspace       = true
 thiserror.workspace  = true
 tokio                = { workspace = true, features = ["macros", "time", "rt-multi-thread"] }
 tracing.workspace    = true
+tonic.workspace      = true
+prost                = "0.12.3"
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
 workspace = true
@@ -36,3 +38,7 @@ doctest = false
 default = []
 
 [dev-dependencies]
+tokio = { workspace = true, features = ["macros"] }
+
+[build-dependencies]
+tonic-build = "0.11.0"
