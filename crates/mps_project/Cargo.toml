@@ -66,4 +66,5 @@ mockito.workspace  = true
 tempfile.workspace = true
 
 [build-dependencies]
+vergen.workspace = true
 tonic-build = "0.11.0"

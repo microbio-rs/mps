@@ -22,17 +22,19 @@ use colored::Colorize;
 
 use sqlx::PgPool;
 
+mod version;
+
 use crate::{grpc, MpsProjectConfig, Error};
 
 pub async fn run() -> Result<(), Error> {
     let banner: String = r#"
-███╗   ███╗██████╗ ███████╗      ██████╗ ██████╗  ██████╗      ██╗███████╗ ██████╗████████╗
-████╗ ████║██╔══██╗██╔════╝      ██╔══██╗██╔══██╗██╔═══██╗     ██║██╔════╝██╔════╝╚══██╔══╝
-██╔████╔██║██████╔╝███████╗█████╗██████╔╝██████╔╝██║   ██║     ██║█████╗  ██║        ██║
-██║╚██╔╝██║██╔═══╝ ╚════██║╚════╝██╔═══╝ ██╔══██╗██║   ██║██   ██║██╔══╝  ██║        ██║
-██║ ╚═╝ ██║██║     ███████║      ██║     ██║  ██║╚██████╔╝╚█████╔╝███████╗╚██████╗   ██║
-╚═╝     ╚═╝╚═╝     ╚══════╝      ╚═╝     ╚═╝  ╚═╝ ╚═════╝  ╚════╝ ╚══════╝ ╚═════╝   ╚═╝
-                  𓍊𓋼𓍊𓋼𓍊 mps - project manager service v0.1.0"#
+            ███╗   ███╗██████╗ ███████╗      ██████╗ ██████╗  ██████╗
+            ████╗ ████║██╔══██╗██╔════╝      ██╔══██╗██╔══██╗██╔═══██╗
+            ██╔████╔██║██████╔╝███████╗█████╗██████╔╝██████╔╝██║   ██║
+            ██║╚██╔╝██║██╔═══╝ ╚════██║╚════╝██╔═══╝ ██╔══██╗██║   ██║
+            ██║ ╚═╝ ██║██║     ███████║      ██║     ██║  ██║╚██████╔╝
+            ╚═╝     ╚═╝╚═╝     ╚══════╝      ╚═╝     ╚═╝  ╚═╝ ╚═════╝
+                 𓍊𓋼𓍊𓋼𓍊 mps - project manager service v0.1.0"#
         .green()
         .to_string();
 
@@ -51,6 +53,7 @@ pub async fn run() -> Result<(), Error> {
         .author("Murilo Ijanc'")
         .about(banner)
         .subcommand(Command::new("grpc").about("Run grpc server"))
+        .subcommand(version::subcommand())
         .subcommand(
             Command::new("migration").about("Run migrations").arg(
                 Arg::new("path")
@@ -88,15 +91,15 @@ pub async fn run() -> Result<(), Error> {
                 .action(ArgAction::SetTrue)
                 .global(true),
         )
-        .arg(
-            Arg::new("config")
-                .short('c')
-                .long("config")
-                .value_name("ARQUIVO")
-                .help("Caminho do arquivo de configuração")
-                .value_parser(value_parser!(PathBuf))
-                .required(true),
-        )
+        // .arg(
+        //     Arg::new("config")
+        //         .short('c')
+        //         .long("config")
+        //         .value_name("ARQUIVO")
+        //         .help("Caminho do arquivo de configuração")
+        //         .value_parser(value_parser!(PathBuf))
+        //         .required(true),
+        // )
         .get_matches();
 
     mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
@@ -115,33 +118,33 @@ pub async fn run() -> Result<(), Error> {
     // )?;
 
     // read config
-    let config_path: &PathBuf =
-        matches.get_one("config").expect("`config` is required");
-    let project_config = MpsProjectConfig::load(config_path)?;
-    let pool = PgPool::connect(&project_config.database.uri)
-        .await
-        .expect("Failed to connect to the database");
+    // let config_path: &PathBuf =
+    //     matches.get_one("config").expect("`config` is required");
+    // let project_config = MpsProjectConfig::load(config_path)?;
+    // let pool = PgPool::connect(&project_config.database.uri)
+    //     .await
+    //     .expect("Failed to connect to the database");
 
-    let project_repo = crate::ProjectRepository::new(pool);
+    // let project_repo = crate::ProjectRepository::new(pool);
 
     // crate::kafka::kafka_check_run().await;
 
     // request grpc
-    let create_request = mps_scm::grpc::scm::CreateRepoRequest {
-        provider: mps_scm::grpc::scm::Provider::Github.into(),
-        name: "mps-simple-repo".to_string(),
-    };
-    let grpc_scm_config = mps_scm::grpc::client::ScmGrpcClientConfig {
-        host: "http://[::1]".to_string(),
-        port: 50051,
-    };
-    let mut grpc_scm_client =
-        mps_scm::grpc::client::ScmGrpcClient::new(&grpc_scm_config)
-            .await
-            .unwrap();
+    // let create_request = mps_scm::grpc::scm::CreateRepoRequest {
+    //     provider: mps_scm::grpc::scm::Provider::Github.into(),
+    //     name: "mps-simple-repo".to_string(),
+    // };
+    // let grpc_scm_config = mps_scm::grpc::client::ScmGrpcClientConfig {
+    //     host: "http://[::1]".to_string(),
+    //     port: 50051,
+    // };
+    // let mut grpc_scm_client =
+    //     mps_scm::grpc::client::ScmGrpcClient::new(&grpc_scm_config)
+    //         .await
+    //         .unwrap();
 
-    let repo = grpc_scm_client.create_repo(create_request).await.unwrap();
-    println!("repo = {repo:?}");
+    // let repo = grpc_scm_client.create_repo(create_request).await.unwrap();
+    // println!("repo = {repo:?}");
 
     match matches.subcommand() {
         Some(("grpc", _)) => {
@@ -154,6 +157,13 @@ pub async fn run() -> Result<(), Error> {
             // grpc::server(Arc::new(state)).await
             // grpc::server(&project_config.grpc_server, project_repo).await
             println!("");
+        }
+        Some(("version", sub_m)) => {
+            let info =  version::Info::new();
+            match sub_m.get_flag("json") {
+               true =>  println!("{}", info.to_json()),
+               false => println!("{}", info)
+            }
         }
         _ => {}
     };
