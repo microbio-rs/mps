@@ -12,23 +12,5 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::application::port::{
-    incoming::MpsScmUseCase, outgoing::MpsScmGithubPort,
-};
-
-pub struct MpsScmService {
-    github_port: Box<dyn MpsScmGithubPort + Send + Sync>,
-}
-
-impl MpsScmService {
-    pub fn new(github_port: Box<dyn MpsScmGithubPort + Send + Sync>) -> Self {
-        Self { github_port }
-    }
-}
-
-#[async_trait::async_trait]
-impl MpsScmUseCase for MpsScmService {
-    async fn create_repo(&self, name: &str) -> crate::domain::NewRepo {
-        self.github_port.create_repo(name).await
-    }
-}
+pub mod grpc;
+pub use grpc::*;

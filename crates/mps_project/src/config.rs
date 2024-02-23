@@ -14,40 +14,35 @@
 
 use std::path::Path;
 
-use serde::Deserialize;
+use crate::{
+    adapter::{incoming::GrpcConfig, outgoing::RepositoryConfig},
+    Error,
+};
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct DatabaseConfig {
-    pub uri: String,
-    pub max_pool: usize,
-}
+// #[derive(Debug, Clone, Deserialize)]
+// pub struct KafkaConfig {
+//     pub ip: String,
+//     pub port: u16,
+//     pub timeout: u64,
+//     pub topic: String,
+// }
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct KafkaConfig {
-    pub ip: String,
-    pub port: u16,
-    pub timeout: u64,
-    pub topic: String,
-}
+// impl KafkaConfig {
+//     pub fn address(&self) -> String {
+//         format!("{}:{}", self.ip, self.port)
+//     }
+// }
 
-impl KafkaConfig {
-    pub fn address(&self) -> String {
-        format!("{}:{}", self.ip, self.port)
-    }
-}
-
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, serde::Deserialize)]
 pub struct MpsProjectConfig {
     pub log_level: String,
-    pub database: DatabaseConfig,
-    pub kafka: KafkaConfig,
-    pub grpc_server: crate::grpc::GrpcConfig,
+    pub repository: RepositoryConfig,
+    // pub kafka: KafkaConfig,
+    pub grpc_server: GrpcConfig,
 }
 
 impl MpsProjectConfig {
-    pub fn load<P: AsRef<Path>>(
-        config_path: P,
-    ) -> Result<Self, crate::Error> {
+    pub fn load<P: AsRef<Path>>(config_path: P) -> Result<Self, crate::Error> {
         Ok(mps_config::load(config_path)?)
     }
 }

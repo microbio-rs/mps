@@ -12,23 +12,19 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::application::port::{
-    incoming::MpsScmUseCase, outgoing::MpsScmGithubPort,
-};
+use crate::adapter::outgoing;
 
-pub struct MpsScmService {
-    github_port: Box<dyn MpsScmGithubPort + Send + Sync>,
-}
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("failed parse cli arguments: {0}")]
+    Clap(#[from] clap::Error),
 
-impl MpsScmService {
-    pub fn new(github_port: Box<dyn MpsScmGithubPort + Send + Sync>) -> Self {
-        Self { github_port }
-    }
-}
+    #[error("failed parse config: {0}")]
+    Config(#[from] mps_config::Error),
 
-#[async_trait::async_trait]
-impl MpsScmUseCase for MpsScmService {
-    async fn create_repo(&self, name: &str) -> crate::domain::NewRepo {
-        self.github_port.create_repo(name).await
-    }
+    #[error("failed load log: {0}")]
+    Log(#[from] mps_log::Error),
+
+    #[error("failed project repository: {0}")]
+    Repository(#[from] outgoing::RepositoryError),
 }

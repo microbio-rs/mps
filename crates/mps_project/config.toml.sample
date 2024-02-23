@@ -8,9 +8,13 @@ ip   = "0.0.0.0"
 port = 50060
 
 [database]
-uri      = "postgres://postgres:postgres@0.0.0.0:5432/mps_project"
-timeout  = 10
+host     = "0.0.0.0"
+username = "postgres"
+password = "postgres"
+database = "mps_project"
+port     = 5432
 max_pool = 10
+timeout  = 10
 
 [amqp]
 uri         = "amqp://guest:guest@0.0.0.0:5672"

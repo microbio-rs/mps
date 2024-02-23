@@ -41,12 +41,12 @@ where
     info!("Loading configuration from: {:?}", path_ref);
 
     if !path_ref.is_file() {
-        return Err(Error::NotFile(format!("{path_ref:?}")))
+        return Err(Error::NotFile(format!("{path_ref:?}")));
     }
 
     if let Some(extension) = path_ref.extension() {
         if extension != "toml" {
-            return Err(Error::NotToml(format!("{path_ref:?}")))
+            return Err(Error::NotToml(format!("{path_ref:?}")));
         }
     }
 
@@ -57,8 +57,7 @@ where
             .build()
             .map_err(Error::Load)?;
 
-        let app_config: T =
-            config.try_deserialize().map_err(Error::Load)?;
+        let app_config: T = config.try_deserialize().map_err(Error::Load)?;
 
         debug!("Configuration loaded successfully");
 
@@ -66,7 +65,6 @@ where
     } else {
         Err(Error::Utf8Error(format!("{path_ref:?}")))
     }
-
 }
 
 #[cfg(test)]

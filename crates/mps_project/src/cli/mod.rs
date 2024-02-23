@@ -20,11 +20,9 @@ use clap::{
 };
 use colored::Colorize;
 
-use sqlx::PgPool;
-
 mod version;
 
-use crate::{grpc, MpsProjectConfig, Error};
+use crate::{Error, MpsProjectConfig};
 
 pub async fn run() -> Result<(), Error> {
     let banner: String = r#"
@@ -104,11 +102,6 @@ pub async fn run() -> Result<(), Error> {
 
     mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
 
-    // let pool_options = PgConnectOptions::new()
-    //     .connect_timeout(Duration::from_secs(5))
-    //     .max_connections(10)
-    //     .connection_str("postgres://postgres:postgres@0.0.0.0:5432/mps_project");
-
     // let database_uri = "postgres://postgres:postgres@0.0.0.0:5432/mps_project";
     // project_repo.seed(10).await?;
 
@@ -159,10 +152,10 @@ pub async fn run() -> Result<(), Error> {
             println!("");
         }
         Some(("version", sub_m)) => {
-            let info =  version::Info::new();
+            let info = version::Info::new();
             match sub_m.get_flag("json") {
-               true =>  println!("{}", info.to_json()),
-               false => println!("{}", info)
+                true => println!("{}", info.to_json()),
+                false => println!("{}", info),
             }
         }
         _ => {}

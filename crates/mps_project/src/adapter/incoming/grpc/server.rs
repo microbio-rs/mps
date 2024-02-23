@@ -27,7 +27,8 @@ use super::proto::{
     update_project_response::Result as UpdateResult, *,
 };
 
-use crate::repository::{Project, ProjectRepository};
+// TODO: better import
+use crate::adapter::outgoing::{Project, ProjectRepository};
 
 impl From<Project> for ProjectResponse {
     fn from(project: Project) -> Self {

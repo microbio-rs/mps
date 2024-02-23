@@ -18,10 +18,7 @@ use k8s_openapi::api::core::v1::{Namespace, Pod};
 use serde::{Deserialize, Serialize};
 
 use kube::{
-    api::{
-        Api, PostParams,
-        ResourceExt,
-    },
+    api::{Api, PostParams, ResourceExt},
     runtime::wait::{await_condition, conditions::is_pod_running},
     Client,
 };

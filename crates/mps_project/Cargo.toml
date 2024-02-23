@@ -15,6 +15,10 @@ rust-version.workspace = true
 mps_config = { version = "0.1.0", path = "../mps_config" }
 mps_log    = { version = "0.1.0", path = "../mps_log" }
 mps_scm    = { version = "0.1.0", path = "../mps_scm", features = ["grpc_client"] }
+# mps_cloud = { version = "0.1.0", path = "../mps_cloud" }
+# mps_container = { version = "0.1.0", path = "../mps_container" }
+# mps_orchestrator = { version = "0.1.0", path = "../mps_orchestrator" }
+# mps_render = { version = "0.1.0", path = "../mps_render" }
 
 async-trait.workspace = true
 clap.workspace = true
@@ -41,10 +45,6 @@ tonic.workspace = true
 tracing.workspace = true
 url = { workspace = true, features = ["serde"] }
 uuid = { workspace = true, features = ["v4", "fast-rng", "serde"] }
-mps_cloud = { version = "0.1.0", path = "../mps_cloud" }
-mps_container = { version = "0.1.0", path = "../mps_container" }
-mps_orchestrator = { version = "0.1.0", path = "../mps_orchestrator" }
-mps_render = { version = "0.1.0", path = "../mps_render" }
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
 workspace = true
@@ -67,4 +67,4 @@ tempfile.workspace = true
 
 [build-dependencies]
 vergen.workspace = true
-tonic-build = "0.11.0"
+tonic-build      = "0.11.0"

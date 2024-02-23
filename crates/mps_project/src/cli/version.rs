@@ -87,14 +87,16 @@ impl Info {
             // cargo_profile: env!("VERGEN_CARGO_PROFILE").to_string(),
             cargo_target_triple: env!("VERGEN_CARGO_TARGET_TRIPLE").to_string(),
             git_branch: env!("VERGEN_GIT_BRANCH").to_string(),
-            git_commit_timestamp: env!("VERGEN_GIT_COMMIT_TIMESTAMP").to_string(),
+            git_commit_timestamp: env!("VERGEN_GIT_COMMIT_TIMESTAMP")
+                .to_string(),
             // git_semver: env!("VERGEN_GIT_SEMVER").to_string(),
             git_sha: env!("VERGEN_GIT_SHA").to_string(),
         }
     }
 
     pub fn to_json(&self) -> String {
-        serde_json::to_string_pretty(self).expect("Fail to generate version JSON")
+        serde_json::to_string_pretty(self)
+            .expect("Fail to generate version JSON")
     }
 }
 
