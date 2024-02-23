@@ -2321,6 +2321,7 @@ dependencies = [
  "mps_config",
  "mps_log",
  "prost",
+ "rand",
  "rdkafka",
  "serde",
  "serde_json",

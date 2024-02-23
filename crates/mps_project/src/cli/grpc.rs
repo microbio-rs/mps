@@ -15,6 +15,5 @@
 use clap::Command;
 
 pub fn subcommand() -> Command {
-    Command::new("grpc")
-        .about("Run grpc server")
+    Command::new("grpc").about("Run grpc server")
 }

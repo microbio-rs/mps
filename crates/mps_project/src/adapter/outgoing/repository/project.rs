@@ -28,11 +28,11 @@ pub enum ProjectRepositoryError {
 }
 
 #[derive(Debug, sqlx::FromRow, fake::Dummy)]
-pub struct Project {
+pub struct ProjectEntity {
     pub id: Uuid,
     pub user_id: Uuid,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -49,93 +49,90 @@ impl ProjectRepository {
 
     pub async fn create(
         &self,
-        project: &Project,
-    ) -> Result<Project, ProjectRepositoryError> {
-        // let id = Uuid::new_v4();
-        // let created_at = Utc::now();
-        // let updated_at = created_at;
-
-        // let project = Project {
-        //     id,
-        //     user_id,
-        //     name: name.to_owned(),
-        //     description: description.to_owned(),
-        //     created_at,
-        //     updated_at,
-        // };
-
+        project: &ProjectEntity,
+    ) -> Result<ProjectEntity, ProjectRepositoryError> {
         Ok(sqlx::query_as!(
-                Project,
-            "INSERT INTO projects (id, user_id, name, description, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            project.id, project.user_id, project.name, project.description, project.created_at, project.updated_at
+            ProjectEntity,
+            "INSERT INTO projects
+                (id, user_id, name, description, created_at, updated_at)
+             VALUES
+                ($1, $2, $3, $4, $5, $6)
+            RETURNING
+                *",
+            project.id,
+            project.user_id,
+            project.name,
+            project.description,
+            project.created_at,
+            project.updated_at
         )
         .fetch_one(&self.pool)
         .await?)
     }
 
-    pub async fn read(
-        &self,
-        project_id: Uuid,
-    ) -> Result<Project, ProjectRepositoryError> {
-        Ok(sqlx::query_as!(
-            Project,
-            "SELECT * FROM projects WHERE id = $1",
-            project_id
-        )
-        .fetch_one(&self.pool)
-        .await?)
-    }
+    // pub async fn read(
+    //     &self,
+    //     project_id: Uuid,
+    // ) -> Result<ProjectEntity, ProjectRepositoryError> {
+    //     Ok(sqlx::query_as!(
+    //         ProjectEntity,
+    //         "SELECT * FROM projects WHERE id = $1",
+    //         project_id
+    //     )
+    //     .fetch_one(&self.pool)
+    //     .await?)
+    // }
 
-    pub async fn update(
-        &self,
-        project: &Project,
-    ) -> Result<Project, ProjectRepositoryError> {
-        sqlx::query_as!(
-            Project,
-            "UPDATE projects SET name = $1, description = $2, updated_at = $3 WHERE id = $4 RETURNING *",
-            project.name, project.description, project.updated_at, project.id
-        )
-        .fetch_one(&self.pool)
-        .await
-        .map_err(ProjectRepositoryError::from)
-    }
+    // pub async fn update(
+    //     &self,
+    //     project: &ProjectEntity,
+    // ) -> Result<ProjectEntity, ProjectRepositoryError> {
+    //     sqlx::query_as!(
+    //         ProjectEntity,
+    //         "UPDATE projects SET name = $1, description = $2, updated_at = $3 WHERE id = $4 RETURNING *",
+    //         project.name, project.description, project.updated_at, project.id
+    //     )
+    //     .fetch_one(&self.pool)
+    //     .await
+    //     .map_err(ProjectRepositoryError::from)
+    // }
 
-    pub async fn delete(
-        &self,
-        project_id: Uuid,
-    ) -> Result<(), ProjectRepositoryError> {
-        sqlx::query!("DELETE FROM projects WHERE id = $1", project_id)
-            .execute(&self.pool)
-            .await
-            .map_err(ProjectRepositoryError::from)?;
+    // pub async fn delete(
+    //     &self,
+    //     project_id: Uuid,
+    // ) -> Result<(), ProjectRepositoryError> {
+    //     sqlx::query!("DELETE FROM projects WHERE id = $1", project_id)
+    //         .execute(&self.pool)
+    //         .await
+    //         .map_err(ProjectRepositoryError::from)?;
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
-    pub async fn list(
-        &self,
-        page: i64,
-        page_size: i64,
-    ) -> Result<Vec<Project>, ProjectRepositoryError> {
-        let offset = (page - 1) * page_size;
+    // pub async fn list(
+    //     &self,
+    //     page: i64,
+    //     page_size: i64,
+    // ) -> Result<Vec<ProjectEntity>, ProjectRepositoryError> {
+    //     let offset = (page - 1) * page_size;
 
-        sqlx::query_as!(
-            Project,
-            "SELECT * FROM projects ORDER BY created_at LIMIT $1 OFFSET $2",
-            page_size,
-            offset
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(ProjectRepositoryError::from)
-    }
+    //     sqlx::query_as!(
+    //         ProjectEntity,
+    //         "SELECT * FROM projects ORDER BY created_at LIMIT $1 OFFSET $2",
+    //         page_size,
+    //         offset
+    //     )
+    //     .fetch_all(&self.pool)
+    //     .await
+    //     .map_err(ProjectRepositoryError::from)
+    // }
 
     pub async fn seed(
         &self,
         count: usize,
     ) -> Result<(), ProjectRepositoryError> {
         for _ in 0..count {
-            let mut p: Project = Faker.fake();
+            let mut p: ProjectEntity = Faker.fake();
             // fix user id
             p.user_id = uuid!("a97dfb95-2805-79bc-5e02-86083146a3a4");
 

@@ -12,7 +12,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::{cli, adapter::outgoing};
+use crate::{adapter::outgoing, cli};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

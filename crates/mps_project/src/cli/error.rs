@@ -20,7 +20,6 @@ pub enum Error {
     #[error("failed load log: {0}")]
     Log(#[from] mps_log::Error),
 
-
     #[error("unknown")]
     Unknow,
 }

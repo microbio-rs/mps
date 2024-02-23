@@ -14,16 +14,14 @@
 
 use std::path;
 
-use clap::{
-    value_parser, Arg, ColorChoice, Command,
-};
+use clap::{value_parser, Arg, ColorChoice, Command};
 
+mod common;
+pub(crate) mod error;
+mod grpc;
 mod migrations;
 mod seed;
 mod version;
-mod common;
-mod grpc;
-pub(crate) mod error;
 
 const MAX_TERM_WIDTH: usize = 80;
 const COLOR_CHOICE: ColorChoice = ColorChoice::Auto;

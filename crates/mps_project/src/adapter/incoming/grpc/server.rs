@@ -28,10 +28,10 @@ use super::proto::{
 };
 
 // TODO: better import
-use crate::adapter::outgoing::{Project, ProjectRepository};
+use crate::adapter::outgoing::{ProjectEntity, ProjectRepository};
 
-impl From<Project> for ProjectResponse {
-    fn from(project: Project) -> Self {
+impl From<ProjectEntity> for ProjectResponse {
+    fn from(project: ProjectEntity) -> Self {
         ProjectResponse {
             id: project.id.to_string(),
             user_id: project.user_id.to_string(),
@@ -55,7 +55,7 @@ impl project_crud_server::ProjectCrud for CrudService {
     ) -> Result<Response<CreateProjectResponse>, Status> {
         let project_req = request.into_inner();
 
-        let project = Project {
+        let project = ProjectEntity {
             id: Uuid::new_v4(),
             user_id: Uuid::parse_str(&project_req.user_id)
                 .map_err(|_| Status::invalid_argument("Invalid user ID"))?,
@@ -81,74 +81,74 @@ impl project_crud_server::ProjectCrud for CrudService {
         }
     }
 
-    async fn read_project(
-        &self,
-        request: Request<ReadProjectRequest>,
-    ) -> Result<Response<ReadProjectResponse>, Status> {
-        let project_id = Uuid::parse_str(&request.into_inner().id)
-            .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
-        match self.project_repository.read(project_id).await {
-            Ok(project) => {
-                let response = ReadProjectResponse {
-                    result: ReadResult::Success.into(),
-                    project: Some(project.into()),
-                };
-                Ok(Response::new(response))
-            }
-            Err(_) => Err(Status::not_found("Project not found")),
-        }
-    }
+    // async fn read_project(
+    //     &self,
+    //     request: Request<ReadProjectRequest>,
+    // ) -> Result<Response<ReadProjectResponse>, Status> {
+    //     let project_id = Uuid::parse_str(&request.into_inner().id)
+    //         .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
+    //     match self.project_repository.read(project_id).await {
+    //         Ok(project) => {
+    //             let response = ReadProjectResponse {
+    //                 result: ReadResult::Success.into(),
+    //                 project: Some(project.into()),
+    //             };
+    //             Ok(Response::new(response))
+    //         }
+    //         Err(_) => Err(Status::not_found("ProjectEntity not found")),
+    //     }
+    // }
 
-    async fn update_project(
-        &self,
-        request: Request<UpdateProjectRequest>,
-    ) -> Result<Response<UpdateProjectResponse>, Status> {
-        let project_req = request.into_inner();
-        let project_id = Uuid::parse_str(&project_req.id)
-            .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
+    // async fn update_project(
+    //     &self,
+    //     request: Request<UpdateProjectRequest>,
+    // ) -> Result<Response<UpdateProjectResponse>, Status> {
+    //     let project_req = request.into_inner();
+    //     let project_id = Uuid::parse_str(&project_req.id)
+    //         .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
 
-        let mut project = match self.project_repository.read(project_id).await {
-            Ok(project) => project,
-            Err(_) => return Err(Status::not_found("Project not found")),
-        };
+    //     let mut project = match self.project_repository.read(project_id).await {
+    //         Ok(project) => project,
+    //         Err(_) => return Err(Status::not_found("ProjectEntity not found")),
+    //     };
 
-        project.user_id = Uuid::parse_str(&project_req.user_id)
-            .map_err(|_| Status::invalid_argument("Invalid user ID"))?;
-        project.name = project_req.name;
-        project.description = project_req.description;
-        project.updated_at = Utc::now();
+    //     project.user_id = Uuid::parse_str(&project_req.user_id)
+    //         .map_err(|_| Status::invalid_argument("Invalid user ID"))?;
+    //     project.name = project_req.name;
+    //     project.description = project_req.description;
+    //     project.updated_at = Utc::now();
 
-        // if let Err(e) = project.validate() {
-        //     return Err(Status::invalid_argument(e.to_string()));
-        // }
+    //     // if let Err(e) = project.validate() {
+    //     //     return Err(Status::invalid_argument(e.to_string()));
+    //     // }
 
-        match self.project_repository.update(&project).await {
-            Ok(_) => {
-                let response = UpdateProjectResponse {
-                    result: UpdateResult::Success.into(),
-                };
-                Ok(Response::new(response))
-            }
-            Err(_) => Err(Status::internal("Failed to update project")),
-        }
-    }
+    //     match self.project_repository.update(&project).await {
+    //         Ok(_) => {
+    //             let response = UpdateProjectResponse {
+    //                 result: UpdateResult::Success.into(),
+    //             };
+    //             Ok(Response::new(response))
+    //         }
+    //         Err(_) => Err(Status::internal("Failed to update project")),
+    //     }
+    // }
 
-    async fn delete_project(
-        &self,
-        request: Request<DeleteProjectRequest>,
-    ) -> Result<Response<DeleteProjectResponse>, Status> {
-        let project_id = Uuid::parse_str(&request.into_inner().id)
-            .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
-        match self.project_repository.delete(project_id).await {
-            Ok(_) => {
-                let response = DeleteProjectResponse {
-                    result: DeleteResult::Success.into(),
-                };
-                Ok(Response::new(response))
-            }
-            Err(_) => Err(Status::internal("Failed to delete project")),
-        }
-    }
+    // async fn delete_project(
+    //     &self,
+    //     request: Request<DeleteProjectRequest>,
+    // ) -> Result<Response<DeleteProjectResponse>, Status> {
+    //     let project_id = Uuid::parse_str(&request.into_inner().id)
+    //         .map_err(|_| Status::invalid_argument("Invalid project ID"))?;
+    //     match self.project_repository.delete(project_id).await {
+    //         Ok(_) => {
+    //             let response = DeleteProjectResponse {
+    //                 result: DeleteResult::Success.into(),
+    //             };
+    //             Ok(Response::new(response))
+    //         }
+    //         Err(_) => Err(Status::internal("Failed to delete project")),
+    //     }
+    // }
 }
 
 // use std::sync::Arc;

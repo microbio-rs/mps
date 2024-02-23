@@ -16,22 +16,27 @@ use clap::builder::{styling::AnsiColor, Styles};
 use colored::Colorize;
 
 pub fn banner() -> String {
-    let info = format!("𓍊𓋼𓍊𓋼𓍊 mps - project manager service v{}", env!("CARGO_PKG_VERSION"));
-    let b: String = format!("{}\n{}","
+    let info = format!(
+        "𓍊𓋼𓍊𓋼𓍊 mps - project manager service v{}",
+        env!("CARGO_PKG_VERSION")
+    );
+    let b: String = format!(
+        "{}\n{}",
+        "
 ███╗   ███╗██████╗ ███████╗      ██████╗ ██████╗  ██████╗
 ████╗ ████║██╔══██╗██╔════╝      ██╔══██╗██╔══██╗██╔═══██╗
 ██╔████╔██║██████╔╝███████╗█████╗██████╔╝██████╔╝██║   ██║
 ██║╚██╔╝██║██╔═══╝ ╚════██║╚════╝██╔═══╝ ██╔══██╗██║   ██║
 ██║ ╚═╝ ██║██║     ███████║      ██║     ██║  ██║╚██████╔╝
 ╚═╝     ╚═╝╚═╝     ╚══════╝      ╚═╝     ╚═╝  ╚═╝ ╚═════╝",
-        center_banner(&info))
-        .trim()
-        .green()
-        .to_string();
+        center_banner(&info)
+    )
+    .trim()
+    .green()
+    .to_string();
     let b = center_banner(&b);
     b
 }
-
 
 fn center_banner(texto: &str) -> String {
     let largura_total = 80;
@@ -41,7 +46,8 @@ fn center_banner(texto: &str) -> String {
         texto.to_string()
     } else {
         let espacos_a_esquerda = (largura_total - largura_texto) / 2;
-        let espacos_a_direita = largura_total - largura_texto - espacos_a_esquerda;
+        let espacos_a_direita =
+            largura_total - largura_texto - espacos_a_esquerda;
 
         let texto_centralizado = format!(
             "{:width_left$}{}{:width_right$}",
@@ -63,5 +69,3 @@ pub fn styles() -> Styles {
         .literal(AnsiColor::Green.on_default())
         .placeholder(AnsiColor::Green.on_default())
 }
-
-

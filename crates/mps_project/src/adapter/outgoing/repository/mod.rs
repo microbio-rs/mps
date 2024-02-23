@@ -17,6 +17,9 @@ use std::process::Command;
 pub mod application;
 pub use application::*;
 
+pub mod environment;
+pub use environment::*;
+
 pub mod config;
 pub use config::*;
 
@@ -27,6 +30,9 @@ pub use project::*;
 pub enum RepositoryError {
     #[error("repository errror : {0}")]
     ApplicationError(#[from] ApplicationRepositoryError),
+
+    #[error("repository errror : {0}")]
+    EnvironmentRepositoryError(#[from] EnvironmentRepositoryError),
 
     #[error("Error IO: {0}")]
     IoError(#[from] std::io::Error),
