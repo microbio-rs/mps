@@ -12,23 +12,15 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use clap::{Arg, Command};
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("failed parse cli arguments: {0}")]
+    Clap(#[from] clap::Error),
 
-// let database_uri = "postgres://postgres:postgres@0.0.0.0:5432/mps_project";
-// project_repo.seed(10).await?;
+    #[error("failed load log: {0}")]
+    Log(#[from] mps_log::Error),
 
-// crate::run_migration(
-//     database_uri,
-//     "/home/msi/src/mps/crates/mps_project/migrations",
-// )?;
-//
-pub fn subcommand() -> Command {
-    Command::new("seed").about("Run seed").arg(
-        Arg::new("size")
-            .long("size")
-            .value_name("SIZE")
-            .help("Quantidade de registros gerados")
-            .default_value("10")
-            .required(true),
-    )
+
+    #[error("unknown")]
+    Unknow,
 }

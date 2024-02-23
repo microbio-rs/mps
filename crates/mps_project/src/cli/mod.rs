@@ -12,95 +12,50 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::path::PathBuf;
+use std::path;
 
 use clap::{
-    builder::styling::AnsiColor, value_parser, Arg, ArgAction, ColorChoice,
-    Command,
+    value_parser, Arg, ColorChoice, Command,
 };
-use colored::Colorize;
 
-mod version;
+mod migrations;
 mod seed;
+mod version;
+mod common;
+mod grpc;
+pub(crate) mod error;
 
-use crate::{Error, MpsProjectConfig};
+const MAX_TERM_WIDTH: usize = 80;
+const COLOR_CHOICE: ColorChoice = ColorChoice::Auto;
 
-pub async fn run() -> Result<(), Error> {
-    let banner: String = r#"
-            ███╗   ███╗██████╗ ███████╗      ██████╗ ██████╗  ██████╗
-            ████╗ ████║██╔══██╗██╔════╝      ██╔══██╗██╔══██╗██╔═══██╗
-            ██╔████╔██║██████╔╝███████╗█████╗██████╔╝██████╔╝██║   ██║
-            ██║╚██╔╝██║██╔═══╝ ╚════██║╚════╝██╔═══╝ ██╔══██╗██║   ██║
-            ██║ ╚═╝ ██║██║     ███████║      ██║     ██║  ██║╚██████╔╝
-            ╚═╝     ╚═╝╚═╝     ╚══════╝      ╚═╝     ╚═╝  ╚═╝ ╚═════╝
-                 𓍊𓋼𓍊𓋼𓍊 mps - project manager service v0.1.0"#
-        .green()
-        .to_string();
-
-    let matches = Command::new("mps_project")
-        .styles(
-            clap::builder::Styles::styled()
-                .header(AnsiColor::Yellow.on_default())
-                .usage(AnsiColor::White.on_default())
-                .literal(AnsiColor::Green.on_default())
-                .placeholder(AnsiColor::Green.on_default()),
-        )
-        .color(ColorChoice::Auto)
-        .max_term_width(80)
-        .version("0.1.0")
-        .next_display_order(1000)
-        .author("Murilo Ijanc'")
-        .about(banner)
-        .subcommand(Command::new("grpc").about("Run grpc server"))
-        .subcommand(version::subcommand())
-        .subcommand(
-            Command::new("migration").about("Run migrations").arg(
-                Arg::new("path")
-                    .long("path")
-                    .value_name("PATH")
-                    .help("Caminho da pasta migrations")
-                    .value_parser(value_parser!(PathBuf))
-                    .required(true),
-            ),
-        )
+fn subcommand_run() -> Command {
+    Command::new("run")
+        .about("Run grpc server, worker, seed, migrations")
+        .subcommand(migrations::subcommand())
         .subcommand(seed::subcommand())
+        .subcommand(grpc::subcommand())
         .arg(
-            Arg::new("log-level")
-                .short('L')
-                .long("log-level")
-                .help("Set log level")
-                .hide(true)
-                .value_parser(["trace", "debug", "info"])
-                .global(true),
+            Arg::new("config")
+                .short('c')
+                .long("config")
+                .value_name("ARQUIVO")
+                .help("Caminho do arquivo de configuração")
+                .value_parser(value_parser!(path::PathBuf))
+                .required(true),
         )
-        .arg(
-            Arg::new("quiet")
-                .short('q')
-                .long("quiet")
-                .help("Suppress diagnostic output")
-                .action(ArgAction::SetTrue)
-                .global(true),
-        )
-        // .arg(
-        //     Arg::new("config")
-        //         .short('c')
-        //         .long("config")
-        //         .value_name("ARQUIVO")
-        //         .help("Caminho do arquivo de configuração")
-        //         .value_parser(value_parser!(PathBuf))
-        //         .required(true),
-        // )
+}
+
+pub async fn run() -> Result<(), error::Error> {
+    let matches = Command::new("mps_project")
+        .styles(common::styles())
+        .color(COLOR_CHOICE)
+        .max_term_width(MAX_TERM_WIDTH)
+        .about(common::banner())
+        .subcommand(subcommand_run())
+        .subcommand(version::subcommand())
         .get_matches();
 
     mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
-
-    // let database_uri = "postgres://postgres:postgres@0.0.0.0:5432/mps_project";
-    // project_repo.seed(10).await?;
-
-    // crate::run_migration(
-    //     database_uri,
-    //     "/home/msi/src/mps/crates/mps_project/migrations",
-    // )?;
 
     // read config
     // let config_path: &PathBuf =
@@ -111,22 +66,6 @@ pub async fn run() -> Result<(), Error> {
     //     .expect("Failed to connect to the database");
 
     // let project_repo = crate::ProjectRepository::new(pool);
-
-    // crate::kafka::kafka_check_run().await;
-
-    // request grpc
-    // let create_request = mps_scm::grpc::scm::CreateRepoRequest {
-    //     provider: mps_scm::grpc::scm::Provider::Github.into(),
-    //     name: "mps-simple-repo".to_string(),
-    // };
-    // let grpc_scm_config = mps_scm::grpc::client::ScmGrpcClientConfig {
-    //     host: "http://[::1]".to_string(),
-    //     port: 50051,
-    // };
-    // let mut grpc_scm_client =
-    //     mps_scm::grpc::client::ScmGrpcClient::new(&grpc_scm_config)
-    //         .await
-    //         .unwrap();
 
     // let repo = grpc_scm_client.create_repo(create_request).await.unwrap();
     // println!("repo = {repo:?}");
