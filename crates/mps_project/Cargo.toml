@@ -14,7 +14,7 @@ rust-version.workspace = true
 [dependencies]
 mps_config = { version = "0.1.0", path = "../mps_config" }
 mps_log    = { version = "0.1.0", path = "../mps_log" }
-mps_scm    = { version = "0.1.0", path = "../mps_scm", features = ["grpc_client"] }
+# mps_scm    = { version = "0.1.0", path = "../mps_scm", features = ["grpc_client"] }
 # mps_cloud = { version = "0.1.0", path = "../mps_cloud" }
 # mps_container = { version = "0.1.0", path = "../mps_container" }
 # mps_orchestrator = { version = "0.1.0", path = "../mps_orchestrator" }

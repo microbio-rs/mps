@@ -14,7 +14,7 @@
 
 use chrono::{DateTime, Utc};
 use fake::{Fake, Faker};
-use sqlx::{Executor, PgPool};
+use sqlx::PgPool;
 use tracing::error;
 use uuid::Uuid;
 

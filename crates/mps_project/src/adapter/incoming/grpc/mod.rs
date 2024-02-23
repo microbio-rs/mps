@@ -24,4 +24,5 @@ pub use server::*;
 #[cfg(feature = "grpc_client")]
 pub mod client;
 #[cfg(feature = "grpc_client")]
+#[allow(unused_imports)]
 pub use client::*;

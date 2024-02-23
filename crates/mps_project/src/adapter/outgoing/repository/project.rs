@@ -12,12 +12,10 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::process::Command;
-
 use chrono::{DateTime, Utc};
 use fake::{Fake, Faker};
-use sqlx::{Executor, PgPool};
-use tracing::{error, info};
+use sqlx::PgPool;
+use tracing::error;
 use uuid::{uuid, Uuid};
 
 #[derive(Debug, thiserror::Error)]

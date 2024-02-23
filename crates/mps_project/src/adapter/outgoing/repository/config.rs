@@ -45,7 +45,6 @@ impl RepositoryConfig {
             .connect_with(options)
             .await?)
     }
-
 }
 
 impl From<RepositoryConfig> for String {
