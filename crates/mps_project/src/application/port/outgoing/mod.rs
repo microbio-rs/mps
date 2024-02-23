@@ -13,6 +13,6 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 #[async_trait::async_trait]
-pub(crate) trait MpsScmGithubPort {
+pub trait MpsScmGithubPort {
     async fn create_repo(&self, name: &str) -> crate::domain::NewRepo;
 }

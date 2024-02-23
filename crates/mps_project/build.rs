@@ -13,5 +13,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         &["proto/application.proto", "proto/project.proto"],
         &["proto"],
     )?;
+
     Ok(())
 }
