@@ -42,7 +42,7 @@ pub struct MpsProjectConfig {
 }
 
 impl MpsProjectConfig {
-    pub fn load<P: AsRef<Path>>(config_path: P) -> Result<Self, crate::Error> {
+    pub fn load<P: AsRef<Path>>(config_path: P) -> Result<Self, Error> {
         Ok(mps_config::load(config_path)?)
     }
 }
