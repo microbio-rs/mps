@@ -12,18 +12,15 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::adapter::outgoing;
+use crate::{cli, adapter::outgoing};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("failed parse cli arguments: {0}")]
-    Clap(#[from] clap::Error),
+    #[error(transparent)]
+    Cli(#[from] cli::error::Error),
 
     #[error("failed parse config: {0}")]
     Config(#[from] mps_config::Error),
-
-    #[error("failed load log: {0}")]
-    Log(#[from] mps_log::Error),
 
     #[error("failed project repository: {0}")]
     Repository(#[from] outgoing::RepositoryError),
