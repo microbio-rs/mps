@@ -21,6 +21,7 @@ use clap::{
 use colored::Colorize;
 
 mod version;
+mod seed;
 
 use crate::{Error, MpsProjectConfig};
 
@@ -62,16 +63,7 @@ pub async fn run() -> Result<(), Error> {
                     .required(true),
             ),
         )
-        .subcommand(
-            Command::new("seed").about("Run seed").arg(
-                Arg::new("size")
-                    .long("size")
-                    .value_name("SIZE")
-                    .help("Quantidade de registros gerados")
-                    .default_value("10")
-                    .required(true),
-            ),
-        )
+        .subcommand(seed::subcommand())
         .arg(
             Arg::new("log-level")
                 .short('L')
@@ -160,5 +152,6 @@ pub async fn run() -> Result<(), Error> {
         }
         _ => {}
     };
+
     Ok(())
 }

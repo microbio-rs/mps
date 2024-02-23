@@ -11,17 +11,16 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-pub mod proto {
-    tonic::include_proto!("project_proto");
-    // tonic::include_proto!("application_proto");
+
+use clap::{Arg, Command};
+
+pub fn subcommand() -> Command {
+    Command::new("seed").about("Run seed").arg(
+        Arg::new("size")
+            .long("size")
+            .value_name("SIZE")
+            .help("Quantidade de registros gerados")
+            .default_value("10")
+            .required(true),
+    )
 }
-
-#[cfg(feature = "grpc_server")]
-pub mod server;
-#[cfg(feature = "grpc_server")]
-pub use server::*;
-
-#[cfg(feature = "grpc_client")]
-pub mod client;
-#[cfg(feature = "grpc_client")]
-pub use client::*;

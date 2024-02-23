@@ -12,18 +12,16 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::{process::Command, time::Duration};
-
-use sqlx::{
-    postgres::{PgConnectOptions, PgPoolOptions},
-    PgPool,
-};
-
-pub mod project;
-pub use project::*;
+use std::process::Command;
 
 pub mod application;
 pub use application::*;
+
+pub mod config;
+pub use config::*;
+
+pub mod project;
+pub use project::*;
 
 #[derive(Debug, thiserror::Error)]
 pub enum RepositoryError {
@@ -38,34 +36,6 @@ pub enum RepositoryError {
 
     #[error("sqlx error: {0}")]
     SqlxError(#[from] sqlx::Error),
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
-pub struct RepositoryConfig {
-    pub host: String,
-    pub port: u16,
-    pub username: String,
-    pub password: String,
-    pub database: String,
-    pub max_pool: u32,
-    pub timeout: u64,
-}
-
-impl RepositoryConfig {
-    pub async fn new_pool(&self) -> Result<PgPool, RepositoryError> {
-        let options = PgConnectOptions::new()
-            .host(&self.host)
-            .port(self.port)
-            .username(&self.username)
-            .password(&self.password)
-            .database(&self.password);
-
-        Ok(PgPoolOptions::new()
-            .idle_timeout(Duration::from_secs(self.timeout))
-            .max_connections(self.max_pool)
-            .connect_with(options)
-            .await?)
-    }
 }
 
 pub fn run_migrations(
