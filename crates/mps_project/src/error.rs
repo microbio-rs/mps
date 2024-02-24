@@ -20,7 +20,7 @@ pub enum Error {
     Config(#[from] mps_config::Error),
 
     #[error("failed project repository: {0}")]
-    Repository(#[from] outgoing::RepositoryError),
+    Repository(#[from] outgoing::repository::Error),
 
     #[error("failed run grpc server: {0}")]
     GrpcServer(#[from] incoming::grpc::error::Error),
