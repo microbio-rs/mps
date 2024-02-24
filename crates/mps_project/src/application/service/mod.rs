@@ -12,23 +12,37 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::application::port::{
-    incoming::MpsScmUseCase, outgoing::MpsScmGithubPort,
+use crate::{
+    application::{
+        error,
+        port::{
+            incoming::{CreateProjectCommand, ProjectUseCase},
+            outgoing::ProjectPersistencePort,
+        },
+    },
+    domain::Project,
 };
 
-pub struct MpsScmService {
-    github_port: Box<dyn MpsScmGithubPort + Send + Sync>,
+pub struct ProjectService {
+    persistence_port: Box<dyn ProjectPersistencePort + Send + Sync>,
 }
 
-impl MpsScmService {
-    pub fn new(github_port: Box<dyn MpsScmGithubPort + Send + Sync>) -> Self {
-        Self { github_port }
+impl ProjectService {
+    pub fn new(
+        persistence_port: Box<dyn ProjectPersistencePort + Send + Sync>,
+    ) -> Self {
+        Self { persistence_port }
     }
 }
 
 #[async_trait::async_trait]
-impl MpsScmUseCase for MpsScmService {
-    async fn create_repo(&self, name: &str) -> crate::domain::NewRepo {
-        self.github_port.create_repo(name).await
+impl ProjectUseCase for ProjectService {
+    async fn create_repo(
+        &self,
+        command: CreateProjectCommand,
+    ) -> Result<Project, error::Error> {
+        let project: Project = command.into();
+        let project = self.persistence_port.save_project(project).await?;
+        Ok(project)
     }
 }

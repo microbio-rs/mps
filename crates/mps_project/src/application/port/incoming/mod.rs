@@ -12,9 +12,30 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::domain::NewRepo;
+use derive_new::new;
+
+use crate::{
+    application::error,
+    domain::{Project, UserId},
+};
+
+#[derive(Debug, Clone, new)]
+pub struct CreateProjectCommand {
+    pub user_id: UserId,
+    pub name: String,
+    pub description: Option<String>,
+}
+
+impl From<CreateProjectCommand> for Project {
+    fn from(c: CreateProjectCommand) -> Project {
+        Project::new(None, c.user_id, c.name, c.description)
+    }
+}
 
 #[async_trait::async_trait]
-pub trait MpsScmUseCase {
-    async fn create_repo(&self, name: &str) -> NewRepo;
+pub trait ProjectUseCase {
+    async fn create_repo(
+        &self,
+        command: CreateProjectCommand,
+    ) -> Result<Project, error::Error>;
 }

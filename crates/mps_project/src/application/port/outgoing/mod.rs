@@ -12,7 +12,12 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+use crate::{application::error, domain::Project};
+
 #[async_trait::async_trait]
-pub trait MpsScmGithubPort {
-    async fn create_repo(&self, name: &str) -> crate::domain::NewRepo;
+pub trait ProjectPersistencePort {
+    async fn save_project(
+        &self,
+        project: Project,
+    ) -> Result<Project, error::Error>;
 }
