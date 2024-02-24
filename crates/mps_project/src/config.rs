@@ -36,7 +36,7 @@ use crate::{
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct MpsProjectConfig {
     // pub log_level: String,
-    // pub repository: RepositoryConfig,
+    pub database: RepositoryConfig,
     pub grpc_server: GrpcServerConfig,
     // pub kafka: KafkaConfig,
 }
