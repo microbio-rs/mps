@@ -37,7 +37,7 @@ impl ProjectService {
 
 #[async_trait::async_trait]
 impl ProjectUseCase for ProjectService {
-    async fn create_repo(
+    async fn create(
         &self,
         command: CreateProjectCommand,
     ) -> Result<Project, error::Error> {

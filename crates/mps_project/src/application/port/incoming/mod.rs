@@ -34,7 +34,7 @@ impl From<CreateProjectCommand> for Project {
 
 #[async_trait::async_trait]
 pub trait ProjectUseCase {
-    async fn create_repo(
+    async fn create(
         &self,
         command: CreateProjectCommand,
     ) -> Result<Project, error::Error>;
