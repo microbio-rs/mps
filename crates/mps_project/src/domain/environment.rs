@@ -38,6 +38,12 @@ impl From<EnvironmentId> for String {
     }
 }
 
+impl From<Uuid> for EnvironmentId {
+    fn from(u: Uuid) -> EnvironmentId {
+        EnvironmentId::new(u)
+    }
+}
+
 #[derive(
     Debug,
     Clone,
