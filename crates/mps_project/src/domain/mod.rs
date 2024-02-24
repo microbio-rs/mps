@@ -12,6 +12,23 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+use derive_new::new;
+use uuid::Uuid;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ProjectId(Uuid);
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct UserId(Uuid);
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
+pub struct Project {
+    pub id: Option<ProjectId>,
+    pub user_id: UserId,
+    pub name: String,
+    pub description: Option<String>,
+}
+
 pub struct NewRepo {
     pub name: String,
     pub html_url: String,
