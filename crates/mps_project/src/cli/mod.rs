@@ -23,6 +23,8 @@ mod migrations;
 mod seed;
 mod version;
 
+use crate::MpsProjectConfig;
+
 const MAX_TERM_WIDTH: usize = 80;
 const COLOR_CHOICE: ColorChoice = ColorChoice::Auto;
 
@@ -55,30 +57,21 @@ pub async fn run() -> Result<(), error::Error> {
 
     mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
 
-    // read config
-    // let config_path: &PathBuf =
-    //     matches.get_one("config").expect("`config` is required");
-    // let project_config = MpsProjectConfig::load(config_path)?;
-    // let pool = PgPool::connect(&project_config.database.uri)
-    //     .await
-    //     .expect("Failed to connect to the database");
-
     // let project_repo = crate::ProjectRepository::new(pool);
 
     // let repo = grpc_scm_client.create_repo(create_request).await.unwrap();
     // println!("repo = {repo:?}");
 
     match matches.subcommand() {
-        Some(("grpc", _)) => {
-            // TODO: better aprote
-            // let provider =
-            //     crate::GithubProvider::new(project_config.github.clone());
-            // let service = crate::MpsProjectService::new(Box::new(provider));
-            // let state = grpc::MpsProjectGrpcState::new(Arc::new(service));
+        Some(("run", sub_m)) => {
+            let config_path: &path::PathBuf =
+                sub_m.get_one("config").expect("`config` is required");
+            let project_config = MpsProjectConfig::load(config_path)?;
 
-            // grpc::server(Arc::new(state)).await
-            // grpc::server(&project_config.grpc_server, project_repo).await
-            println!("");
+            match sub_m.subcommand() {
+                Some(("grpc", _m)) => grpc::run(&project_config).await?,
+                _ => {}
+            }
         }
         Some(("version", sub_m)) => {
             let info = version::Info::new();

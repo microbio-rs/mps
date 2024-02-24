@@ -14,6 +14,14 @@
 
 use clap::Command;
 
+use super::error::Error;
+use crate::MpsProjectConfig;
+
 pub fn subcommand() -> Command {
     Command::new("grpc").about("Run grpc server")
+}
+
+pub async fn run(project_config: &MpsProjectConfig) -> Result<(), Error> {
+    crate::adapter::incoming::grpc::server(&project_config.grpc_server).await?;
+    Ok(())
 }
