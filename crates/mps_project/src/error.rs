@@ -12,16 +12,16 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::{adapter::outgoing, cli};
+use crate::adapter::{incoming, outgoing};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error(transparent)]
-    Cli(#[from] cli::error::Error),
-
     #[error("failed parse config: {0}")]
     Config(#[from] mps_config::Error),
 
     #[error("failed project repository: {0}")]
     Repository(#[from] outgoing::RepositoryError),
+
+    #[error("failed run grpc server: {0}")]
+    GrpcServer(#[from] incoming::grpc::error::Error),
 }
