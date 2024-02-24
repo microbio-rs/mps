@@ -12,6 +12,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+use std::sync::Arc;
+
 use tonic::transport::Server;
 use tracing::info;
 
@@ -28,12 +30,20 @@ pub use config::*;
 pub mod error;
 pub mod project;
 
+use crate::{
+    adapter::outgoing::repository::ProjectPersistence,
+    application::service::ProjectService, config::MpsProjectConfig,
+};
+
 // pub async fn server(state: Arc<MpsScmGrpcState>) {
-pub async fn server(conf: &GrpcServerConfig) -> Result<(), error::Error> {
-    let addr = conf.server_address()?;
+pub async fn server(conf: &MpsProjectConfig) -> Result<(), error::Error> {
+    let pool = conf.database.new_pool().await.unwrap();
+    let repository_persitence = ProjectPersistence::new(pool);
+    let project_service = ProjectService::new(Box::new(repository_persitence));
+    let addr = conf.grpc_server.server_address()?;
 
     info!("Start grpc server on {addr}");
-    let scm = project::CrudService {};
+    let scm = project::CrudService::new(Arc::new(project_service));
 
     Server::builder()
         .add_service(ProjectCrudServer::new(scm))

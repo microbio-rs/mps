@@ -12,8 +12,9 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use chrono::Utc;
+use std::sync::Arc;
 
+use derive_new::new;
 use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
@@ -25,23 +26,48 @@ use super::proto::{
     *,
 };
 
-use crate::adapter::outgoing::ProjectEntity;
+use crate::{
+    application::port::incoming::{CreateProjectCommand, ProjectUseCase},
+    domain::{Project, UserId},
+};
 
-impl From<ProjectEntity> for ProjectResponse {
-    fn from(project: ProjectEntity) -> Self {
+// impl From<ProjectEntity> for ProjectResponse {
+//     fn from(project: ProjectEntity) -> Self {
+//         ProjectResponse {
+//             id: project.id.unwrap().to_string(),
+//             user_id: project.user_id.to_string(),
+//             name: project.name,
+//             description: project.description,
+//             created_at: project.created_at.to_rfc3339(),
+//             updated_at: project.updated_at.to_rfc3339(),
+//         }
+//     }
+// }
+
+impl From<CreateProjectRequest> for CreateProjectCommand {
+    fn from(c: CreateProjectRequest) -> Self {
+        CreateProjectCommand::new(
+            UserId::new(Uuid::parse_str(&c.user_id).unwrap()),
+            c.name,
+            c.description,
+        )
+    }
+}
+
+impl From<Project> for ProjectResponse {
+    fn from(p: Project) -> Self {
         ProjectResponse {
-            id: project.id.to_string(),
-            user_id: project.user_id.to_string(),
-            name: project.name,
-            description: project.description,
-            created_at: project.created_at.to_rfc3339(),
-            updated_at: project.updated_at.to_rfc3339(),
+            id: p.id.unwrap().into(),
+            user_id: p.user_id.into(),
+            name: p.name,
+            description: p.description,
         }
     }
 }
 
+#[derive(new)]
 pub struct CrudService {
-    // project_repository: ProjectRepository,
+    pub project_usecase: Arc<dyn ProjectUseCase + Send + Sync>,
 }
 
 #[tonic::async_trait]
@@ -51,16 +77,12 @@ impl project_crud_server::ProjectCrud for CrudService {
         request: Request<CreateProjectRequest>,
     ) -> Result<Response<CreateProjectResponse>, Status> {
         let project_req = request.into_inner();
-
-        let project = ProjectEntity {
-            id: Uuid::new_v4(),
-            user_id: Uuid::parse_str(&project_req.user_id)
-                .map_err(|_| Status::invalid_argument("Invalid user ID"))?,
-            name: project_req.name,
-            description: project_req.description,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-        };
+        let command = project_req.into();
+        let project = self
+            .project_usecase
+            .create(command)
+            .await
+            .map_err(|_| Status::internal("Failed to create project"))?;
 
         // if let Err(e) = project.validate() {
         //     return Err(Status::invalid_argument(e.to_string()));
@@ -71,16 +93,6 @@ impl project_crud_server::ProjectCrud for CrudService {
             project: Some(project.into()),
         };
         Ok(Response::new(response))
-        // match self.project_repository.create(&project).await {
-        //     Ok(_) => {
-        //         let response = CreateProjectResponse {
-        //             result: CreateResult::Success.into(),
-        //             project: Some(project.into()),
-        //         };
-        //         Ok(Response::new(response))
-        //     }
-        //     Err(_) => Err(Status::internal("Failed to create project")),
-        // }
     }
 
     // async fn read_project(
