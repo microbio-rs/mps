@@ -35,6 +35,6 @@ pub async fn run(matches: &ArgMatches) -> Result<(), Error> {
     let config_path: &path::PathBuf =
         matches.get_one("config").expect("`config` is required");
     let project_config = MpsProjectConfig::load(config_path)?;
-    grpc::server(&project_config.grpc_server).await?;
+    grpc::server(&project_config).await?;
     Ok(())
 }
