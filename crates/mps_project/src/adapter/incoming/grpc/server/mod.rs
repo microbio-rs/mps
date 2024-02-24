@@ -20,10 +20,11 @@ use tracing::info;
 pub mod proto {
     tonic::include_proto!("project_proto");
     tonic::include_proto!("environment_proto");
-    // tonic::include_proto!("application_proto");
+    tonic::include_proto!("application_proto");
 }
 
 use proto::{
+    application_crud_server::ApplicationCrudServer,
     environment_crud_server::EnvironmentCrudServer,
     project_crud_server::ProjectCrudServer,
 };
@@ -31,15 +32,18 @@ use proto::{
 pub mod config;
 pub use config::*;
 
+pub mod application;
 pub mod environment;
 pub mod error;
 pub mod project;
 
 use crate::{
     adapter::outgoing::repository::{
-        EnvironmentPersistence, ProjectPersistence,
+        ApplicationPersistence, EnvironmentPersistence, ProjectPersistence,
     },
-    application::service::{EnvironmentService, ProjectService},
+    application::service::{
+        ApplicationService, EnvironmentService, ProjectService,
+    },
     config::MpsProjectConfig,
 };
 
@@ -50,9 +54,13 @@ pub async fn server(conf: &MpsProjectConfig) -> Result<(), error::Error> {
     let repository_persitence = ProjectPersistence::new(pool.clone());
     let project_service = ProjectService::new(Box::new(repository_persitence));
 
-    let environment_persitence = EnvironmentPersistence::new(pool);
+    let environment_persitence = EnvironmentPersistence::new(pool.clone());
     let environment_service =
         EnvironmentService::new(Box::new(environment_persitence));
+
+    let application_persitence = ApplicationPersistence::new(pool);
+    let application_service =
+        ApplicationService::new(Box::new(application_persitence));
 
     let addr = conf.grpc_server.server_address()?;
 
@@ -61,10 +69,13 @@ pub async fn server(conf: &MpsProjectConfig) -> Result<(), error::Error> {
     let proj = project::CrudService::new(Arc::new(project_service));
     let env =
         environment::EnvironmentCrudService::new(Arc::new(environment_service));
+    let app =
+        application::ApplicationCrudService::new(Arc::new(application_service));
 
     Server::builder()
         .add_service(ProjectCrudServer::new(proj))
         .add_service(EnvironmentCrudServer::new(env))
+        .add_service(ApplicationCrudServer::new(app))
         .serve(addr)
         .await?;
 
