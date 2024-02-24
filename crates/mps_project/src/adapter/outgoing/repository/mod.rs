@@ -14,11 +14,11 @@
 
 use std::process::Command;
 
-pub mod application;
-pub use application::*;
+// pub mod application;
+// pub use application::*;
 
-pub mod environment;
-pub use environment::*;
+// pub mod environment;
+// pub use environment::*;
 
 pub mod config;
 pub use config::*;
@@ -26,28 +26,16 @@ pub use config::*;
 pub mod project;
 pub use project::*;
 
-#[derive(Debug, thiserror::Error)]
-pub enum RepositoryError {
-    #[error("repository errror : {0}")]
-    ApplicationError(#[from] ApplicationRepositoryError),
+pub mod project_persistence;
+pub use project_persistence::*;
 
-    #[error("repository errror : {0}")]
-    EnvironmentRepositoryError(#[from] EnvironmentRepositoryError),
-
-    #[error("Error IO: {0}")]
-    IoError(#[from] std::io::Error),
-
-    #[error("project repository error: {0}")]
-    ProjectError(#[from] ProjectRepositoryError),
-
-    #[error("sqlx error: {0}")]
-    SqlxError(#[from] sqlx::Error),
-}
+pub mod error;
+pub use error::*;
 
 pub fn run_migrations(
     database_url: &str,
     migrations_dir: &str,
-) -> Result<(), RepositoryError> {
+) -> Result<(), Error> {
     use tracing::{error, info};
     let status = Command::new("sqlx")
         .arg("migrate")

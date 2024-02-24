@@ -13,10 +13,13 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 use chrono::{DateTime, Utc};
-use fake::{Fake, Faker};
+// use fake::{Fake, Faker};
+use derive_new::new;
 use sqlx::PgPool;
-use tracing::error;
-use uuid::{uuid, Uuid};
+use tracing::{debug, error};
+use uuid::Uuid;
+
+use crate::domain::{Project, ProjectId, UserId};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProjectRepositoryError {
@@ -27,14 +30,44 @@ pub enum ProjectRepositoryError {
     UuidError(#[from] uuid::Error),
 }
 
-#[derive(Debug, sqlx::FromRow, fake::Dummy)]
+#[derive(Debug, sqlx::FromRow, fake::Dummy, new)]
 pub struct ProjectEntity {
-    pub id: Uuid,
+    pub id: Option<Uuid>,
     pub user_id: Uuid,
     pub name: String,
     pub description: Option<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
+impl ProjectEntity {
+    pub fn from_domain(p: Project) -> Self {
+        Self::new(
+            p.id.map(|id| id.to_uuid()),
+            p.user_id.to_uuid(),
+            p.name,
+            p.description,
+            None,
+            None,
+        )
+    }
+}
+
+impl From<Uuid> for UserId {
+    fn from(u: Uuid) -> UserId {
+        UserId::new(u)
+    }
+}
+
+impl From<ProjectEntity> for Project {
+    fn from(p: ProjectEntity) -> Project {
+        Project::new(
+            p.id.map(|id| ProjectId::new(id)),
+            p.user_id.into(),
+            p.name,
+            p.description,
+        )
+    }
 }
 
 #[derive(Clone)]
@@ -47,27 +80,30 @@ impl ProjectRepository {
         ProjectRepository { pool }
     }
 
-    pub async fn create(
+    pub async fn save(
         &self,
-        project: &ProjectEntity,
+        project: ProjectEntity,
     ) -> Result<ProjectEntity, ProjectRepositoryError> {
-        Ok(sqlx::query_as!(
+        // TODO: return error if ProjectEntity has id
+        debug!("Saving project {:?}", &project);
+        let row = sqlx::query_as!(
             ProjectEntity,
             "INSERT INTO projects
-                (id, user_id, name, description, created_at, updated_at)
+                (user_id, name, description)
              VALUES
-                ($1, $2, $3, $4, $5, $6)
+                ($1, $2, $3)
             RETURNING
                 *",
-            project.id,
             project.user_id,
             project.name,
             project.description,
-            project.created_at,
-            project.updated_at
         )
         .fetch_one(&self.pool)
-        .await?)
+        .await?;
+
+        debug!("project {} saved", &project.name);
+
+        Ok(row)
     }
 
     // pub async fn read(
@@ -127,18 +163,18 @@ impl ProjectRepository {
     //     .map_err(ProjectRepositoryError::from)
     // }
 
-    pub async fn seed(
-        &self,
-        count: usize,
-    ) -> Result<(), ProjectRepositoryError> {
-        for _ in 0..count {
-            let mut p: ProjectEntity = Faker.fake();
-            // fix user id
-            p.user_id = uuid!("a97dfb95-2805-79bc-5e02-86083146a3a4");
+    // pub async fn seed(
+    //     &self,
+    //     count: usize,
+    // ) -> Result<(), ProjectRepositoryError> {
+    //     for _ in 0..count {
+    //         let mut p: ProjectEntity = Faker.fake();
+    //         // fix user id
+    //         p.user_id = uuid!("a97dfb95-2805-79bc-5e02-86083146a3a4");
 
-            self.create(&p).await?;
-        }
+    //         self.save(&p).await?;
+    //     }
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 }
