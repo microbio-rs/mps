@@ -19,7 +19,7 @@ use sqlx::PgPool;
 use tracing::{debug, error};
 use uuid::Uuid;
 
-use crate::domain::{Project, ProjectId, UserId};
+use crate::domain::{Project, ProjectId};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProjectRepositoryError {
@@ -50,12 +50,6 @@ impl ProjectEntity {
             None,
             None,
         )
-    }
-}
-
-impl From<Uuid> for UserId {
-    fn from(u: Uuid) -> UserId {
-        UserId::new(u)
     }
 }
 

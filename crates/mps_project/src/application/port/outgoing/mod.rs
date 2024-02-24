@@ -12,7 +12,26 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use crate::{application::error, domain::Project};
+use crate::{
+    application::error,
+    domain::{Environment, Project},
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// Environment
+///////////////////////////////////////////////////////////////////////////////
+
+#[async_trait::async_trait]
+pub trait EnvironmentPersistencePort {
+    async fn save_environment(
+        &self,
+        environment: Environment,
+    ) -> Result<Environment, error::Error>;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Environment
+///////////////////////////////////////////////////////////////////////////////
 
 #[async_trait::async_trait]
 pub trait ProjectPersistencePort {

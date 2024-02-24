@@ -42,7 +42,7 @@ pub async fn run() -> Result<(), error::Error> {
         .subcommand(version::subcommand())
         .get_matches();
 
-    mps_log::MpsLog::builder().filter_level("info").with_ansi(true).init()?;
+    mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
 
     match matches.subcommand() {
         Some((consts::SUBCMD_RUN, sub_m)) => match sub_m.subcommand() {

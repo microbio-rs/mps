@@ -16,13 +16,48 @@ use crate::{
     application::{
         error,
         port::{
-            incoming::{CreateProjectCommand, ProjectUseCase},
-            outgoing::ProjectPersistencePort,
+            incoming::{
+                CreateEnvironmentCommand, CreateProjectCommand,
+                EnvironmentUseCase, ProjectUseCase,
+            },
+            outgoing::{EnvironmentPersistencePort, ProjectPersistencePort},
         },
     },
-    domain::Project,
+    domain::{Environment, Project},
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// Environment
+///////////////////////////////////////////////////////////////////////////////
+
+pub struct EnvironmentService {
+    persistence_port: Box<dyn EnvironmentPersistencePort + Send + Sync>,
+}
+
+impl EnvironmentService {
+    pub fn new(
+        persistence_port: Box<dyn EnvironmentPersistencePort + Send + Sync>,
+    ) -> Self {
+        Self { persistence_port }
+    }
+}
+
+#[async_trait::async_trait]
+impl EnvironmentUseCase for EnvironmentService {
+    async fn create(
+        &self,
+        command: CreateEnvironmentCommand,
+    ) -> Result<Environment, error::Error> {
+        let environment: Environment = command.into();
+        let environment =
+            self.persistence_port.save_environment(environment).await?;
+        Ok(environment)
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Project
+///////////////////////////////////////////////////////////////////////////////
 pub struct ProjectService {
     persistence_port: Box<dyn ProjectPersistencePort + Send + Sync>,
 }

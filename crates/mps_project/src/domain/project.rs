@@ -12,41 +12,42 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod project;
-pub use project::*;
-
-pub mod environment;
-pub use environment::*;
-
-pub mod service;
-pub use service::*;
-
 use derive_new::new;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct UserId(Uuid);
+use super::UserId;
 
-impl ToString for UserId {
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
+pub struct ProjectId(Uuid);
+
+impl ProjectId {
+    pub fn to_uuid(&self) -> Uuid {
+        self.0
+    }
+}
+
+impl ToString for ProjectId {
     fn to_string(&self) -> String {
         self.0.to_string()
     }
 }
 
-impl From<UserId> for String {
-    fn from(p: UserId) -> String {
+impl From<ProjectId> for String {
+    fn from(p: ProjectId) -> String {
         p.to_string()
     }
 }
 
-impl From<Uuid> for UserId {
-    fn from(u: Uuid) -> UserId {
-        UserId::new(u)
+impl From<Uuid> for ProjectId {
+    fn from(u: Uuid) -> ProjectId {
+        ProjectId::new(u)
     }
 }
 
-impl UserId {
-    pub fn to_uuid(&self) -> Uuid {
-        self.0
-    }
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
+pub struct Project {
+    pub id: Option<ProjectId>,
+    pub user_id: UserId,
+    pub name: String,
+    pub description: Option<String>,
 }

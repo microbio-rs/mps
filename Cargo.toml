@@ -51,6 +51,9 @@ url               = "2.5.0"
 uuid              = "1.7.0"
 vergen            = { version = "8.3.1", features = ["build", "cargo", "git", "gitcl", "rustc", "si"] }
 derive-new        = "0.6.0"
+strum             = { version = "0.26.1", features = ["derive"] }
+num-derive        = "0.4.2"
+num-traits        = "0.2.18"
 
 [profile.release]
 # Configurations explicitly listed here for clarity.

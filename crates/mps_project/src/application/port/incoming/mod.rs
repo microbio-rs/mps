@@ -16,9 +16,37 @@ use derive_new::new;
 
 use crate::{
     application::error,
-    domain::{Project, UserId},
+    domain::{Environment, EnvironmentMode, Project, ProjectId, UserId},
 };
 
+///////////////////////////////////////////////////////////////////////////////
+// Environment
+///////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Clone, new)]
+pub struct CreateEnvironmentCommand {
+    pub project_id: ProjectId,
+    pub name: String,
+    pub description: Option<String>,
+    pub mode: EnvironmentMode,
+}
+
+impl From<CreateEnvironmentCommand> for Environment {
+    fn from(c: CreateEnvironmentCommand) -> Environment {
+        Environment::new(None, c.project_id, c.name, c.description, c.mode)
+    }
+}
+
+#[async_trait::async_trait]
+pub trait EnvironmentUseCase {
+    async fn create(
+        &self,
+        command: CreateEnvironmentCommand,
+    ) -> Result<Environment, error::Error>;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Project
+///////////////////////////////////////////////////////////////////////////////
 #[derive(Debug, Clone, new)]
 pub struct CreateProjectCommand {
     pub user_id: UserId,

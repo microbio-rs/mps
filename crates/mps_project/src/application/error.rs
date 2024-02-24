@@ -16,4 +16,7 @@
 pub enum Error {
     #[error("project persistence: {0}")]
     ProjectPersistenceError(String),
+
+    #[error("environment persistence: {0}")]
+    EnvironmentPersistenceError(String),
 }

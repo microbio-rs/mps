@@ -12,14 +12,15 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use chrono::{DateTime, Utc};
-use fake::{Dummy, Fake, Faker};
-use sqlx::PgPool;
-use tracing::error;
-use uuid::{uuid, Uuid};
+use std::str::FromStr;
 
-use rand::seq::SliceRandom;
-use rand::Rng;
+use chrono::{DateTime, Utc};
+use derive_new::new;
+use sqlx::PgPool;
+use tracing::{debug, error};
+use uuid::Uuid;
+
+use crate::domain::{Environment, EnvironmentId, EnvironmentMode};
 
 #[derive(Debug, thiserror::Error)]
 pub enum EnvironmentRepositoryError {
@@ -30,71 +31,73 @@ pub enum EnvironmentRepositoryError {
     UuidError(#[from] uuid::Error),
 }
 
-#[derive(Debug, Copy, Clone, sqlx::Type)]
-#[sqlx(type_name = "mode", rename_all = "lowercase")]
-pub enum EnvironmentMode {
-    Development,
-    Production,
-    Staging,
-}
-
-impl Dummy<Faker> for EnvironmentMode {
-    fn dummy_with_rng<R: Rng + ?Sized>(_config: &Faker, rng: &mut R) -> Self {
-        const NAMES: [EnvironmentMode; 3] = [
-            EnvironmentMode::Development,
-            EnvironmentMode::Production,
-            EnvironmentMode::Staging,
-        ];
-        *NAMES.choose(rng).unwrap()
-    }
-}
-
-#[derive(Debug, sqlx::FromRow, Dummy)]
+#[derive(Debug, sqlx::FromRow, new)]
 pub struct EnvironmentEntity {
-    pub id: Uuid,
-    pub user_id: Uuid,
+    pub id: Option<Uuid>,
     pub project_id: Uuid,
     pub name: String,
     pub description: Option<String>,
-    pub mode: EnvironmentMode,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub mode: String,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Clone)]
+impl EnvironmentEntity {
+    pub fn from_domain(p: Environment) -> Self {
+        Self::new(
+            p.id.map(|id| id.to_uuid()),
+            p.project_id.to_uuid(),
+            p.name,
+            p.description,
+            p.mode.to_string(),
+            None,
+            None,
+        )
+    }
+}
+
+impl From<EnvironmentEntity> for Environment {
+    fn from(p: EnvironmentEntity) -> Environment {
+        Environment::new(
+            p.id.map(|id| EnvironmentId::new(id)),
+            p.project_id.into(),
+            p.name,
+            p.description,
+            EnvironmentMode::from_str(&p.mode).unwrap(),
+        )
+    }
+}
+
+#[derive(Clone, new)]
 pub struct EnvironmentRepository {
     pool: PgPool,
 }
 
 impl EnvironmentRepository {
-    pub fn new(pool: PgPool) -> Self {
-        EnvironmentRepository { pool }
-    }
-
-    pub async fn create(
+    pub async fn save(
         &self,
-        environment: &EnvironmentEntity,
+        environment: EnvironmentEntity,
     ) -> Result<EnvironmentEntity, EnvironmentRepositoryError> {
-        // let row = sqlx::query_as!(
-        Ok(sqlx::query_as!(
+        debug!("Saving environment {:?}", &environment);
+        let row = sqlx::query_as!(
             EnvironmentEntity,
             "INSERT INTO environments
-                (id, user_id, project_id, name, description, mode, created_at, updated_at)
+                (project_id, name, description, mode)
              VALUES
-                ($1, $2, $3, $4, $5, $6, $7, $8)
+                ($1, $2, $3, $4)
             RETURNING
-                id, user_id, project_id, name, description, mode as \"mode: _\", created_at, updated_at",
-            environment.id,
-            environment.user_id,
+                *",
             environment.project_id,
             environment.name,
             environment.description,
             environment.mode as _,
-            environment.created_at,
-            environment.updated_at
         )
         .fetch_one(&self.pool)
-        .await?)
+        .await?;
+
+        debug!("environment {} saved", &environment.name);
+
+        Ok(row)
     }
 
     // pub async fn read(
@@ -154,18 +157,18 @@ impl EnvironmentRepository {
     //     .map_err(EnvironmentRepositoryError::from)
     // }
 
-    pub async fn seed(
-        &self,
-        count: usize,
-    ) -> Result<(), EnvironmentRepositoryError> {
-        for _ in 0..count {
-            let mut p: EnvironmentEntity = Faker.fake();
-            // fix user id
-            p.user_id = uuid!("a97dfb95-2805-79bc-5e02-86083146a3a4");
+    // pub async fn seed(
+    //     &self,
+    //     count: usize,
+    // ) -> Result<(), EnvironmentRepositoryError> {
+    //     for _ in 0..count {
+    //         let mut p: EnvironmentEntity = Faker.fake();
+    //         // fix user id
+    //         p.user_id = uuid!("a97dfb95-2805-79bc-5e02-86083146a3a4");
 
-            self.create(&p).await?;
-        }
+    //         self.create(&p).await?;
+    //     }
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 }

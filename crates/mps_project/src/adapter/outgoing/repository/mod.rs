@@ -17,8 +17,8 @@ use std::process::Command;
 // pub mod application;
 // pub use application::*;
 
-// pub mod environment;
-// pub use environment::*;
+pub mod environment;
+pub use environment::*;
 
 pub mod config;
 pub use config::*;
@@ -28,6 +28,9 @@ pub use project::*;
 
 pub mod project_persistence;
 pub use project_persistence::*;
+
+pub mod environment_persistence;
+pub use environment_persistence::*;
 
 pub mod error;
 pub use error::*;
