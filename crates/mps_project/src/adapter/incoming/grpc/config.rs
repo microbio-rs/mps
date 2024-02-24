@@ -12,23 +12,18 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod error;
-pub mod proto {
-    tonic::include_proto!("project_proto");
-    // tonic::include_proto!("application_proto");
+use std::net::SocketAddr;
+
+use super::error::Error;
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct GrpcServerConfig {
+    pub ip: String,
+    pub port: u16,
 }
 
-#[cfg(feature = "grpc_server")]
-pub mod server;
-#[cfg(feature = "grpc_server")]
-pub use server::*;
-#[cfg(feature = "grpc_server")]
-pub mod config;
-#[cfg(feature = "grpc_server")]
-pub use config::*;
-
-#[cfg(feature = "grpc_client")]
-pub mod client;
-#[cfg(feature = "grpc_client")]
-#[allow(unused_imports)]
-pub use client::*;
+impl GrpcServerConfig {
+    pub fn server_address(&self) -> Result<SocketAddr, Error> {
+        Ok(format!("{}:{}", self.ip, self.port).parse()?)
+    }
+}

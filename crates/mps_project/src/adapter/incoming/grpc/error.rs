@@ -12,23 +12,11 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod error;
-pub mod proto {
-    tonic::include_proto!("project_proto");
-    // tonic::include_proto!("application_proto");
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("failed create trasnport: {0}")]
+    TonicTransport(#[from] tonic::transport::Error),
+
+    #[error("failed parse address: {0}")]
+    AddrParse(#[from] std::net::AddrParseError),
 }
-
-#[cfg(feature = "grpc_server")]
-pub mod server;
-#[cfg(feature = "grpc_server")]
-pub use server::*;
-#[cfg(feature = "grpc_server")]
-pub mod config;
-#[cfg(feature = "grpc_server")]
-pub use config::*;
-
-#[cfg(feature = "grpc_client")]
-pub mod client;
-#[cfg(feature = "grpc_client")]
-#[allow(unused_imports)]
-pub use client::*;

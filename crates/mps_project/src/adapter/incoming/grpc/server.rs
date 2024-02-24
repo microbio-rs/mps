@@ -13,7 +13,6 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 use chrono::Utc;
-use serde::Deserialize;
 
 use tonic::{transport::Server, Request, Response, Status};
 use tracing::info;
@@ -29,7 +28,8 @@ use super::proto::{
 };
 
 // TODO: better import
-use crate::adapter::outgoing::{ProjectEntity, ProjectRepository};
+use super::{config::GrpcServerConfig, error::Error};
+use crate::adapter::outgoing::ProjectEntity;
 
 impl From<ProjectEntity> for ProjectResponse {
     fn from(project: ProjectEntity) -> Self {
@@ -45,7 +45,7 @@ impl From<ProjectEntity> for ProjectResponse {
 }
 
 pub struct CrudService {
-    project_repository: ProjectRepository,
+    // project_repository: ProjectRepository,
 }
 
 #[tonic::async_trait]
@@ -70,16 +70,21 @@ impl project_crud_server::ProjectCrud for CrudService {
         //     return Err(Status::invalid_argument(e.to_string()));
         // }
 
-        match self.project_repository.create(&project).await {
-            Ok(_) => {
-                let response = CreateProjectResponse {
-                    result: CreateResult::Success.into(),
-                    project: Some(project.into()),
-                };
-                Ok(Response::new(response))
-            }
-            Err(_) => Err(Status::internal("Failed to create project")),
-        }
+        let response = CreateProjectResponse {
+            result: CreateResult::Success.into(),
+            project: Some(project.into()),
+        };
+        Ok(Response::new(response))
+        // match self.project_repository.create(&project).await {
+        //     Ok(_) => {
+        //         let response = CreateProjectResponse {
+        //             result: CreateResult::Success.into(),
+        //             project: Some(project.into()),
+        //         };
+        //         Ok(Response::new(response))
+        //     }
+        //     Err(_) => Err(Status::internal("Failed to create project")),
+        // }
     }
 
     // async fn read_project(
@@ -204,30 +209,19 @@ impl project_crud_server::ProjectCrud for CrudService {
 //     }
 // }
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct GrpcConfig {
-    pub ip: String,
-    pub port: u16,
-}
-
-impl GrpcConfig {
-    pub fn address(&self) -> String {
-        format!("{}:{}", self.ip, self.port)
-    }
-}
-
 // pub async fn server(state: Arc<MpsScmGrpcState>) {
-pub async fn server(conf: &GrpcConfig, project_repository: ProjectRepository) {
-    let addr = conf.address().parse().unwrap();
+pub async fn server(conf: &GrpcServerConfig) -> Result<(), Error> {
+    let addr = conf.server_address()?;
 
     info!("Start grpc server on {addr}");
-    let scm = CrudService { project_repository };
+    let scm = CrudService {};
 
     Server::builder()
         .add_service(ProjectCrudServer::new(scm))
         .serve(addr)
-        .await
-        .unwrap();
+        .await?;
+
+    Ok(())
 }
 
 // #[cfg(test)]
