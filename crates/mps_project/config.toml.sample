@@ -22,10 +22,10 @@ timeout     = 10
 slack_queue = "slack_queue"
 
 [kafka]
-uri     = "0.0.0.0"
+ip      = "0.0.0.0"
 port    = 9092
 timeout = 10
-topics  = "projects"
+topic   = "projects"
 
 [scm]
 host = "http://[::1]"
