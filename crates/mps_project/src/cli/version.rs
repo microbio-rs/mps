@@ -1,8 +1,9 @@
 use std::fmt;
 
 use serde::Serialize;
+use clap::{Arg, ArgMatches, Command};
 
-use clap::{Arg, Command};
+use super::{consts, Error};
 
 /// Infomations gathered by the default setting of
 /// [vergen::Config](https://docs.rs/vergen/latest/vergen/struct.Config.html)
@@ -101,11 +102,20 @@ impl Info {
 }
 
 pub fn subcommand() -> Command {
-    Command::new("version").about("Run migrations").arg(
+    Command::new(consts::SUBCMD_VERSION).about("show complete version").arg(
         Arg::new("json")
             .long("json")
             .help("format to json")
             .action(clap::ArgAction::SetTrue)
             .required(false),
     )
+}
+
+pub fn run(matches: &ArgMatches) -> Result<(), Error> {
+    let info = Info::new();
+    match matches.get_flag("json") {
+        true => println!("{}", info.to_json()),
+        false => println!("{}", info),
+    }
+    Ok(())
 }

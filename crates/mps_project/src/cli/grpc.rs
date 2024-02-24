@@ -12,16 +12,29 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use clap::Command;
+use std::path;
 
-use super::error::Error;
-use crate::MpsProjectConfig;
+use clap::{value_parser, Arg, ArgMatches, Command};
+
+use super::Error;
+use crate::{adapter::incoming, MpsProjectConfig};
 
 pub fn subcommand() -> Command {
-    Command::new("grpc").about("Run grpc server")
+    Command::new("grpc").about("Run grpc server").arg(
+        Arg::new("config")
+            .short('c')
+            .long("config")
+            .value_name("ARQUIVO")
+            .help("Caminho do arquivo de configuração")
+            .value_parser(value_parser!(path::PathBuf))
+            .required(true),
+    )
 }
 
-pub async fn run(project_config: &MpsProjectConfig) -> Result<(), Error> {
-    crate::adapter::incoming::grpc::server(&project_config.grpc_server).await?;
+pub async fn run(matches: &ArgMatches) -> Result<(), Error> {
+    let config_path: &path::PathBuf =
+        matches.get_one("config").expect("`config` is required");
+    let project_config = MpsProjectConfig::load(config_path)?;
+    incoming::grpc::server(&project_config.grpc_server).await?;
     Ok(())
 }

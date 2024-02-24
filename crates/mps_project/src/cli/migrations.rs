@@ -14,15 +14,36 @@
 
 use std::path;
 
-use clap::{value_parser, Arg, Command};
+use clap::{value_parser, Arg, ArgMatches, Command};
+
+use super::{consts, Error};
+use crate::MpsProjectConfig;
 
 pub fn subcommand() -> Command {
-    Command::new("migrations").about("Run migrations").arg(
-        Arg::new("path")
-            .long("path")
-            .value_name("PATH")
-            .help("Caminho da pasta migrations")
-            .value_parser(value_parser!(path::PathBuf))
-            .required(true),
-    )
+    Command::new(consts::SUBCMD_MIGRATIONS)
+        .about("Run migrations")
+        .arg(
+            Arg::new("path")
+                .long("path")
+                .value_name("PATH")
+                .help("Caminho da pasta migrations")
+                .value_parser(value_parser!(path::PathBuf))
+                .required(true),
+        )
+        .arg(
+            Arg::new("config")
+                .short('c')
+                .long("config")
+                .value_name("ARQUIVO")
+                .help("Caminho do arquivo de configuração")
+                .value_parser(value_parser!(path::PathBuf))
+                .required(true),
+        )
+}
+
+pub async fn run(matches: &ArgMatches) -> Result<(), Error> {
+    let config_path: &path::PathBuf =
+        matches.get_one("config").expect("`config` is required");
+    let _project_config = MpsProjectConfig::load(config_path)?;
+    Ok(())
 }

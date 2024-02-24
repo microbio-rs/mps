@@ -12,74 +12,46 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::path;
-
-use clap::{value_parser, Arg, ColorChoice, Command};
+use clap::Command;
 
 mod common;
-pub(crate) mod error;
+mod consts;
 mod grpc;
 mod migrations;
 mod seed;
 mod version;
 
-use crate::MpsProjectConfig;
-
-const MAX_TERM_WIDTH: usize = 80;
-const COLOR_CHOICE: ColorChoice = ColorChoice::Auto;
+mod error;
+use error::*;
 
 fn subcommand_run() -> Command {
-    Command::new("run")
+    Command::new(consts::SUBCMD_RUN)
         .about("Run grpc server, worker, seed, migrations")
         .subcommand(migrations::subcommand())
         .subcommand(seed::subcommand())
         .subcommand(grpc::subcommand())
-        .arg(
-            Arg::new("config")
-                .short('c')
-                .long("config")
-                .value_name("ARQUIVO")
-                .help("Caminho do arquivo de configuração")
-                .value_parser(value_parser!(path::PathBuf))
-                .required(true),
-        )
 }
 
 pub async fn run() -> Result<(), error::Error> {
     let matches = Command::new("mps_project")
         .styles(common::styles())
-        .color(COLOR_CHOICE)
-        .max_term_width(MAX_TERM_WIDTH)
+        .color(consts::COLOR_CHOICE)
+        .max_term_width(consts::MAX_TERM_WIDTH)
         .about(common::banner())
         .subcommand(subcommand_run())
         .subcommand(version::subcommand())
         .get_matches();
 
-    mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
-
-    // let project_repo = crate::ProjectRepository::new(pool);
-
-    // let repo = grpc_scm_client.create_repo(create_request).await.unwrap();
-    // println!("repo = {repo:?}");
+    mps_log::MpsLog::builder().filter_level("info").with_ansi(true).init()?;
 
     match matches.subcommand() {
-        Some(("run", sub_m)) => {
-            let config_path: &path::PathBuf =
-                sub_m.get_one("config").expect("`config` is required");
-            let project_config = MpsProjectConfig::load(config_path)?;
-
-            match sub_m.subcommand() {
-                Some(("grpc", _m)) => grpc::run(&project_config).await?,
-                _ => {}
-            }
-        }
-        Some(("version", sub_m)) => {
-            let info = version::Info::new();
-            match sub_m.get_flag("json") {
-                true => println!("{}", info.to_json()),
-                false => println!("{}", info),
-            }
-        }
+        Some((consts::SUBCMD_RUN, sub_m)) => match sub_m.subcommand() {
+            Some((consts::SUBCMD_GRPC, m)) => grpc::run(m).await?,
+            Some((consts::SUBCMD_MIGRATIONS, m)) => migrations::run(m).await?,
+            Some((consts::SUBCMD_SEED, m)) => seed::run(m).await?,
+            _ => {}
+        },
+        Some((consts::SUBCMD_VERSION, sub_m)) => version::run(sub_m)?,
         _ => {}
     };
 
