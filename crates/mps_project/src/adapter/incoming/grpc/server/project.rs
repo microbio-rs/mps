@@ -14,21 +14,17 @@
 
 use chrono::Utc;
 
-use tonic::{transport::Server, Request, Response, Status};
-use tracing::info;
+use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
 use super::proto::{
     create_project_response::Result as CreateResult,
     // delete_project_response::Result as DeleteResult,
-    project_crud_server::ProjectCrudServer,
     // read_project_response::Result as ReadResult,
     // update_project_response::Result as UpdateResult,
     *,
 };
 
-// TODO: better import
-use super::{config::GrpcServerConfig, error::Error};
 use crate::adapter::outgoing::ProjectEntity;
 
 impl From<ProjectEntity> for ProjectResponse {
@@ -208,21 +204,6 @@ impl project_crud_server::ProjectCrud for CrudService {
 //         Ok(Response::new(resp.into()))
 //     }
 // }
-
-// pub async fn server(state: Arc<MpsScmGrpcState>) {
-pub async fn server(conf: &GrpcServerConfig) -> Result<(), Error> {
-    let addr = conf.server_address()?;
-
-    info!("Start grpc server on {addr}");
-    let scm = CrudService {};
-
-    Server::builder()
-        .add_service(ProjectCrudServer::new(scm))
-        .serve(addr)
-        .await?;
-
-    Ok(())
-}
 
 // #[cfg(test)]
 // mod tests {

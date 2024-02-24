@@ -12,13 +12,33 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#[cfg(feature = "grpc_server")]
-pub mod server;
-#[cfg(feature = "grpc_server")]
-pub use server::*;
+use tonic::transport::Server;
+use tracing::info;
 
-#[cfg(feature = "grpc_client")]
-pub mod client;
-#[cfg(feature = "grpc_client")]
-#[allow(unused_imports)]
-pub use client::*;
+pub mod proto {
+    tonic::include_proto!("project_proto");
+    // tonic::include_proto!("application_proto");
+}
+
+use proto::project_crud_server::ProjectCrudServer;
+
+pub mod config;
+pub use config::*;
+
+pub mod error;
+pub mod project;
+
+// pub async fn server(state: Arc<MpsScmGrpcState>) {
+pub async fn server(conf: &GrpcServerConfig) -> Result<(), error::Error> {
+    let addr = conf.server_address()?;
+
+    info!("Start grpc server on {addr}");
+    let scm = project::CrudService {};
+
+    Server::builder()
+        .add_service(ProjectCrudServer::new(scm))
+        .serve(addr)
+        .await?;
+
+    Ok(())
+}

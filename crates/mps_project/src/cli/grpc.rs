@@ -17,7 +17,7 @@ use std::path;
 use clap::{value_parser, Arg, ArgMatches, Command};
 
 use super::Error;
-use crate::{adapter::incoming, MpsProjectConfig};
+use crate::{adapter::incoming::grpc, MpsProjectConfig};
 
 pub fn subcommand() -> Command {
     Command::new("grpc").about("Run grpc server").arg(
@@ -35,6 +35,6 @@ pub async fn run(matches: &ArgMatches) -> Result<(), Error> {
     let config_path: &path::PathBuf =
         matches.get_one("config").expect("`config` is required");
     let project_config = MpsProjectConfig::load(config_path)?;
-    incoming::grpc::server(&project_config.grpc_server).await?;
+    grpc::server(&project_config.grpc_server).await?;
     Ok(())
 }

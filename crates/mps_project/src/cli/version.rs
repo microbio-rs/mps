@@ -1,7 +1,7 @@
 use std::fmt;
 
-use serde::Serialize;
 use clap::{Arg, ArgMatches, Command};
+use serde::Serialize;
 
 use super::{consts, Error};
 
@@ -102,7 +102,7 @@ impl Info {
 }
 
 pub fn subcommand() -> Command {
-    Command::new(consts::SUBCMD_VERSION).about("show complete version").arg(
+    Command::new(consts::SUBCMD_VERSION).about("Show complete version").arg(
         Arg::new("json")
             .long("json")
             .help("format to json")
