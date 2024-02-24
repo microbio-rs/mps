@@ -15,8 +15,11 @@
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("project persistence: {0}")]
-    ProjectPersistenceError(String),
+    ApplicationPersistenceError(String),
 
     #[error("environment persistence: {0}")]
     EnvironmentPersistenceError(String),
+
+    #[error("environment persistence: {0}")]
+    ProjectPersistenceError(String),
 }
