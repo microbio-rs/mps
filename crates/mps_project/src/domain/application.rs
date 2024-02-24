@@ -12,42 +12,35 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod project;
-pub use project::*;
-
-pub mod environment;
-pub use environment::*;
-
-pub mod application;
-pub use application::*;
-
 use derive_new::new;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct UserId(Uuid);
+use super::environment::EnvironmentId;
 
-impl ToString for UserId {
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
+pub struct ApplicationId(Uuid);
+
+impl ApplicationId {
+    pub fn to_uuid(&self) -> Uuid {
+        self.0
+    }
+}
+
+impl ToString for ApplicationId {
     fn to_string(&self) -> String {
         self.0.to_string()
     }
 }
 
-impl From<UserId> for String {
-    fn from(p: UserId) -> String {
+impl From<ApplicationId> for String {
+    fn from(p: ApplicationId) -> String {
         p.to_string()
     }
 }
 
-impl From<Uuid> for UserId {
-    fn from(u: Uuid) -> UserId {
-        UserId::new(u)
-    }
-}
-
-impl UserId {
-    pub fn to_uuid(&self) -> Uuid {
-        self.0
+impl From<Uuid> for ApplicationId {
+    fn from(u: Uuid) -> ApplicationId {
+        ApplicationId::new(u)
     }
 }
 
@@ -67,4 +60,12 @@ impl UserId {
 pub enum ServiceKind {
     Application,
     Database,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
+pub struct Application {
+    pub id: Option<ApplicationId>,
+    pub environment_id: EnvironmentId,
+    pub name: String,
+    pub description: Option<String>,
 }
