@@ -14,10 +14,12 @@
 
 use std::time::Duration;
 
+use super::error::Error;
 use sqlx::{
     postgres::{PgConnectOptions, PgPoolOptions},
     PgPool,
 };
+use tracing::info;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct RepositoryConfig {
@@ -31,19 +33,28 @@ pub struct RepositoryConfig {
 }
 
 impl RepositoryConfig {
-    pub async fn new_pool(&self) -> Result<PgPool, super::RepositoryError> {
+    pub async fn new_pool(&self) -> Result<PgPool, Error> {
+        info!(
+            "database {} try connecting to {}:{}",
+            self.database, self.host, self.port
+        );
+
         let options = PgConnectOptions::new()
             .host(&self.host)
             .port(self.port)
             .username(&self.username)
             .password(&self.password)
-            .database(&self.password);
+            .database(&self.database);
 
-        Ok(PgPoolOptions::new()
+        let pool = PgPoolOptions::new()
             .idle_timeout(Duration::from_secs(self.timeout))
             .max_connections(self.max_pool)
             .connect_with(options)
-            .await?)
+            .await?;
+
+        info!("database connected");
+
+        Ok(pool)
     }
 }
 
