@@ -15,7 +15,7 @@
 use std::path::Path;
 
 use crate::{
-    adapter::{incoming::GrpcConfig, outgoing::RepositoryConfig},
+    adapter::{incoming::GrpcServerConfig, outgoing::RepositoryConfig},
     Error,
 };
 
@@ -35,10 +35,10 @@ use crate::{
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct MpsProjectConfig {
-    pub log_level: String,
-    pub repository: RepositoryConfig,
+    // pub log_level: String,
+    // pub repository: RepositoryConfig,
+    pub grpc_server: GrpcServerConfig,
     // pub kafka: KafkaConfig,
-    pub grpc_server: GrpcConfig,
 }
 
 impl MpsProjectConfig {
