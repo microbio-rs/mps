@@ -15,7 +15,10 @@
 use std::path::Path;
 
 use crate::{
-    adapter::{incoming::GrpcServerConfig, outgoing::RepositoryConfig},
+    adapter::{
+        incoming::GrpcServerConfig,
+        outgoing::{GithubConfig, RepositoryConfig},
+    },
     Error,
 };
 
@@ -24,6 +27,7 @@ pub struct Config {
     pub log_level: String,
     pub database: RepositoryConfig,
     pub grpc_server: GrpcServerConfig,
+    pub github: GithubConfig,
 }
 
 impl Config {

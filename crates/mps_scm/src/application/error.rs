@@ -16,4 +16,6 @@
 pub enum Error {
     #[error("git repository persistence: {0}")]
     GitRepositoryPersistenceError(String),
+    #[error("github adapter : {0}")]
+    GithubPort(String),
 }

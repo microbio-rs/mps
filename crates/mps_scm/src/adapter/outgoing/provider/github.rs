@@ -36,9 +36,12 @@ const GITHUB_API_URL: &str = "https://api.github.com";
 impl GithubRepositoryPort for GithubProvider {
     async fn create_repository(
         &self,
-        _repository: CreateGithubRepositoryPortCommand,
+        repository: CreateGithubRepositoryPortCommand,
     ) -> Result<GithubCreateRepositoryResponse, error::Error> {
-        todo!()
+        let req = repository.into();
+        let resp = self.create_github_repository(req).await
+            .map_err(|e| error::Error::GithubPort(e.to_string()))?;
+        Ok(resp)
     }
 }
 
@@ -198,7 +201,7 @@ impl GithubProvider {
     pub async fn create_github_repository(
         &self,
         new_repo: NewRepository,
-    ) -> Result<RepositoryResponse, GitHubError> {
+    ) -> Result<GithubCreateRepositoryResponse, GitHubError> {
         let path: String = match self.config.entity_type {
             EntityType::User => "/user/repos".into(),
             EntityType::Organization => {
@@ -222,6 +225,11 @@ pub struct RateLimit {
 pub struct NewRepository {
     pub name: String,
 }
+impl From<CreateGithubRepositoryPortCommand> for NewRepository {
+    fn from(c: CreateGithubRepositoryPortCommand) -> Self {
+        Self { name: c.name }
+    }
+}
 
 // Struct para representar a resposta da API do GitHub ao criar um repositório
 #[derive(Deserialize, Debug)]
@@ -236,6 +244,12 @@ pub struct RepositoryResponse {
     pub ssh_url: String,
     pub url: String,
 }
+
+// impl From<RepositoryResponse> for GithubCreateRepositoryResponse {
+//     fn from(r: RepositoryResponse) -> Self {
+
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
