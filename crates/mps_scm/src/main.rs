@@ -20,9 +20,9 @@ static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
-    // if let Err(e) = mps_scm::cli::run().await {
-    //     eprintln!("{e}");
-    // }
+    if let Err(e) = mps_scm::cli::run().await {
+        eprintln!("{e}");
+    }
 
     Ok(())
 }
