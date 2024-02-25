@@ -20,7 +20,27 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::{error, info, instrument};
 
+use crate::{
+    application::{
+        error,
+        port::outgoing::{
+            CreateGithubRepositoryPortCommand, GithubRepositoryPort,
+        },
+    },
+    domain::GithubCreateRepositoryResponse,
+};
+
 const GITHUB_API_URL: &str = "https://api.github.com";
+
+#[async_trait::async_trait]
+impl GithubRepositoryPort for GithubProvider {
+    async fn create_repository(
+        &self,
+        _repository: CreateGithubRepositoryPortCommand,
+    ) -> Result<GithubCreateRepositoryResponse, error::Error> {
+        todo!()
+    }
+}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GithubConfig {
@@ -89,23 +109,6 @@ pub enum GitHubError {
 pub struct GithubProvider {
     client: reqwest::Client,
     config: GithubConfig,
-}
-
-#[async_trait::async_trait]
-impl crate::MpsScmGithubPort for GithubProvider {
-    async fn create_repo(&self, name: &str) -> crate::NewRepo {
-        let resp = self
-            .create_github_repository(NewRepository { name: name.to_string() })
-            .await
-            .unwrap();
-        resp.into()
-    }
-}
-
-impl From<RepositoryResponse> for crate::NewRepo {
-    fn from(r: RepositoryResponse) -> Self {
-        Self { name: r.name, html_url: r.html_url }
-    }
 }
 
 impl GithubProvider {
@@ -223,8 +226,15 @@ pub struct NewRepository {
 // Struct para representar a resposta da API do GitHub ao criar um repositório
 #[derive(Deserialize, Debug)]
 pub struct RepositoryResponse {
+    pub default_branch: String,
+    pub description: Option<String>,
+    pub full_name: String,
     pub name: String,
-    pub html_url: String,
+    pub private: bool,
+    pub id: i64,
+    pub size: i64,
+    pub ssh_url: String,
+    pub url: String,
 }
 
 #[cfg(test)]

@@ -12,8 +12,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub(crate) mod github;
-pub(crate) use github::*;
+pub mod github;
+pub use github::*;
 
-pub(crate) mod local;
-pub(crate) use local::*;
+pub mod local;
+pub use local::*;

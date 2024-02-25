@@ -24,18 +24,18 @@ use git2::{
 use tracing::{debug, info};
 
 #[derive(thiserror::Error, Debug)]
-pub(crate) enum LocalError {
+pub enum LocalError {
     #[error("Lib git2 errror: {0}")]
     Git2Error(#[from] git2::Error),
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
-pub(crate) struct LocalConfig {
-    pub(crate) base_git_path: PathBuf,
-    pub(crate) git_user: String,
-    pub(crate) owner: String,
-    pub(crate) ssh_prv_key: PathBuf,
-    pub(crate) sample_repo: String,
+pub struct LocalConfig {
+    pub base_git_path: PathBuf,
+    pub git_user: String,
+    pub owner: String,
+    pub ssh_prv_key: PathBuf,
+    pub sample_repo: String,
 }
 
 impl LocalConfig {
@@ -44,7 +44,7 @@ impl LocalConfig {
     }
 }
 
-pub(crate) struct LocalProvider {
+pub struct LocalProvider {
     config: LocalConfig,
 }
 
@@ -55,17 +55,14 @@ impl LocalProvider {
 }
 
 impl LocalProvider {
-    pub(crate) fn clone_sample(
-        &self,
-        name: &str,
-    ) -> Result<PathBuf, LocalError> {
+    pub fn clone_sample(&self, name: &str) -> Result<PathBuf, LocalError> {
         self.clone(
             &self.config.sample_repo,
             self.config.repo_path().join(name).as_path(),
         )
     }
 
-    pub(crate) fn clone<P: AsRef<Path> + Copy>(
+    pub fn clone<P: AsRef<Path> + Copy>(
         &self,
         url: &str,
         to: P,
@@ -97,7 +94,7 @@ impl LocalProvider {
         Ok(repo.workdir().unwrap().to_path_buf())
     }
 
-    pub(crate) fn icp(
+    pub fn icp(
         &self,
         repo_path: &str,
         repo_url: &str,
@@ -152,7 +149,7 @@ impl LocalProvider {
         Ok(())
     }
 
-    pub(crate) fn create_repository<P: AsRef<Path> + Display + Copy>(
+    pub fn create_repository<P: AsRef<Path> + Display + Copy>(
         path: P,
     ) -> Result<Repository, LocalError> {
         debug!("creating repo from on {}", path);
