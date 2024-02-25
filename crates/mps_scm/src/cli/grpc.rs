@@ -12,5 +12,29 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod incoming;
-pub mod outgoing;
+use std::path;
+
+use clap::{value_parser, Arg, ArgMatches, Command};
+
+use super::Error;
+use crate::{adapter::incoming::grpc, Config};
+
+pub fn subcommand() -> Command {
+    Command::new("grpc").about("Run grpc server").arg(
+        Arg::new("config")
+            .short('c')
+            .long("config")
+            .value_name("ARQUIVO")
+            .help("Caminho do arquivo de configuração")
+            .value_parser(value_parser!(path::PathBuf))
+            .required(true),
+    )
+}
+
+pub async fn run(matches: &ArgMatches) -> Result<(), Error> {
+    let config_path: &path::PathBuf =
+        matches.get_one("config").expect("`config` is required");
+    let project_config = Config::load(config_path)?;
+    grpc::server(&project_config).await?;
+    Ok(())
+}

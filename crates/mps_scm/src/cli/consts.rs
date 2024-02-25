@@ -12,5 +12,12 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod incoming;
-pub mod outgoing;
+use clap::ColorChoice;
+
+pub const COLOR_CHOICE: ColorChoice = ColorChoice::Auto;
+pub const MAX_TERM_WIDTH: usize = 80;
+pub const SUBCMD_GRPC: &str = "grpc";
+pub const SUBCMD_MIGRATIONS: &str = "migrations";
+pub const SUBCMD_RUN: &str = "run";
+pub const SUBCMD_SEED: &str = "seed";
+pub const SUBCMD_VERSION: &str = "version";

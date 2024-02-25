@@ -12,5 +12,22 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod incoming;
-pub mod outgoing;
+use crate::adapter::incoming;
+
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("failed parse cli arguments: {0}")]
+    Clap(#[from] clap::Error),
+
+    #[error("failed load log: {0}")]
+    Log(#[from] mps_log::Error),
+
+    #[error("failed load log: {0}")]
+    Application(#[from] crate::error::Error),
+
+    #[error("failed run grpc server: {0}")]
+    GrpcServer(#[from] incoming::grpc::error::Error),
+
+    #[error("unknown")]
+    Unknow,
+}

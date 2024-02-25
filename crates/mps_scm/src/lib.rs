@@ -14,11 +14,11 @@
 
 pub mod adapter;
 pub mod application;
-// pub mod cli;
+pub mod cli;
 pub mod domain;
 
-// pub mod config;
-// pub use config::*;
+pub mod config;
+pub use config::*;
 
-// pub mod error;
-// pub use error::*;
+pub mod error;
+pub use error::*;
