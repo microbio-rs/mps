@@ -11,9 +11,6 @@
 // WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-pub mod scm {
-    tonic::include_proto!("scm");
-}
 
 #[cfg(feature = "grpc_server")]
 pub mod server;
@@ -22,3 +19,6 @@ pub use server::*;
 
 #[cfg(feature = "grpc_client")]
 pub mod client;
+#[cfg(feature = "grpc_client")]
+#[allow(unused_imports)]
+pub use client::*;

@@ -12,5 +12,18 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod grpc;
-pub use grpc::*;
+use std::net::SocketAddr;
+
+use super::error::Error;
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct GrpcServerConfig {
+    pub ip: String,
+    pub port: u16,
+}
+
+impl GrpcServerConfig {
+    pub fn server_address(&self) -> Result<SocketAddr, Error> {
+        Ok(format!("{}:{}", self.ip, self.port).parse()?)
+    }
+}

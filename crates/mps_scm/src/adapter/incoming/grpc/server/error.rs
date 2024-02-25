@@ -12,5 +12,11 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod grpc;
-pub use grpc::*;
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("failed create trasnport: {0}")]
+    TonicTransport(#[from] tonic::transport::Error),
+
+    #[error("failed parse address: {0}")]
+    AddrParse(#[from] std::net::AddrParseError),
+}
