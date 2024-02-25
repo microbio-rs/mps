@@ -17,7 +17,7 @@ use std::path::Path;
 use crate::{
     adapter::{
         incoming::GrpcServerConfig,
-        outgoing::{GithubConfig, RepositoryConfig},
+        outgoing::{LocalConfig, GithubConfig, RepositoryConfig},
     },
     Error,
 };
@@ -28,6 +28,7 @@ pub struct Config {
     pub database: RepositoryConfig,
     pub grpc_server: GrpcServerConfig,
     pub github: GithubConfig,
+    pub local: LocalConfig,
 }
 
 impl Config {

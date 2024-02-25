@@ -34,3 +34,10 @@ token       = "my_token_please_readme"
 timeout     = 60
 max_retry   = 3
 base_url    = "https://api.github.com" # optional
+
+[local]
+base_git_path = "/tmp"
+git_user      = "git" # default git, git@github..
+owner         = "myuser"
+ssh_prv_key   = "/path/privatekey" # for cloning private repository
+sample_repo   = "https://github.com/microbio-rs/mps-sample-nestjs" # this repo using for render template
