@@ -19,7 +19,7 @@ Microbe platform system - source system control
 ## create repo
 
 ```console
-grpcurl -plaintext -import-path ./crates/mps_scm/proto -proto scm.proto -d '{"name": "mps-test-repo"}' '[::1]:50051' scm.Scm/CreateRepo
+grpcurl -plaintext -import-path crates/mps_scm/proto -proto scm.proto -d '{"application_id": "947cbe37-92fd-481d-aacc-acd79debc1f7", "name": "my-application"}' '0.0.0.0:50051' git_proto.GitRepositoryCrud/CreateGitRepository
 ```
 
 ## To Do
