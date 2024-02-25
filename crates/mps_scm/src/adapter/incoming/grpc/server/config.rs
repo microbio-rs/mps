@@ -12,26 +12,18 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use derive_new::new;
+use std::net::SocketAddr;
 
-use crate::{
-    application::error,
-    domain::{ApplicationId, GithubRepository},
-};
+use super::error::Error;
 
-///////////////////////////////////////////////////////////////////////////////
-// GithubRepository
-///////////////////////////////////////////////////////////////////////////////
-#[derive(Debug, Clone, new)]
-pub struct CreateGithubRepositoryCommand {
-    pub application_id: ApplicationId,
-    pub name: String,
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct GrpcServerConfig {
+    pub ip: String,
+    pub port: u16,
 }
 
-#[async_trait::async_trait]
-pub trait GithubRepositoryUseCase {
-    async fn create(
-        &self,
-        command: CreateGithubRepositoryCommand,
-    ) -> Result<GithubRepository, error::Error>;
+impl GrpcServerConfig {
+    pub fn server_address(&self) -> Result<SocketAddr, Error> {
+        Ok(format!("{}:{}", self.ip, self.port).parse()?)
+    }
 }

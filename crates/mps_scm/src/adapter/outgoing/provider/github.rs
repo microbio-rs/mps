@@ -20,7 +20,30 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::{error, info, instrument};
 
+use crate::{
+    application::{
+        error,
+        port::outgoing::{
+            CreateGithubRepositoryPortCommand, GithubRepositoryPort,
+        },
+    },
+    domain::GithubCreateRepositoryResponse,
+};
+
 const GITHUB_API_URL: &str = "https://api.github.com";
+
+#[async_trait::async_trait]
+impl GithubRepositoryPort for GithubProvider {
+    async fn create_repository(
+        &self,
+        repository: CreateGithubRepositoryPortCommand,
+    ) -> Result<GithubCreateRepositoryResponse, error::Error> {
+        let req = repository.into();
+        let resp = self.create_github_repository(req).await
+            .map_err(|e| error::Error::GithubPort(e.to_string()))?;
+        Ok(resp)
+    }
+}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GithubConfig {
@@ -89,23 +112,6 @@ pub enum GitHubError {
 pub struct GithubProvider {
     client: reqwest::Client,
     config: GithubConfig,
-}
-
-#[async_trait::async_trait]
-impl crate::MpsScmGithubPort for GithubProvider {
-    async fn create_repo(&self, name: &str) -> crate::NewRepo {
-        let resp = self
-            .create_github_repository(NewRepository { name: name.to_string() })
-            .await
-            .unwrap();
-        resp.into()
-    }
-}
-
-impl From<RepositoryResponse> for crate::NewRepo {
-    fn from(r: RepositoryResponse) -> Self {
-        Self { name: r.name, html_url: r.html_url }
-    }
 }
 
 impl GithubProvider {
@@ -195,7 +201,7 @@ impl GithubProvider {
     pub async fn create_github_repository(
         &self,
         new_repo: NewRepository,
-    ) -> Result<RepositoryResponse, GitHubError> {
+    ) -> Result<GithubCreateRepositoryResponse, GitHubError> {
         let path: String = match self.config.entity_type {
             EntityType::User => "/user/repos".into(),
             EntityType::Organization => {
@@ -219,13 +225,31 @@ pub struct RateLimit {
 pub struct NewRepository {
     pub name: String,
 }
+impl From<CreateGithubRepositoryPortCommand> for NewRepository {
+    fn from(c: CreateGithubRepositoryPortCommand) -> Self {
+        Self { name: c.name }
+    }
+}
 
 // Struct para representar a resposta da API do GitHub ao criar um repositório
 #[derive(Deserialize, Debug)]
 pub struct RepositoryResponse {
+    pub default_branch: String,
+    pub description: Option<String>,
+    pub full_name: String,
     pub name: String,
-    pub html_url: String,
+    pub private: bool,
+    pub id: i64,
+    pub size: i64,
+    pub ssh_url: String,
+    pub url: String,
 }
+
+// impl From<RepositoryResponse> for GithubCreateRepositoryResponse {
+//     fn from(r: RepositoryResponse) -> Self {
+
+//     }
+// }
 
 #[cfg(test)]
 mod tests {

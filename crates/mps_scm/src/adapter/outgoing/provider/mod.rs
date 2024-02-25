@@ -12,26 +12,8 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use derive_new::new;
+pub mod github;
+pub use github::*;
 
-use crate::{
-    application::error,
-    domain::{ApplicationId, GithubRepository},
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// GithubRepository
-///////////////////////////////////////////////////////////////////////////////
-#[derive(Debug, Clone, new)]
-pub struct CreateGithubRepositoryCommand {
-    pub application_id: ApplicationId,
-    pub name: String,
-}
-
-#[async_trait::async_trait]
-pub trait GithubRepositoryUseCase {
-    async fn create(
-        &self,
-        command: CreateGithubRepositoryCommand,
-    ) -> Result<GithubRepository, error::Error>;
-}
+pub mod local;
+pub use local::*;

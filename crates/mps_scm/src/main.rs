@@ -19,16 +19,10 @@ static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    // init_tracing();
 
-    mps_scm::cli::run().await;
-
-    //// TODO: render template files and write it into filesystem
+    if let Err(e) = mps_scm::cli::run().await {
+        eprintln!("{e}");
+    }
 
     Ok(())
 }
-
-// fn init_tracing() {
-//     use tracing_subscriber::{fmt, prelude::*, registry, EnvFilter};
-//     registry().with(fmt::layer()).with(EnvFilter::from_env("MPS_LOG")).init();
-// }

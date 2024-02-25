@@ -12,26 +12,39 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use derive_new::new;
+use std::process::Command;
 
-use crate::{
-    application::error,
-    domain::{ApplicationId, GithubRepository},
-};
+pub mod config;
+pub use config::*;
 
-///////////////////////////////////////////////////////////////////////////////
-// GithubRepository
-///////////////////////////////////////////////////////////////////////////////
-#[derive(Debug, Clone, new)]
-pub struct CreateGithubRepositoryCommand {
-    pub application_id: ApplicationId,
-    pub name: String,
-}
+pub mod git_repository;
+pub use git_repository::*;
 
-#[async_trait::async_trait]
-pub trait GithubRepositoryUseCase {
-    async fn create(
-        &self,
-        command: CreateGithubRepositoryCommand,
-    ) -> Result<GithubRepository, error::Error>;
+pub mod git_repository_persistence;
+pub use git_repository_persistence::*;
+
+pub mod error;
+pub use error::*;
+
+pub fn run_migrations(
+    database_url: &str,
+    migrations_dir: &str,
+) -> Result<(), Error> {
+    use tracing::{error, info};
+    let status = Command::new("sqlx")
+        .arg("migrate")
+        .arg("run")
+        .arg("--database-url")
+        .arg(database_url)
+        .arg("--source")
+        .arg(migrations_dir)
+        .status()?;
+
+    if status.success() {
+        info!("Migrações concluídas com sucesso!");
+    } else {
+        error!("Erro ao executar migrações!");
+    }
+
+    Ok(())
 }

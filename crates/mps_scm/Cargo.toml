@@ -13,13 +13,13 @@ rust-version.workspace = true
 
 [dependencies]
 mps_config = { version = "0.1.0", path = "../mps_config" }
-mps_log = { version = "0.1.0", path = "../mps_log" }
+mps_log    = { version = "0.1.0", path = "../mps_log" }
 
 async-trait.workspace = true
-aws-config.workspace  = true
+aws-config.workspace = true
 aws-sdk-ecr.workspace = true
-git2.workspace        = true
-reqwest               = { version = "0.11.24", features = ["json"] }
+git2.workspace = true
+reqwest = { version = "0.11.24", features = ["json"] }
 clap.workspace = true
 chrono = { workspace = true, features = ["serde"] }
 color-eyre.workspace = true
@@ -71,4 +71,4 @@ tempfile.workspace = true
 
 [build-dependencies]
 vergen.workspace = true
-tonic-build = "0.11.0"
+tonic-build      = "0.11.0"

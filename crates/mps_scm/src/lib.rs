@@ -12,47 +12,13 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+pub mod adapter;
+pub mod application;
 pub mod cli;
+pub mod domain;
 
-pub(crate) mod config;
-pub(crate) use config::*;
+pub mod config;
+pub use config::*;
 
-pub(crate) mod provider;
-pub(crate) use provider::*;
-
-pub mod grpc;
-
-#[derive(Debug)]
-pub struct NewRepo {
-    pub name: String,
-    pub html_url: String,
-}
-
-#[async_trait::async_trait]
-pub(crate) trait MpsScmUseCase {
-    async fn create_repo(&self, name: &str) -> NewRepo;
-}
-
-#[async_trait::async_trait]
-pub(crate) trait MpsScmGithubPort {
-    async fn create_repo(&self, name: &str) -> NewRepo;
-}
-
-pub(crate) struct MpsScmService {
-    github_port: Box<dyn MpsScmGithubPort + Send + Sync>,
-}
-
-impl MpsScmService {
-    pub(crate) fn new(
-        github_port: Box<dyn MpsScmGithubPort + Send + Sync>,
-    ) -> Self {
-        Self { github_port }
-    }
-}
-
-#[async_trait::async_trait]
-impl MpsScmUseCase for MpsScmService {
-    async fn create_repo(&self, name: &str) -> NewRepo {
-        self.github_port.create_repo(name).await
-    }
-}
+pub mod error;
+pub use error::*;

@@ -12,26 +12,29 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use derive_new::new;
+use std::path;
 
-use crate::{
-    application::error,
-    domain::{ApplicationId, GithubRepository},
-};
+use clap::{value_parser, Arg, ArgMatches, Command};
 
-///////////////////////////////////////////////////////////////////////////////
-// GithubRepository
-///////////////////////////////////////////////////////////////////////////////
-#[derive(Debug, Clone, new)]
-pub struct CreateGithubRepositoryCommand {
-    pub application_id: ApplicationId,
-    pub name: String,
+use super::Error;
+use crate::{adapter::incoming::grpc, Config};
+
+pub fn subcommand() -> Command {
+    Command::new("grpc").about("Run grpc server").arg(
+        Arg::new("config")
+            .short('c')
+            .long("config")
+            .value_name("ARQUIVO")
+            .help("Caminho do arquivo de configuração")
+            .value_parser(value_parser!(path::PathBuf))
+            .required(true),
+    )
 }
 
-#[async_trait::async_trait]
-pub trait GithubRepositoryUseCase {
-    async fn create(
-        &self,
-        command: CreateGithubRepositoryCommand,
-    ) -> Result<GithubRepository, error::Error>;
+pub async fn run(matches: &ArgMatches) -> Result<(), Error> {
+    let config_path: &path::PathBuf =
+        matches.get_one("config").expect("`config` is required");
+    let project_config = Config::load(config_path)?;
+    grpc::server(&project_config).await?;
+    Ok(())
 }

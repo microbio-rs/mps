@@ -12,26 +12,22 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use derive_new::new;
+use crate::adapter::incoming;
 
-use crate::{
-    application::error,
-    domain::{ApplicationId, GithubRepository},
-};
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("failed parse cli arguments: {0}")]
+    Clap(#[from] clap::Error),
 
-///////////////////////////////////////////////////////////////////////////////
-// GithubRepository
-///////////////////////////////////////////////////////////////////////////////
-#[derive(Debug, Clone, new)]
-pub struct CreateGithubRepositoryCommand {
-    pub application_id: ApplicationId,
-    pub name: String,
-}
+    #[error("failed load log: {0}")]
+    Log(#[from] mps_log::Error),
 
-#[async_trait::async_trait]
-pub trait GithubRepositoryUseCase {
-    async fn create(
-        &self,
-        command: CreateGithubRepositoryCommand,
-    ) -> Result<GithubRepository, error::Error>;
+    #[error("failed load log: {0}")]
+    Application(#[from] crate::error::Error),
+
+    #[error("failed run grpc server: {0}")]
+    GrpcServer(#[from] incoming::grpc::error::Error),
+
+    #[error("unknown")]
+    Unknow,
 }

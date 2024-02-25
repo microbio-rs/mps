@@ -15,23 +15,44 @@
 use derive_new::new;
 
 use crate::{
-    application::error,
-    domain::{ApplicationId, GithubRepository},
+    application::{
+        error,
+        port::{
+            incoming::{
+                CreateGithubRepositoryCommand, GithubRepositoryUseCase,
+            },
+            outgoing::{
+                CreateGithubRepositoryPortCommand,
+                GithubRepositoryPersistencePort, GithubRepositoryPort,
+            },
+        },
+    },
+    domain::GithubRepository,
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // GithubRepository
 ///////////////////////////////////////////////////////////////////////////////
-#[derive(Debug, Clone, new)]
-pub struct CreateGithubRepositoryCommand {
-    pub application_id: ApplicationId,
-    pub name: String,
+#[derive(new)]
+pub struct GithubRepositoryService {
+    github_port: Box<dyn GithubRepositoryPort + Send + Sync>,
+    persistence_port: Box<dyn GithubRepositoryPersistencePort + Send + Sync>,
 }
 
 #[async_trait::async_trait]
-pub trait GithubRepositoryUseCase {
+impl GithubRepositoryUseCase for GithubRepositoryService {
     async fn create(
         &self,
         command: CreateGithubRepositoryCommand,
-    ) -> Result<GithubRepository, error::Error>;
+    ) -> Result<GithubRepository, error::Error> {
+        let github_command: CreateGithubRepositoryPortCommand =
+            command.clone().into();
+        let mut repository =
+            self.github_port.create_repository(github_command).await?;
+        repository.application_id = Some(command.application_id);
+        let repository = repository.into();
+        let repository =
+            self.persistence_port.save_repository(repository).await?;
+        Ok(repository)
+    }
 }

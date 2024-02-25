@@ -12,112 +12,48 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use std::{path::PathBuf, sync::Arc};
+use clap::Command;
 
-use clap::{
-    builder::styling::AnsiColor, value_parser, Arg, ArgAction, ColorChoice,
-    Command,
-};
-use colored::Colorize;
+mod common;
+mod consts;
+mod grpc;
+mod migrations;
+mod seed;
+mod version;
 
-use crate::{grpc, MpsScmConfig};
+mod error;
+use error::*;
 
-////
-//// mps_scm: init, commit, push files to git repo
-////
-//// local::icp(
-////     "/tmp/murilobsd/test-repo",
-////     "git@github.com:murilobsd/test-repo.git",
-////     "git",
-////     Path::new("/home/user/.ssh/mykey"),
-//// )?;
+fn subcommand_run() -> Command {
+    Command::new(consts::SUBCMD_RUN)
+        .about("Run grpc server, worker, seed, migrations")
+        .subcommand(migrations::subcommand())
+        .subcommand(seed::subcommand())
+        .subcommand(grpc::subcommand())
+}
 
-pub async fn run() {
-    let banner: String = r#"
-        ███╗   ███╗██████╗ ███████╗      ███████╗ ██████╗███╗   ███╗
-        ████╗ ████║██╔══██╗██╔════╝      ██╔════╝██╔════╝████╗ ████║
-        ██╔████╔██║██████╔╝███████╗█████╗███████╗██║     ██╔████╔██║
-        ██║╚██╔╝██║██╔═══╝ ╚════██║╚════╝╚════██║██║     ██║╚██╔╝██║
-        ██║ ╚═╝ ██║██║     ███████║      ███████║╚██████╗██║ ╚═╝ ██║
-        ╚═╝     ╚═╝╚═╝     ╚══════╝      ╚══════╝ ╚═════╝╚═╝     ╚═╝
-            𓍊𓋼𓍊𓋼𓍊 mps - source control manager service v0.1.0"#
-        .green()
-        .to_string();
-
+pub async fn run() -> Result<(), error::Error> {
     let matches = Command::new("mps_scm")
-        .styles(
-            clap::builder::Styles::styled()
-                .header(AnsiColor::Yellow.on_default())
-                .usage(AnsiColor::White.on_default())
-                .literal(AnsiColor::Green.on_default())
-                .placeholder(AnsiColor::Green.on_default()),
-        )
-        .color(ColorChoice::Auto)
-        .max_term_width(80)
-        .version("0.1.0")
-        .next_display_order(1000)
-        .author("Murilo Ijanc'")
-        .about(banner)
-        .subcommand(Command::new("grpc").about("Run grpc server"))
-        .arg(
-            Arg::new("log-level")
-                .short('L')
-                .long("log-level")
-                .help("Set log level")
-                .hide(false)
-                .value_parser(["trace", "debug", "info"])
-                .global(true),
-        )
-        .arg(
-            Arg::new("quiet")
-                .short('q')
-                .long("quiet")
-                .help("Suppress diagnostic output")
-                .action(ArgAction::SetTrue)
-                .global(true),
-        )
-        .arg(
-            Arg::new("config")
-                .short('c')
-                .long("config")
-                .value_name("ARQUIVO")
-                .help("Caminho do arquivo de configuração")
-                .value_parser(value_parser!(PathBuf))
-                .required(true),
-        )
+        .styles(common::styles())
+        .color(consts::COLOR_CHOICE)
+        .max_term_width(consts::MAX_TERM_WIDTH)
+        .about(common::banner())
+        .subcommand(subcommand_run())
+        .subcommand(version::subcommand())
         .get_matches();
 
-    // read config
-    let config_path: &PathBuf =
-        matches.get_one("config").expect("`config` is required");
-    let scm_config = MpsScmConfig::load(config_path).unwrap();
-
-    // // local clone
-    // let local_provider = crate::LocalProvider::new(scm_config.local.clone());
-    // let repo_path = local_provider.clone_sample("mps-sample-nestjs").unwrap();
-    // println!("Repo path is {}", repo_path.display());
-
-    // // if matches.get_flag("quiet") {
-    // //    flags.log_level = Some(Level::Error);
-    // //  } else if let Some(log_level) = matches.get_one::<String>("log-level") {
-    // //    flags.log_level = match log_level.as_str() {
-    // //      "trace" => Some(Level::Trace),
-    // //      "debug" => Some(Level::Debug),
-    // //      "info" => Some(Level::Info),
-    // //      _ => unreachable!(),
-    // //    };
-    // //  }
+    mps_log::MpsLog::builder().filter_level("debug").with_ansi(true).init()?;
 
     match matches.subcommand() {
-        Some(("grpc", _)) => {
-            // TODO: better aprote
-            let provider =
-                crate::GithubProvider::new(scm_config.github.clone());
-            let service = crate::MpsScmService::new(Box::new(provider));
-            let state = grpc::MpsScmGrpcState::new(Arc::new(service));
-
-            grpc::server(Arc::new(state)).await
-        }
+        Some((consts::SUBCMD_RUN, sub_m)) => match sub_m.subcommand() {
+            Some((consts::SUBCMD_GRPC, m)) => grpc::run(m).await?,
+            Some((consts::SUBCMD_MIGRATIONS, m)) => migrations::run(m).await?,
+            Some((consts::SUBCMD_SEED, m)) => seed::run(m).await?,
+            _ => {}
+        },
+        Some((consts::SUBCMD_VERSION, sub_m)) => version::run(sub_m)?,
         _ => {}
     };
+
+    Ok(())
 }

@@ -12,8 +12,11 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub(crate) mod github;
-pub(crate) use github::*;
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    #[error("failed create trasnport: {0}")]
+    TonicTransport(#[from] tonic::transport::Error),
 
-pub(crate) mod local;
-pub(crate) use local::*;
+    #[error("failed parse address: {0}")]
+    AddrParse(#[from] std::net::AddrParseError),
+}

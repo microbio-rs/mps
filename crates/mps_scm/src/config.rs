@@ -14,24 +14,24 @@
 
 use std::path::Path;
 
-use serde::Deserialize;
+use crate::{
+    adapter::{
+        incoming::GrpcServerConfig,
+        outgoing::{GithubConfig, RepositoryConfig},
+    },
+    Error,
+};
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct MpsScmConfig {
-    pub local: crate::LocalConfig,
-    pub github: crate::GithubConfig,
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct Config {
+    pub log_level: String,
+    pub database: RepositoryConfig,
+    pub grpc_server: GrpcServerConfig,
+    pub github: GithubConfig,
 }
 
-#[derive(thiserror::Error, Debug)]
-pub(crate) enum MpsScmConfigError {
-    #[error("Config error: {0}")]
-    Config(#[from] mps_config::Error),
-}
-
-impl MpsScmConfig {
-    pub fn load<P: AsRef<Path>>(
-        config_path: P,
-    ) -> Result<Self, MpsScmConfigError> {
+impl Config {
+    pub fn load<P: AsRef<Path>>(config_path: P) -> Result<Self, Error> {
         Ok(mps_config::load(config_path)?)
     }
 }
