@@ -22,6 +22,19 @@ use crate::{
 ///////////////////////////////////////////////////////////////////////////////
 // GithubRepository
 ///////////////////////////////////////////////////////////////////////////////
+#[derive(Debug, Clone, new)]
+pub struct CloneGitRepositoryPortCommand {
+    pub src: String,
+    pub to: String,
+}
+
+#[async_trait::async_trait]
+pub trait LocalGitPort {
+    async fn clone_repository(
+        &self,
+        repository: CloneGitRepositoryPortCommand,
+    ) -> Result<(), error::Error>;
+}
 
 #[derive(Debug, Clone, new)]
 pub struct CreateGithubRepositoryPortCommand {
