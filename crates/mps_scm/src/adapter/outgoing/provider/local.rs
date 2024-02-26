@@ -23,6 +23,8 @@ use git2::{
 };
 use tracing::{debug, info};
 
+use crate::application::{error, port::outgoing::{LocalGitPort, CloneGitRepositoryPortCommand}};
+
 #[derive(thiserror::Error, Debug)]
 pub enum LocalError {
     #[error("Lib git2 errror: {0}")]
@@ -51,6 +53,18 @@ pub struct LocalProvider {
 impl LocalProvider {
     pub fn new(config: LocalConfig) -> Self {
         Self { config }
+    }
+}
+
+#[async_trait::async_trait]
+impl LocalGitPort for LocalProvider {
+    async fn clone_repository(
+        &self,
+        repository: CloneGitRepositoryPortCommand,
+    ) -> Result<(), error::Error> {
+        let _ = self.clone(&repository.src, &repository.to).
+            map_err(|e| error::Error::GithubPort(e.to_string()))?;
+        Ok(())
     }
 }
 
