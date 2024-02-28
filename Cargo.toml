@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-members  = [
-    "mps_config",
+members  = [ "mps", "mps_application",
+    "mps_config", "mps_domain",
     "mps_log"
 ]
 
