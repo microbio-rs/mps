@@ -1,9 +1,6 @@
 [workspace]
 resolver = "2"
-members  = [ "mps", "mps_application",
-    "mps_config", "mps_domain",
-    "mps_log"
-]
+members  = ["mps", "mps_application", "mps_config", "mps_domain", "mps_log", "mps_cli"]
 
 [workspace.package]
 authors      = ["Murilo Ijanc' <mbsd@m0x.ru>", "MPS contributors"]
