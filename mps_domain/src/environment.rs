@@ -15,7 +15,7 @@
 use derive_new::new;
 use uuid::Uuid;
 
-use crate::project::ProjectId;
+use super::project::ProjectId;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
 pub struct EnvironmentId(Uuid);

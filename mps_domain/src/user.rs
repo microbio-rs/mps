@@ -12,62 +12,50 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-use derive_new::new;
 use uuid::Uuid;
-
-use crate::project::ProjectId;
+use derive_new::new;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct EnvironmentId(Uuid);
+pub struct UserId(Uuid);
 
-impl EnvironmentId {
-    pub fn to_uuid(&self) -> Uuid {
-        self.0
-    }
-}
-
-impl ToString for EnvironmentId {
+impl ToString for UserId {
     fn to_string(&self) -> String {
         self.0.to_string()
     }
 }
 
-impl From<EnvironmentId> for String {
-    fn from(p: EnvironmentId) -> String {
+impl From<UserId> for String {
+    fn from(p: UserId) -> String {
         p.to_string()
     }
 }
 
-impl From<Uuid> for EnvironmentId {
-    fn from(u: Uuid) -> EnvironmentId {
-        EnvironmentId::new(u)
+impl From<Uuid> for UserId {
+    fn from(u: Uuid) -> UserId {
+        UserId::new(u)
     }
 }
 
-#[derive(
-    Debug,
-    Clone,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    new,
-    strum::Display,
-    strum::EnumString,
-    num_derive::FromPrimitive,
-    num_derive::ToPrimitive,
-)]
-pub enum EnvironmentMode {
-    Production,
-    Staging,
-    Development,
+impl UserId {
+    pub fn to_uuid(&self) -> Uuid {
+        self.0
+    }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct Environment {
-    pub id: Option<EnvironmentId>,
-    pub project_id: ProjectId,
-    pub name: String,
-    pub description: Option<String>,
-    pub mode: EnvironmentMode,
-}
+// #[derive(
+//     Debug,
+//     Clone,
+//     PartialEq,
+//     Eq,
+//     PartialOrd,
+//     Ord,
+//     new,
+//     strum::Display,
+//     strum::EnumString,
+//     num_derive::FromPrimitive,
+//     num_derive::ToPrimitive,
+// )]
+// pub enum ServiceKind {
+//     Application,
+//     Database,
+// }

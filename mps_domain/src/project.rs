@@ -15,59 +15,39 @@
 use derive_new::new;
 use uuid::Uuid;
 
-use crate::project::ProjectId;
+use crate::user::UserId;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct EnvironmentId(Uuid);
+pub struct ProjectId(Uuid);
 
-impl EnvironmentId {
+impl ProjectId {
     pub fn to_uuid(&self) -> Uuid {
         self.0
     }
 }
 
-impl ToString for EnvironmentId {
+impl ToString for ProjectId {
     fn to_string(&self) -> String {
         self.0.to_string()
     }
 }
 
-impl From<EnvironmentId> for String {
-    fn from(p: EnvironmentId) -> String {
+impl From<ProjectId> for String {
+    fn from(p: ProjectId) -> String {
         p.to_string()
     }
 }
 
-impl From<Uuid> for EnvironmentId {
-    fn from(u: Uuid) -> EnvironmentId {
-        EnvironmentId::new(u)
+impl From<Uuid> for ProjectId {
+    fn from(u: Uuid) -> ProjectId {
+        ProjectId::new(u)
     }
 }
 
-#[derive(
-    Debug,
-    Clone,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    new,
-    strum::Display,
-    strum::EnumString,
-    num_derive::FromPrimitive,
-    num_derive::ToPrimitive,
-)]
-pub enum EnvironmentMode {
-    Production,
-    Staging,
-    Development,
-}
-
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct Environment {
-    pub id: Option<EnvironmentId>,
-    pub project_id: ProjectId,
+pub struct Project {
+    pub id: Option<ProjectId>,
+    pub user_id: UserId,
     pub name: String,
     pub description: Option<String>,
-    pub mode: EnvironmentMode,
 }

@@ -15,7 +15,7 @@
 use derive_new::new;
 use uuid::Uuid;
 
-use super::environment::EnvironmentId;
+use crate::environment::EnvironmentId;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
 pub struct ApplicationId(Uuid);

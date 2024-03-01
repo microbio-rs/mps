@@ -15,32 +15,32 @@
 use derive_new::new;
 use uuid::Uuid;
 
-use crate::project::ProjectId;
+use super::environment::EnvironmentId;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct EnvironmentId(Uuid);
+pub struct ApplicationId(Uuid);
 
-impl EnvironmentId {
+impl ApplicationId {
     pub fn to_uuid(&self) -> Uuid {
         self.0
     }
 }
 
-impl ToString for EnvironmentId {
+impl ToString for ApplicationId {
     fn to_string(&self) -> String {
         self.0.to_string()
     }
 }
 
-impl From<EnvironmentId> for String {
-    fn from(p: EnvironmentId) -> String {
+impl From<ApplicationId> for String {
+    fn from(p: ApplicationId) -> String {
         p.to_string()
     }
 }
 
-impl From<Uuid> for EnvironmentId {
-    fn from(u: Uuid) -> EnvironmentId {
-        EnvironmentId::new(u)
+impl From<Uuid> for ApplicationId {
+    fn from(u: Uuid) -> ApplicationId {
+        ApplicationId::new(u)
     }
 }
 
@@ -57,17 +57,15 @@ impl From<Uuid> for EnvironmentId {
     num_derive::FromPrimitive,
     num_derive::ToPrimitive,
 )]
-pub enum EnvironmentMode {
-    Production,
-    Staging,
-    Development,
+pub enum ServiceKind {
+    Application,
+    Database,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, new)]
-pub struct Environment {
-    pub id: Option<EnvironmentId>,
-    pub project_id: ProjectId,
+pub struct Application {
+    pub id: Option<ApplicationId>,
+    pub environment_id: EnvironmentId,
     pub name: String,
     pub description: Option<String>,
-    pub mode: EnvironmentMode,
 }
