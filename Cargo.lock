@@ -248,6 +248,10 @@ dependencies = [
 [[package]]
 name = "mps"
 version = "0.1.0"
+dependencies = [
+ "mps_application",
+ "mps_domain",
+]
 
 [[package]]
 name = "mps_application"
