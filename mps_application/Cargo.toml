@@ -12,6 +12,7 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+async-trait.workspace = true
 mps_domain = { version = "0.1.0", path = "../mps_domain" }
 
 [lints]

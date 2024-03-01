@@ -12,15 +12,20 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod error;
-pub use error::Error;
+use std::fmt;
 
-pub mod service;
-pub mod incoming;
-pub mod outgoing;
+#[derive(Debug)]
+pub enum Error {}
 
-pub mod prelude {
-    pub use crate::service::*;
-    pub use crate::incoming::*;
-    pub use crate::outgoing::*;
+pub type Result<T> = std::result::Result<T, Error>;
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+             _ => write!(f, "Ocorreu o Erro"),
+        }
+    }
 }
+
+impl std::error::Error for Error {}
+

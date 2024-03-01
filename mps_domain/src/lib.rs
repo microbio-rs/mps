@@ -12,6 +12,9 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+pub mod error;
+pub use error::{Result, Error};
+
 pub mod application;
 pub mod environment;
 pub mod project;
@@ -22,4 +25,5 @@ pub mod prelude {
     pub use crate::environment::*;
     pub use crate::project::*;
     pub use crate::user::*;
+    pub use crate::{Result, Error};
 }
