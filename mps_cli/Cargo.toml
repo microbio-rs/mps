@@ -23,10 +23,13 @@ path = "src/main.rs"
 test = false
 
 [dependencies]
+mps_log = { version = "0.1.0", path = "../mps_log" }
+
 tokio                = { workspace = true, features = ["rt-multi-thread", "macros"] }
 color-eyre.workspace = true
 tracing.workspace    = true
-mps_log = { version = "0.1.0", path = "../mps_log" }
+mps_persistence = { version = "0.1.0", path = "../mps_persistence" }
+mps_grpc = { version = "0.1.0", path = "../mps_grpc" }
 
 [target.'cfg(all(target_env = "musl", target_pointer_width = "64"))'.dependencies.tikv-jemallocator]
 workspace = true

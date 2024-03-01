@@ -256,13 +256,18 @@ dependencies = [
 [[package]]
 name = "mps_application"
 version = "0.1.0"
+dependencies = [
+ "mps_domain",
+]
 
 [[package]]
 name = "mps_cli"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
+ "mps_grpc",
  "mps_log",
+ "mps_persistence",
  "tikv-jemallocator",
  "tokio",
  "tracing",
@@ -290,6 +295,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mps_grpc"
+version = "0.1.0"
+dependencies = [
+ "mps",
+]
+
+[[package]]
 name = "mps_log"
 version = "0.1.0"
 dependencies = [
@@ -298,6 +310,13 @@ dependencies = [
  "time",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "mps_persistence"
+version = "0.1.0"
+dependencies = [
+ "mps",
 ]
 
 [[package]]

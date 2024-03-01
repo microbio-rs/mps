@@ -12,10 +12,10 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub use mps_domain;
 pub use mps_application;
+pub use mps_domain;
 
 pub mod prelude {
-    pub use crate::mps_domain::*;
     pub use crate::mps_application::*;
+    pub use crate::mps_domain::*;
 }
