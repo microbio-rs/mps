@@ -13,7 +13,7 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 pub mod error;
-pub use error::Error;
+pub use error::{Result, Error};
 
 pub mod service;
 pub mod incoming;
@@ -23,4 +23,5 @@ pub mod prelude {
     pub use crate::service::*;
     pub use crate::incoming::*;
     pub use crate::outgoing::*;
+    pub use crate::{Result, Error};
 }
