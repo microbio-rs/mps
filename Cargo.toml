@@ -55,6 +55,7 @@ tracing           = "0.1.40"
 url               = "2.5.0"
 uuid              = "1.7.0"
 vergen            = { version = "8.3.1", features = ["build", "cargo", "git", "gitcl", "rustc", "si"] }
+pretty_assertions = "1.4.0"
 
 [profile.release]
 # Configurations explicitly listed here for clarity.

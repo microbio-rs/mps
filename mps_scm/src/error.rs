@@ -15,30 +15,17 @@
 use std::fmt;
 
 #[derive(Debug)]
-pub enum Error {
-    Domain(String),
-    PortIncoming(String),
-    PortOutgoing(String),
-    Service(String),
-}
+pub enum Error {}
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Domain(e) => write!(f, "domain error: {e}"),
-            Self::PortIncoming(String) => write(f, "port incoming error: {e}"),
-            Self::PortOutgoing(String) => write(f, "port outgoing error: {e}"),
-            Self::Service(String) => write(f, "service error: {e}"),
+             _ => write!(f, "Ocorreu o Erro"),
         }
     }
 }
 
-impl From<mps_domain::Error> for Error {
-    fn from(e: mps_domain::Error) -> Self {
-        Error::Domain(e.to_string())
-    }
-}
-
 impl std::error::Error for Error {}
+

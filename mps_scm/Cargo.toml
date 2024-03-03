@@ -1,5 +1,5 @@
 [package]
-name = "mps_application"
+name = "mps_scm"
 version = "0.1.0"
 authors.workspace = true
 categories.workspace = true
@@ -11,13 +11,9 @@ license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
 
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [dependencies]
-async-trait.workspace = true
-mockall.workspace = true
-mps_domain = { version = "0.1.0", path = "../mps_domain" }
 
 [lints]
 workspace = true
-
-[dev-dependencies]
-pretty_assertions.workspace = true
