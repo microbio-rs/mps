@@ -312,7 +312,12 @@ name = "mps"
 version = "0.1.0"
 dependencies = [
  "mps_application",
+ "mps_config",
  "mps_domain",
+ "mps_grpc",
+ "mps_log",
+ "mps_persistence",
+ "mps_scm",
 ]
 
 [[package]]
@@ -330,9 +335,7 @@ name = "mps_cli"
 version = "0.1.0"
 dependencies = [
  "color-eyre",
- "mps_grpc",
- "mps_log",
- "mps_persistence",
+ "mps",
  "tikv-jemallocator",
  "tokio",
  "tracing",
@@ -363,7 +366,8 @@ dependencies = [
 name = "mps_grpc"
 version = "0.1.0"
 dependencies = [
- "mps",
+ "mps_application",
+ "mps_domain",
 ]
 
 [[package]]
@@ -381,8 +385,13 @@ dependencies = [
 name = "mps_persistence"
 version = "0.1.0"
 dependencies = [
- "mps",
+ "mps_application",
+ "mps_domain",
 ]
+
+[[package]]
+name = "mps_scm"
+version = "0.1.0"
 
 [[package]]
 name = "nom"

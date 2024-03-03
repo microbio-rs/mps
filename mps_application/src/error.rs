@@ -28,9 +28,9 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Domain(e) => write!(f, "domain error: {e}"),
-            Self::PortIncoming(String) => write(f, "port incoming error: {e}"),
-            Self::PortOutgoing(String) => write(f, "port outgoing error: {e}"),
-            Self::Service(String) => write(f, "service error: {e}"),
+            Self::PortIncoming(e) => write!(f, "port incoming error: {e}"),
+            Self::PortOutgoing(e) => write!(f, "port outgoing error: {e}"),
+            Self::Service(e) => write!(f, "service error: {e}"),
         }
     }
 }
