@@ -14,8 +14,3 @@
 
 pub use mps_application;
 pub use mps_domain;
-
-pub mod prelude {
-    pub use crate::mps_application::*;
-    pub use crate::mps_domain::*;
-}
