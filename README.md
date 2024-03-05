@@ -23,6 +23,8 @@ microbe platform system
 cargo sqlx prepare --check --workspace
 ```
 
+## create project from git repo
+
 ## create "project"
 
 1. Create github repo
