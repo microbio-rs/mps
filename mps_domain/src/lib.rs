@@ -13,7 +13,7 @@
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 pub mod error;
-pub use error::{Result, Error};
+pub use error::{Error, Result};
 
 pub mod application;
 pub mod environment;
@@ -25,5 +25,5 @@ pub mod prelude {
     pub use crate::environment::*;
     pub use crate::project::*;
     pub use crate::user::*;
-    pub use crate::{Result, Error};
+    pub use crate::{Error, Result};
 }
