@@ -17,61 +17,6 @@ microbe platform system
 | mps_monitoring        | collect metrics from projects            | in progress |
 | [mps_project][9]      | responsible project manager              | in progress |
 
-## generate offline mode
-
-```console
-cargo sqlx prepare --check --workspace
-```
-
-## create project from git repo
-
-## create "project"
-
-1. Create github repo
-
-```
-before: base_path /tmp, path ssh key, user git, owner /tmp/owner
-in: url_boilerplate,
-out: the full path from where the repository was cloned
-```
-
-2. Clone sample (clone boilerplate template)
-
-```
-in: nome_repo,
-out: folder clone
-```
-
-3. Render template (generate boilerplate)
-
-```
-in: projetc_name
-out: out_path (folder boilerplate)
-```
-
-4. Create registry repo (aws ecr)
-
-```
-in: projetc_name, tag
-out: endpoint
-```
-
-5. Docker build, auth registry, push image
-
-```
-in: boiler_plate path, dockerfile path, tag
-out: endpoint
-```
-
-6. Orchestrator (create artifcats and post do k8s,)
-
-```
-in: projetc_name
-out: -
-```
-
-7. Load balancers url
-
 [0]: ./crates/mps_cli/README.md
 [1]: ./crates/mps_scm/README.md
 [2]: ./crates/mps_im/README.md
