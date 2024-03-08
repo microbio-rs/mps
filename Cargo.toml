@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members  = ["mps_domain"]
+members  = ["bin/mps"]
 
 [workspace.package]
 authors      = ["Murilo Ijanc' <mbsd@m0x.ru>", "MPS contributors"]
