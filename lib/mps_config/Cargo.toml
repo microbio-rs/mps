@@ -1,0 +1,27 @@
+[package]
+name                   = "mps_config"
+version                = "0.1.0"
+authors.workspace      = true
+categories.workspace   = true
+description.workspace  = true
+edition.workspace      = true
+homepage.workspace     = true
+keywords.workspace     = true
+license.workspace      = true
+repository.workspace   = true
+rust-version.workspace = true
+
+[dependencies]
+config              = { version = "0.14.0", default-features = false, features = ["toml"] }
+serde               = { workspace = true, features = ["derive"] }
+thiserror.workspace = true
+tracing.workspace   = true
+
+[lints]
+workspace = true
+
+[lib]
+doctest = false
+
+[features]
+default = []
