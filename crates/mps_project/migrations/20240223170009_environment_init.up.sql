@@ -1,9 +1,0 @@
-CREATE TABLE IF NOT EXISTS environments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    project_id UUID NOT NULL,
-    name VARCHAR NOT NULL,
-    description VARCHAR DEFAULT NULL,
-    mode VARCHAR NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW())
-

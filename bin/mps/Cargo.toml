@@ -12,13 +12,6 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-mps_application = { version = "0.1.0", path = "../mps_application" }
-mps_config = { version = "0.1.0", path = "../mps_config" }
-mps_domain = { version = "0.1.0", path = "../mps_domain" }
-mps_grpc = { version = "0.1.0", path = "../mps_grpc" }
-mps_log = { version = "0.1.0", path = "../mps_log" }
-mps_persistence = { version = "0.1.0", path = "../mps_persistence" }
-mps_scm = { version = "0.1.0", path = "../mps_scm" }
 
 [lints]
 workspace = true

@@ -101,7 +101,7 @@ mod tests {
         .expect("Failed to write test config file");
 
         // Ensure that loading the configuration is successful
-        match load::<AppConfig>(config_path) {
+        match load::<AppConfig, _>(config_path) {
             Ok(app_config) => {
                 assert_eq!(app_config.host, "127.0.0.1");
                 assert_eq!(app_config.port, 8080);
@@ -125,7 +125,7 @@ mod tests {
             .expect("Failed to write test invalid config file");
 
         // Ensure that loading the configuration results in an error
-        match load::<AppConfig>(config_path) {
+        match load::<AppConfig, _>(config_path) {
             Ok(_) => {
                 panic!("Test failed: Expected an error, but got Ok");
             }
