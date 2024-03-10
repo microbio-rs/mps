@@ -12,6 +12,8 @@ repository.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+mps_log = { version = "0.1.0", path = "../../lib/mps_log" }
+tracing.workspace = true
 
 [lints]
 workspace = true
