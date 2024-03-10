@@ -12,14 +12,15 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-pub mod error;
+use std::fmt;
 
-#[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
+#[derive(Debug)]
+pub enum Error {}
 
-    #[test]
-    fn start_organization() {
-        assert_eq!(2, 1 + 1);
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "generic error")
     }
 }
+
+impl std::error::Error for Error {}
