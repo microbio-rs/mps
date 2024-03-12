@@ -48,7 +48,7 @@ or
 ```rust
 #[derive(Serialize, Deserialize)]
 struct Context<'a> {
-  name: Cow<&'a, str>
+  name: Cow<'a, str>
 }
 
 let (rx, tx) = mpsc::channe();
@@ -64,6 +64,7 @@ let service = ServiceBuilder::default()
   .docker_file("Dockerfile.prod")
   .docker_path(".")
   .kube_local();
+  .debug(tx)
   .build()?;
 
 service
