@@ -15,12 +15,24 @@
 use std::fmt;
 
 #[derive(Debug)]
-pub enum Error {}
+pub enum Error {
+    Io(String),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "generic error")
+        match self {
+            Self::Io(e) => write!(f, "io: {e}"),
+        }
     }
 }
 
 impl std::error::Error for Error {}
+
+impl From<std::io::Error> for Error {
+    fn from(value: std::io::Error) -> Self {
+        Self::Io(value.to_string())
+    }
+}
